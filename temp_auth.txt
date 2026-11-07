@@ -1,0 +1,70 @@
+En línea: 1 Carácter: 12
++ import { ok, problem } from '../../_http'; import 
+{ hashPin, verifica ...
++            ~
+Falta un argumento en la lista de parámetros.
+En línea: 1 Carácter: 60
++ import { ok, problem } from '../../_http'; import 
+{ hashPin, verifica ...
++                                                    
+        ~
+Falta un argumento en la lista de parámetros.
+En línea: 1 Carácter: 507
++ ... , crear cookie sesión export const _login = 
+async ({ request, cookies ...
++                                                    
+             ~
+Falta un argumento en la lista de parámetros.
+En línea: 1 Carácter: 560
++ ...  request, cookies }) => {   const body = 
+(await request.json().catch( ...
++                                                    
+              ~
+Se esperaba una expresión después de '('.
+En línea: 1 Carácter: 569
++ ...  cookies }) => {   const body = (await 
+request.json().catch(() => nul ...
++                                                    
+              ~
+Se esperaba una expresión después de '('.
+En línea: 1 Carácter: 570
++ ... cookies }) => {   const body = (await 
+request.json().catch(() => null ...
++                                                    
+              ~
+Falta el paréntesis de cierre ')' en la llamada al 
+método.
+En línea: 1 Carácter: 523
++ ... esión export const _login = async ({ request, 
+cookies }) => {   const ...
++                                                    
+             ~
+Falta la llave de cierre "}" en el bloque de 
+instrucciones o la definición de tipo.
+En línea: 1 Carácter: 579
++ ...  => {   const body = (await 
+request.json().catch(() => null)) as {    ...
++                                                    
+             ~
+Token ')' inesperado en la expresión o la 
+instrucción.
+En línea: 1 Carácter: 662
++ ... ing;     pin?: string;   } | null;      if 
+(!body?.celular || !body?. ...
++                                                    
+            ~~
+El token '||' no es un separador de instrucciones 
+válido en esta versión.
+En línea: 1 Carácter: 783
++ ... ridos');   }      const valido = await 
+verificarPin(body.pin, HARDCOD ...
++                                                    
+             ~
+Falta un argumento en la lista de parámetros.
+No se notificaron todos los errores de análisis. 
+Corrija los errores notificados e inténtelo de nuevo.
+    + CategoryInfo          : ParserError: (:) [], P 
+   arentContainsErrorRecordException
+    + FullyQualifiedErrorId : MissingArgument
+ 
+

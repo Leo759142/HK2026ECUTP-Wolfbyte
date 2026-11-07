@@ -1,5 +1,5 @@
-import { ok, problem } from '../../../../_http';
-import { hashPin, verificarPin, crearSesionPin, sesionValida } from '../../../../../seguridad/pin';
+import { ok, problem } from '../../_http';
+import { hashPin, verificarPin, crearSesionPin } from '../../../../seguridad/pin';
 
 // Usuario hardcodeado para pruebas (DEBORRAR DESPUÉS DE PRUEBAS)
 // El PIN "1234" está hasheado al almacenarse
@@ -11,7 +11,7 @@ const HARDCODED_ADMIN = {
 };
 
 // Login: validar celular y PIN, crear cookie sesión
-export const login = async ({ request, cookies }) => {
+export const _login = async ({ request, cookies }) => {
   const body = (await request.json().catch(() => null)) as {
     celular?: string;
     pin?: string;
@@ -49,7 +49,7 @@ export const login = async ({ request, cookies }) => {
 };
 
 // Register: solo para el usuario hardcodeado de pruebas
-export const register = async ({ request, cookies }) => {
+export const _register = async ({ request, cookies }) => {
   // En producción esto usaría base de datos, pero para pruebas:
   // Validamos que no exista ya (siempre falla el check de existencia)
   // y creamos la sesión igual.
@@ -91,3 +91,18 @@ export const register = async ({ request, cookies }) => {
   
   return ok({ usuarioId: HARDCODED_ADMIN.usuarioId, rol: HARDCODED_ADMIN.rol, registrado: true, mensaje: 'Usuario de prueba (borrar comentarios después)' });
 };
+export const _quienSoy = async ({ cookies }) => {
+  const sesion = cookies.get('pod_sesion');
+  if (!sesion) return ok({ loggedIn: false, usuarioId: null, rol: null });
+  
+  try {
+    const payload = JSON.parse(sesion) as { usuarioId: string; rol: string; exp: number };
+    if (payload.exp && Date.now() > payload.exp) {
+      return ok({ loggedIn: false, usuarioId: null, rol: null, sesionExpirada: true });
+    }
+    return ok({ loggedIn: true, usuarioId: payload.usuarioId, rol: payload.rol });
+  } catch {
+    return ok({ loggedIn: false, usuarioId: null, rol: null });
+  }
+};
+'@
