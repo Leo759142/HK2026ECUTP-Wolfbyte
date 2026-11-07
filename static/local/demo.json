@@ -1,0 +1,13 @@
+{
+  "zona": "barrio-demo",
+  "servicios": [
+    { "id": "s1", "titulo": "Plomería rápida", "categoria": "hogar", "zona": "barrio-demo" },
+    { "id": "s2", "titulo": "Clases de guitarra", "categoria": "educacion", "zona": "barrio-demo" }
+  ],
+  "favores": [
+    { "id": "f1", "titulo": "Ayuda con mudanza", "estado": "abierto", "zona": "barrio-demo" }
+  ],
+  "puntos_apoyo": [
+    { "id": "p1", "nombre": "Centro comunitario", "tipo": "apoyo", "zona": "barrio-demo" }
+  ]
+}

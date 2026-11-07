@@ -1,0 +1,116 @@
+Asumí que las "3 tablas" son **Requisitos Funcionales (RF)**, **Casos de Uso (CU)** e **Historias de Usuario (HU)**, trazadas entre sí. Quité el QR por completo y lo reemplacé por un **etiquetado funcional**: cada favor, recomendación y alerta lleva una etiqueta de estado visible, y la verificación se hace con un botón de "Se cumplió" que deben pulsar las dos partes, sin código extra.
+
+## Entidades y subsistemas
+
+| Subsistema | Qué resuelve | Entidades de negocio |
+|---|---|---|
+| S1 Identidad y Roles | Quién eres y qué puedes hacer | Usuario, Rol, Membresía |
+| S2 Grupos y Zonas | Dónde y con quién | Grupo (manzana, junta vecinal, comité, gremio), Zona |
+| S3 Proximidad | Oficios y emprendimientos del barrio | Servicio, Visto Bueno |
+| S4 Cadena de Favores | Ayuda sin dinero | Favor, Cierre de favor |
+| S5 Emergencia | Coordinación en crisis | Alerta, Recurso crítico, Directorio de apoyo |
+| S6 Confianza y Etiquetado | Qué tan confiable es algo | Etiqueta funcional, Reputación, Reporte |
+| S7 Publicidad local | Sostenibilidad del proyecto | Anuncio, Anunciante |
+| S8 Offline y Sincronización | Funcionar sin datos | Mutación en cola, Cursor |
+| S9 Seguridad y Privacidad | Proteger a las personas | Sesión, Dispositivo, Ubicación aproximada |
+| S10 Accesibilidad e Idioma | Que cualquiera pueda usarla | Preferencias, Cadenas de texto |
+
+Los roles para Lima urbana, pensados desde lo que ya existe en los barrios, son:
+
+- **Vecino:** cualquier residente con cuenta.
+- **Referente de manzana:** equivale a la delegada o delegado de manzana o junta vecinal, y valida y modera.
+- **Emprendedor:** bodeguero, gasfitero, costurera, mototaxista, quien ofrece un servicio.
+- **Coordinador de emergencia:** líder vecinal o de olla común que activa el modo emergencia en su grupo.
+
+Tu bloque 1 ya decía bien que los roles son datos y no condicionales fijos. Eso permite añadir después las figuras de comunidades más autónomas sin rehacer nada.
+
+## Tabla 1: Requisitos Funcionales
+
+Prioridad: **A** = imprescindible para la demo, **M** = importante si hay tiempo, **B** = hoja de ruta.
+
+| Código | Requisito | Subsistema | Prio. |
+|---|---|---|---|
+| RF01 | Registrarse con celular y alias, sin datos innecesarios; acceso rápido con PIN | S1 | A |
+| RF02 | Unirse a un grupo por búsqueda de zona o por enlace de invitación compartido por WhatsApp | S2 | A |
+| RF03 | Roles como datos: el sistema permite o niega acciones según el rol, no según código fijo | S1 | A |
+| RF04 | El Referente puede aprobar ingresos, moderar y ocultar contenido de su grupo | S2 / S6 | M |
+| RF05 | Publicar un servicio u oficio con categoría, descripción y horario en máximo 3 pasos | S3 | A |
+| RF06 | Buscar servicios cercanos por categoría y zona | S3 | A |
+| RF07 | Dar un Visto Bueno a un servicio, con comentario corto | S3 / S6 | A |
+| RF08 | Mostrar etiqueta de verificación en cada Visto Bueno ("de vecino del grupo", "tras favor cerrado") | S6 | A |
+| RF09 | Publicar un favor (préstamo, ayuda temporal, trueque de habilidades, movilidad solidaria) en máximo 3 pasos | S4 | A |
+| RF10 | Ofrecerse para un favor y acordar con quien lo pidió | S4 | A |
+| RF11 | Cerrar un favor con confirmación de ambas partes ("Se cumplió") y agradecimiento público | S4 / S6 | A |
+| RF12 | Activar el modo emergencia del grupo (solo Coordinador) | S5 | A |
+| RF13 | En emergencia, reportar una necesidad con tipo, urgencia y ubicación aproximada | S5 | A |
+| RF14 | Mostrar el directorio de servicios y grupos de apoyo disponibles en emergencia | S5 | A |
+| RF15 | Tablero de ayuda humanitaria y recursos críticos compartibles (agua, gas, medicinas, refugio) | S5 | M |
+| RF16 | Sugerir alertas desde fuentes oficiales para que el Coordinador las confirme | S5 | B |
+| RF17 | Funcionar sin conexión: leer, publicar y quedar en cola; mostrar el estado de cada acción | S8 | A |
+| RF18 | Sincronizar la cola al volver la señal sin duplicar datos | S8 | A |
+| RF19 | Ocultar la ubicación exacta: mostrar solo sector o manzana aproximada | S9 | A |
+| RF20 | Limitar publicaciones de cuentas nuevas y permitir reportar abusos | S6 / S9 | M |
+| RF21 | Mostrar anuncios locales etiquetados "Patrocinado" | S7 | M |
+| RF22 | Suspender todos los anuncios mientras haya emergencia activa | S7 / S5 | M |
+| RF23 | Tutorial inicial guiado, breve y repetible | S10 | A |
+| RF24 | Interfaz en español completo y selector de idioma con quechua en los flujos críticos | S10 | M |
+| RF25 | Botones grandes, contraste alto y mensajes de error que expliquen cómo corregir | S10 | A |
+
+## Tabla 2: Casos de Uso
+
+| Código | Caso de uso | Actor principal | Resultado | RF |
+|---|---|---|---|---|
+| CU01 | Registrarse e ingresar a mi barrio | Vecino | Cuenta creada y unida a un grupo | RF01, RF02 |
+| CU02 | Aprobar o rechazar un nuevo vecino | Referente | Grupo con miembros conocidos | RF03, RF04 |
+| CU03 | Ofrecer mi oficio o negocio | Emprendedor | Servicio visible en el directorio | RF05 |
+| CU04 | Buscar un servicio de confianza cerca | Vecino | Lista con Vistos Buenos y etiquetas | RF06, RF08 |
+| CU05 | Recomendar a quien me atendió | Vecino | Visto Bueno registrado y etiquetado | RF07, RF08 |
+| CU06 | Pedir un favor | Vecino | Favor abierto en el muro | RF09 |
+| CU07 | Ofrecerme para ayudar | Vecino | Acuerdo con quien pidió | RF10 |
+| CU08 | Cerrar un favor | Vecino (ambas partes) | Favor "Cerrado y confirmado" | RF11 |
+| CU09 | Activar el modo emergencia | Coordinador | Interfaz cambia a emergencia y anuncios se pausan | RF12, RF22 |
+| CU10 | Reportar una necesidad en emergencia | Vecino | Alerta en el tablero con ubicación aproximada | RF13, RF19 |
+| CU11 | Consultar apoyo disponible en emergencia | Cualquiera | Directorio de servicios y grupos | RF14, RF15 |
+| CU12 | Publicar sin conexión y sincronizar después | Cualquiera | Acción en cola; luego confirmada | RF17, RF18 |
+| CU13 | Moderar contenido | Referente | Contenido oculto o aprobado | RF04, RF20 |
+| CU14 | Publicar un anuncio local | Anunciante | Anuncio etiquetado en la zona | RF21 |
+
+## Tabla 3: Historias de Usuario
+
+| ID | Historia | Criterio de aceptación | CU |
+|---|---|---|---|
+| HU01 | Como vecina nueva, quiero entrar a mi grupo con mi celular, para conocer qué hay en mi cuadra sin complicarme | Con alias y número creo la cuenta y pido unirme; veo mi estado "Pendiente" | CU01 |
+| HU02 | Como delegada de manzana, quiero aprobar a quién entra, para que el grupo siga siendo de gente conocida | Veo solicitudes y apruebo o rechazo con un toque | CU02 |
+| HU03 | Como gasfitero, quiero publicar mi servicio, para conseguir clientes del barrio sin pagar publicidad | Lo publico en 3 pasos y aparece en la búsqueda | CU03 |
+| HU04 | Como vecino con una fuga, quiero ver gasfiteros recomendados cerca, para no contratar a un desconocido | Los resultados muestran etiqueta de recomendación y cantidad de Vistos Buenos | CU04 |
+| HU05 | Como clienta satisfecha, quiero recomendar a la costurera, para ayudarla a conseguir más trabajo | Dejo un Visto Bueno con comentario corto y queda con su etiqueta | CU05 |
+| HU06 | Como vecino, quiero pedir una escalera prestada, para resolver algo sin gastar | Publico en 3 pasos; el favor aparece como "Abierto" | CU06 |
+| HU07 | Como vecina, quiero ofrecerme a ayudar con una mudanza, para colaborar con alguien de mi cuadra | Mi oferta queda visible para quien pidió y puede aceptarla | CU07 |
+| HU08 | Como vecino que recibió ayuda, quiero cerrar el favor y agradecer, para que quede constancia | Cuando ambos pulsamos "Se cumplió", el favor pasa a "Confirmado" | CU08 |
+| HU09 | Como líder de una olla común, quiero activar el modo emergencia, para coordinar agua, gas y alimentos | Al activarlo, cambia la pantalla y se pausan los anuncios | CU09 |
+| HU10 | Como vecino en apuros, quiero reportar que me falta agua, para que alguien cercano me ayude | Elijo tipo y urgencia en 3 pasos; no se publica mi dirección exacta | CU10 |
+| HU11 | Como persona afectada, quiero ver qué ayuda hay cerca, para saber a quién acudir | Veo un directorio simple con grupos y servicios activos | CU11 |
+| HU12 | Como vecino sin saldo, quiero publicar aunque no tenga internet, para no perder mi pedido | Veo mi publicación como "Pendiente de enviar" y luego "Enviada" | CU12 |
+| HU13 | Como delegada, quiero ocultar publicaciones abusivas, para cuidar al grupo | Oculto una publicación y queda registrada con mi nombre | CU13 |
+| HU14 | Como dueño de una bodega, quiero anunciarme en mi zona, para atraer clientes cercanos | Mi anuncio sale con "Patrocinado" y desaparece en emergencia | CU14 |
+| HU15 | Como adulto mayor, quiero botones grandes y mensajes claros, para usar la app sin ayuda | Cualquier error me dice qué corregir y los botones son fáciles de tocar | CU04, CU06 |
+
+## Etiquetado funcional (sin QR)
+
+La confianza se construye con estas etiquetas visibles, que cualquier persona entiende sin explicación:
+
+- **Favor:** Abierto → Acordado → Cerrado y confirmado (cuando las dos partes pulsan "Se cumplió").
+- **Visto Bueno:** "De vecino de tu grupo", "Tras un favor confirmado" o "Sin verificar".
+- **Servicio:** "Recomendado por N vecinos de tu zona".
+- **Alerta:** tipo (agua, alimento, salud, refugio), urgencia 1 a 3, y fuente (vecino o confirmada por Coordinador).
+- **Acción pendiente:** "Pendiente de enviar" y "Enviada" para el estado offline.
+
+Con esto cubres el mismo objetivo que el QR (que haya una prueba de que dos personas interactuaron) con un botón y un campo de estado en la base de datos.
+
+## Dos ajustes realistas para 48 horas
+
+**Simplifica el bloque 3.** El texto que pegaste habla de CRDT y contadores concurrentes, lo cual es correcto en teoría, pero te conviene implementar solo dos reglas: los Vistos Buenos y publicaciones se **agregan como eventos y nunca se editan**, y el perfil propio usa "última modificación gana". El puntaje de reputación se calcula contando esos eventos al mostrarlo, sin necesitar un contador distribuido aparte. Dejas el resto como hoja de ruta.
+
+**Contexto peruano que respalda el modelo.** Las ollas comunes ya son organizaciones vecinales reconocidas por ley (Ley 31458), aunque sus lideresas esperaban la reglamentación . En Lima y Callao se identificó la necesidad en casi 1.200 locales que atienden a unas 80 mil personas . Eso respalda que el rol de Coordinador y el modo emergencia correspondan a figuras que ya existen en la vida de los barrios.
+
+

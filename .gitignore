@@ -1,12 +1,14 @@
 node_modules
 
 # Output
+/.kilo
 .output
 .vercel
 .netlify
 .wrangler
 /.svelte-kit
 /build
+/.docs/MrMDs
 
 # OS
 .DS_Store

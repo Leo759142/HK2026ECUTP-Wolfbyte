@@ -1,43 +1,63 @@
-// Cada acción del usuario se guarda local + en cola, en UNA transacción.
-type Estado = 'pendiente' | 'enviando' | 'confirmado' | 'conflicto' | 'fallido';
+import { writable, get } from 'svelte/store';
+import { outboxDAO, type OperacionOutbox } from '../datos/outbox';
+import { iniciarAutoSync, vaciarColaOutbox } from './motor';
+import { AnunciadorAccesible } from '../accesibilidad/anunciador';
 
-interface Mutacion {
-  id: string;            // UUID: la idempotencia (el servidor ignora repetidos)
-  entidad: string;       // 'favor', 'visto_bueno', 'alerta'...
-  estrategia: 'solo_agregar' | 'or_set' | 'fusion' | 'ultimo_gana';
-  baseRev?: number;      // revisión desde la que editó el cliente (para 409)
-  payload: unknown;
-  creadoEn: number;
-  intentos: number;
-  estado: Estado;
+export const operacionesOutbox = writable<OperacionOutbox[]>([]);
+export const sincronizando = writable(false);
+
+const anunciador = new AnunciadorAccesible();
+let iniciado = false;
+
+export async function refrescarOutbox() {
+	operacionesOutbox.set(await outboxDAO.pendientes());
 }
 
-class Outbox {
-  cola = $state<Mutacion[]>([]);           // la UI lee esto: refleja el estado real
-  pendientes = $derived(this.cola.filter(m => m.estado !== 'confirmado').length);
-
-  async encolar(m: Omit<Mutacion, 'id' | 'creadoEn' | 'intentos' | 'estado'>) {
-    const nueva: Mutacion = { ...m, id: crypto.randomUUID(),
-      creadoEn: Date.now(), intentos: 0, estado: 'pendiente' };
-    await dao.transaccion(async () => {    // atómico: dato + cola o nada
-      await dao.aplicarLocal(nueva);       // UI optimista: se ve de inmediato
-      await dao.guardarMutacion(nueva);
-    });
-    this.cola.push(nueva);
-    this.vaciar();                         // intenta enviar si hay red
-  }
-
-  async vaciar() {
-    if (!navigator.onLine) return;
-    // Orden por antigüedad: "crear" siempre llega antes que "editar"
-    for (const m of [...this.cola].sort((a, b) => a.creadoEn - b.creadoEn)) {
-      if (m.estado === 'confirmado') continue;
-      m.estado = 'enviando';
-      const r = await enviar(m).catch(() => null);
-      if (r?.ok) m.estado = 'confirmado';
-      else if (r?.status === 409) { m.estado = 'conflicto'; await resolver(m, r.remoto); }
-      else { m.estado = 'pendiente'; m.intentos++; await esperar(backoff(m.intentos)); break; }
-    }
-  }
+export async function encolarAccion(entidad: string, payload: unknown, operacion: 'crear' | 'actualizar' = 'crear') {
+	const op = await outboxDAO.encolar({ op_id: crypto.randomUUID(), entidad, operacion, payload });
+	anunciador.vocalizar('Publicación guardada localmente. Se enviará al recuperar cobertura.', 'polite');
+	await refrescarOutbox();
+	if (typeof navigator !== 'undefined' && navigator.onLine) void sincronizarAhora();
+	return op.op_id;
 }
-export const outbox = new Outbox();
+
+export async function sincronizarAhora() {
+	if (get(sincronizando)) return;
+	sincronizando.set(true);
+	try {
+		const r = await vaciarColaOutbox();
+		if (r.enviadas) anunciador.vocalizar(`${r.enviadas} cambio(s) sincronizado(s).`, 'polite');
+	} finally {
+		sincronizando.set(false);
+		await refrescarOutbox();
+	}
+}
+
+/** Fachada compatible con el nombre legacy usado en el dominio/sync anterior. */
+export class OutboxComunitario {
+	get mutaciones() {
+		return get(operacionesOutbox).map((o) => ({
+			id: o.op_id,
+			accion: o.entidad,
+			payload: typeof o.payload === 'string' ? o.payload : JSON.stringify(o.payload),
+			estadoOffline: (o.estado === 'aplicada' ? 'Enviada' : 'Pendiente de enviar') as 'Pendiente de enviar' | 'Enviada',
+			creadoEn: Date.parse(o.creado_en)
+		}));
+	}
+	get longitud() {
+		return get(operacionesOutbox).length;
+	}
+	encolarAccion(accion: string, payload: unknown) {
+		void encolarAccion(accion, payload);
+	}
+	removerMutacion(_id: string) {
+		/* aplicado por motor */
+	}
+}
+
+export function iniciarOutbox() {
+	if (iniciado || typeof window === 'undefined') return;
+	iniciado = true;
+	iniciarAutoSync();
+	void refrescarOutbox();
+}

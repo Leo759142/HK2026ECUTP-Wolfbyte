@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="pwa-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="100%" stop-color="#0d9488" />
+    </linearGradient>
+    <linearGradient id="heart-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f97316" />
+      <stop offset="100%" stop-color="#ea580c" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#pwa-grad)" />
+  <!-- House and neighborhood community outline -->
+  <path d="M256 100 L380 200 V380 H300 V290 H212 V380 H132 V200 Z" fill="#ffffff" fill-opacity="0.95" />
+  <!-- Heart and Hands unity symbol -->
+  <path d="M256 220 C240 195 210 195 195 212 C178 230 180 256 200 276 L256 324 L312 276 C332 256 334 230 317 212 C302 195 272 195 256 220 Z" fill="url(#heart-grad)" />
+  <!-- Solidarity connection dots -->
+  <circle cx="170" cy="180" r="16" fill="#fef08a" />
+  <circle cx="342" cy="180" r="16" fill="#fef08a" />
+  <circle cx="256" cy="140" r="14" fill="#38bdf8" />
+</svg>

@@ -17,10 +17,8 @@
 
 	let currentPath = $state('');
 
-	afterNavigate((navigation) => {
-		if ('url' in navigation) {
-			currentPath = navigation.url.pathname;
-		}
+	afterNavigate(({ to }) => {
+		currentPath = to?.url.pathname ?? currentPath;
 	});
 </script>
 

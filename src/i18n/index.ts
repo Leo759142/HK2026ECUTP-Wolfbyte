@@ -17,17 +17,17 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
   qu: {
     // Inicializado en español como contingencia activa para evitar caídas de renderizado (Graceful Degradation)
     // El traductor inyectará los morfemas del quechua chanka/collao en la siguiente iteración sin alterar el núcleo
-    'emergencia.titulo': 'LLAKTA AYUDA TARPUY (EMERGENCIA)',
-    'emergencia.subtitulo': 'Suministros en tu manzana',
+    'emergencia.titulo': 'HUQ MUSYANA (EMERGENCIA)',
+    'emergencia.subtitulo': 'Suministrokunata chay manzanapi kachkan',
     'emergencia.alerta_vacio': 'Manam kanchu alerts kay pacha.',
     'favor.estado.abierto': 'Kichasqa',
-    'favor.estado.acordado': 'Ayuda en camino',
+    'favor.estado.acordado': 'Yanapanapaq',
     'favor.estado.cerrado': 'Wichqasqa',
-    'favor.boton.cumplido': 'Se cumplió',
-    'offline.pendiente': 'Pendiente de enviar',
-    'offline.enviado': 'Enviada',
-    'error.generico': 'Pantay pacha',
-    'error.permiso': 'Manam permisochu kani.'
+    'favor.boton.cumplido': 'Llamkkasqa (Wichqasqa)',
+    'offline.pendiente': 'Ñawpaqta ruwanapaq',
+    'offline.enviado': 'Enviarqa',
+    'error.generico': 'Pantay kachkan',
+    'error.permiso': 'Permisota manam kankichu.'
   }
 };
 

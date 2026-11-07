@@ -1,9 +1,9 @@
-# Package Managers
+# Donde se manejan los paquetes JSON y YAML
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
 bun.lock
 bun.lockb
 
-# Miscellaneous
+# Miscelánea
 /static/

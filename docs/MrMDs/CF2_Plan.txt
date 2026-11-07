@@ -1,0 +1,67 @@
+Con el reto aún desconocido, el Kanban ideal separa un **núcleo agnóstico al problema** (listo antes de saber el tema) de un **módulo de dominio** que se rellena cuando el jurado revele el reto. Ese núcleo sale de tus matrices: offline-first (RF02), anonimización (RF06), accesibilidad (RF05/CU04) y verificación de riesgo (RF01/CU01). Una nota de calendario: hoy es viernes 18:06 y el bloque de planificación empieza a las 19:00, así que lo primero es montar el tablero.
+
+## Reglas del tablero
+
+**Columnas:** Backlog → Listo (con criterio de aceptación) → En curso → Revisión (PR o prueba) → Hecho (desplegado). Sin "Pruebas" separada, porque en 48 h cada tarjeta se prueba en Revisión.
+
+**Límite WIP:** máximo 2 tarjetas en curso por persona y 1 PR abierto por persona. Un PR sin revisar más de 30 min bloquea al equipo.
+
+**Etiquetas por tarjeta:** rol (M, F, B, T para todos), RF/CU que cubre y el CF que protege. Una tarjeta sin RF o CU asociado es candidata a eliminarse (regla 1-1-1).
+
+**Definición de Hecho:** funciona en el deploy, se probó en un celular real y pasa la revisión de teclado y contraste.
+
+## Roles y su territorio
+
+| Rol | Responde por | Entregable que nadie más toca |
+|---|---|---|
+| Modelero | Modelo de datos, esquema SQLite local y PostgreSQL, contratos (tipos/OpenAPI), reglas de dominio, prompts o heurísticas de IA | `schema.sql`, `tipos.ts`, contrato OpenAPI |
+| Backendero | Endpoints, sincronización, autenticación mínima, integraciones (IA, WhatsApp, mapas), despliegue | API en Render/Vercel respondiendo |
+| Frontendero | Shell PWA, componentes accesibles, flujos CU, estados de carga y error, tokens de diseño | UI conectada y navegable |
+| Todos (T) | Definir el problema, pruebas, guion del pitch y video | Pitch y demo |
+
+El Modelero es el cuello de botella natural. Por eso su primer entregable es el contrato de datos, con el que Backend y Frontend pueden trabajar en paralelo usando mocks. Esto sigue el patrón DAO/repositorio de tus guías, que separa persistencia, dominio y UI. [ppl-ai-file-upload.s3.amazonaws]
+
+## Día 1: viernes 19:00 a sábado 19:00
+
+| Bloque | Todos (T) | Modelero | Backendero | Frontendero |
+|---|---|---|---|---|
+| Vie 19:00–21:00 | Escuchar el reto. Aplicar 1-1-1: usuario, problema, función core. Mapear el reto a RF/CU | Borrador de entidades | Repo, CI y deploy "hola mundo" | Shell PWA y tokens de accesibilidad |
+| Vie 21:00–00:00 | Congelar alcance y asignar tarjetas | Contrato v1 (`tipos.ts` + OpenAPI) | Endpoints con datos falsos | Pantalla del flujo core con mocks |
+| Sáb 00:00–07:00 | **Dormir por turnos** (mínimo 5 h por persona) | | | |
+| Sáb 08:00–14:00 | Revisión cruzada de PR | Esquema final y semillas de datos reales | **Meta 14:00:** API y BD respondiendo (RF02, RF06) | Componentes accesibles; conexión a la API real |
+| Sáb 14:00–16:00 | **Mentor:** mostrar el esqueleto con preguntas concretas | Ajustar según feedback | Ajustar según feedback | Ajustar según feedback |
+| Sáb 16:00–19:00 | Prueba en celular real y auditoría de accesibilidad | Heurística de riesgo/IA (RF01) | Sincronización diferida | Estados de error y de carga |
+
+Dormir de 00:00 a 07:00 contradice la "noche de maquillaje" del plan original. Mi recomendación es trabajar por turnos escalonados en vez de pasar la noche entera. El código escrito sin dormir suele costar más horas de corrección de las que ahorra.
+
+## Día 2: sábado 19:00 a domingo 12:00
+
+| Bloque | Tarea |
+|---|---|
+| Sáb 19:00–00:00 | Flujo completo extremo a extremo (CU01, CU02, CU05). Frontendero pule jerarquía visual y mensajes. Backendero endurece errores. Modelero prepara datos de demo creíbles. |
+| Dom 00:00–05:00 | Un turno corto de guardia (una persona) para bugs; el resto duerme. |
+| Dom 06:00–08:00 | Pruebas finales de deploy desde otro dispositivo, revisión de WCAG y ensayo del guion. |
+| **Dom 08:00** | **Congelamiento:** solo se permiten hotfixes de bloqueo, aprobados por los tres. |
+| Dom 08:00–11:00 | Grabar la demo (máx. 2 min) y ensayar el pitch dos veces con cronómetro. |
+| Dom 11:00–12:00 | Entrega, respaldo del video en OneDrive y enlaces verificados. |
+
+## Tarjetas del núcleo agnóstico
+
+Estas se pueden crear en Backlog desde hoy, sea cual sea el reto:
+
+- **M:** esquema base con `id`, `creado_en`, `actualizado_en`, `sincronizado` y `version_lww` para resolver conflictos por última escritura, como en tus guías .
+- **B:** capa de enmascaramiento antes de cualquier llamada externa (RF06), y endpoint de sincronización idempotente.
+- **F:** componentes con botones de 48 px, foco visible, error junto al campo y progreso "Paso 1 de 3" (RF05, CU04).
+- **F+B:** indicador de red (online/offline) y cola de envío pendiente (RF02, CU02).
+- **T:** guion del pitch con un dato de INEI o El Comercio ya archivado. Por ejemplo, la pobreza monetaria fue 27,6% en 2024  y bajó a 25,7% en 2025 .
+
+## Cómo encaja el módulo de dominio
+
+Tus archivos ya describen un candidato completo: una PWA offline-first para pedidos de agua en cisterna y ollas comunes, con tres roles (vecino, operador, administrador), SQLite en el dispositivo y PostgreSQL central. Si el reto resulta cercano a hogares o comunidades, esa base ahorra el día 1. Si el reto va por información confiable (la edición 2025 pidió productos digitales para acceder a información confiable ), reutilicen el núcleo y reemplacen el dominio por verificación de contenido. [ppl-ai-file-upload.s3.amazonaws]
+## Recomendaciones de riesgo
+
+- **Decidan el problema en 2 horas, no en 5.** Cada hora de indecisión se come tiempo del Modelero, que bloquea a los demás.
+- **Un solo canal de verdad:** el tablero. Si algo se decide en voz alta, se anota en la tarjeta.
+- **Plan B de demo:** el video grabado el domingo, más una segunda toma por si falla la primera.
+- **No promuevan las 5 CF a la vez.** Elijan dos para demostrar (sugiero CF2 offline y CF5 accesibilidad) y mencionen las otras como hoja de ruta.
+- **Ahora mismo, antes de las 19:00:** cada uno confirma acceso al repositorio, al despliegue y al tablero, y el equipo decide quién preside las revisiones de PR.

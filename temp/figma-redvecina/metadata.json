@@ -1,0 +1,6 @@
+{
+  "name": "RedVecina - Solidaridad, Oficios y Ayuda Barrial",
+  "description": "PWA comunitaria para intercambio solidario, cadena de favores sin dinero, directorio de oficios locales con Visto Bueno Vecinal y tablero de ayuda humanitaria en emergencias.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

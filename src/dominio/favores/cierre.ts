@@ -1,25 +1,25 @@
+import type { FavorConfirmacion, RolEnFavor, UUID } from '../tipos/tipos';
+
 export interface ConfirmacionCierre {
-  favorId: string;
-  usuarioId: string; // Vecino emisor de la confirmación
-  fecha: Date;
+	id?: UUID;
+	favor_id: UUID;
+	usuario_id: UUID;
+	rol_en_favor: RolEnFavor;
+	metodo: 'qr' | 'boton';
+	confirmado_en?: string;
 }
 
 export class ServicioCierreFavor {
-  /**
-   * Verifica de manera pura si un favor cumple con las condiciones para cerrarse.
-   * Ambas partes deben haber pulsado de forma independiente "Se cumplió".
-   */
-  static evaluarCierreMutuo(
-    favorId: string,
-    solicitanteId: string,
-    colaboradorId: string,
-    listaConfirmaciones: ConfirmacionCierre[]
-  ): boolean {
-    const confirmacionesDelFavor = listaConfirmaciones.filter(c => c.favorId === favorId);
-    
-    const haConfirmadoSolicitante = confirmacionesDelFavor.some(c => c.usuarioId === solicitanteId);
-    const haConfirmadoColaborador = confirmacionesDelFavor.some(c => c.usuarioId === colaboradorId);
-
-    return haConfirmadoSolicitante && haConfirmadoColaborador;
-  }
+	static evaluarCierreMutuo(
+		favorId: UUID,
+		solicitanteId: UUID,
+		ayudanteId: UUID,
+		listaConfirmaciones: Array<ConfirmacionCierre | FavorConfirmacion>
+	): boolean {
+		const delFavor = listaConfirmaciones.filter((c) => c.favor_id === favorId);
+		const haSolicitante = delFavor.some((c) => c.usuario_id === solicitanteId && c.rol_en_favor === 'solicitante');
+		const haAyudante = delFavor.some((c) => c.usuario_id === ayudanteId && c.rol_en_favor === 'ayudante');
+		return haSolicitante && haAyudante;
+	}
 }
+

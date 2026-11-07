@@ -1,0 +1,63 @@
+Para que puedas sentarte a codear con una guía infalible en tu Kanban, he reformulado los 5 segmentos acoplándolos milimétricamente a los componentes, roles, clasificaciones sociales y flujos de datos CRDT del diagrama.
+
+1. El Núcleo del Sistema y Control de Acceso Social (RBAC)
+
+El dominio puro de tu software (src/lib/dominio/) mapea directamente el SISTEMA SOCIAL (núcleo crítico) del diagrama, gobernando las interacciones entre los actores mediante un modelo de Control de Accesos Basado en Roles (RBAC) desacoplado de la interfaz.
+• Roles del Sistema Social: El archivo rbac.ts modela las identidades del diagrama como tipos de datos inmutables: Vecino (usuario base), Referente de manzana (modera y valida contenido en su zona), Emprendedor (publica oficios) y Coordinador de emergencia (activa alertas globales).
+• Clasificaciones y Grupos: En Grupo.ts, los vecinos se subdividen por agrupaciones sociales basadas en Zonas (manzanas, barrios) y Tipos (comunitario, comercial, ayuda mutua). Las politicas.ts dictan dinámicamente qué rol puede interactuar con cada clasificación social (por ejemplo, solo el Coordinador puede publicar en la clasificación de Emergencia).
+
+2. Persistencia Local Híbrida y el "Store Outbox"
+
+Representa el almacenamiento del Cliente PWA en el diagrama, encapsulando la base de datos distribuida que da soporte a la resiliencia comunitaria.
+• Estructura de Datos Local: Implementa el patrón DAO. Al inicializar la app, sqlite.worker.ts levanta una base de datos SQLite WASM sobre OPFS para gestionar de forma relacional y local el inventario de oficios, favores y estados. Si el navegador del vecino falla en inicializar OPFS, respaldoDexie.ts conmuta en caliente a IndexedDB.
+• El Buffer de Salida: Todo clic o acción del Vecino en la UI accesible no viaja a la red; se inserta inmediatamente en el archivo outbox.svelte.ts (el buffer del diagrama). El Service Worker actúa como el despertador de la cola: detecta la recuperación de la señal de red y dispara el flujo de vaciado hacia la API Sync Push/Pull del servidor mediante lotes de datos estrictamente idempotentes.
+
+3. Sincronización Avanzada mediante CRDTs por Entidad
+
+Este segmento unifica la Resolución de conflictos (por entidad) del Servidor con las estrategias de réplica del cliente en src/lib/sync/estrategias/, sustituyendo algoritmos tradicionales por CRDTs (Conflict-free Replicated Data Types) lógicos:
+• CRDT Append-Only (Registro de crecimiento positivo): Implementado en soloAgregar.ts. Diseñado para el Muro de favores, Comentarios y el Visto Bueno Vecinal. Los datos de los vecinos se insertan como un flujo histórico inmutable de eventos. Al sincronizar con PostgreSQL, el servidor concatena los eventos cronológicamente, impidiendo que el corte de red de un vecino borre o pise el aporte de otro.
+• CRDT PN-Counter (Contadores Positivos/Negativos): Implementado en contadorPN.ts para el sistema de Reputación y Confianza. Permite sumar o restar "Vistos Buenos" concurrentemente desde múltiples dispositivos offline, convergiendo en un puntaje exacto y unificado en el servidor sin bloqueos de tablas.
+• CRDT LWW-Element-Set (Last-Write-Wins): Implementado en ultimoGana.ts. Se acopla únicamente al perfil del usuario propio o configuraciones individuales, donde el cambio con el timestamp más reciente en el dispositivo pisa el estado anterior.
+
+4. Orquestación del Modo Emergencia Global
+
+Mapea el flujo crítico que conecta al Coordinador de emergencia, las fuentes oficiales del Entorno Externo y el bloqueo de servicios ordinarios en la app.
+• Activación del Protocolo: El archivo protocolo.ts escucha la ingesta de alertas (que el servidor lee de APIs de contingencia o que el Coordinador gatilla manualmente en la UI). Al propagarse el estado, activa un flag reactivo global en el +layout.svelte.
+• Mutación de la Interfaz Social: Al entrar en modo emergencia, los componentes de Publicidad Local y los banners de anunciantes ejecutan una política de auto-ocultamiento inmediato (bloqueo de anuncios en el diagrama). El Tablero de Ayuda Humanitaria (RecursoCritico.ts) se apodera del orden visual (Viewport), forzando el renderizado prioritario de suministros críticos como agua, gas o refugios geolocalizados, optimizando la memoria y el rendimiento del PWA en situaciones de desastre.
+
+5. Seguridad Comunitaria, Anonimización y Abuso
+
+Mapea el bloque de Seguridad: cifrado, rate limit del Servidor y las utilidades de protección local del cliente.
+• Privacidad de Localización: El archivo geohash.ts intercepta las coordenadas del dispositivo y ejecuta las reglas de anonimizar.ts. En lugar de despachar la latitud y longitud exacta del hogar del vecino a la base de datos distribuida, calcula un área aproximada a nivel de manzana o sector social, cumpliendo con la protección de datos sensibles.
+• Cifrado en Reposo y Anti-Abuso: Los tokens de sesión y PINs offline se procesan mediante cifradoLocal.ts utilizando la API WebCrypto del navegador, aislando la base de datos SQLite local de accesos externos maliciosos. Finalmente, antiAbuso.ts inyecta reglas de Rate Limiting en el cliente y en hooks.server.ts, mitigando la inyección masiva de registros falsos (spam de favores u oficios) cuando un nodo reconecta repentinamente a la plataforma.
+
+
+6. Sistema de Reputación Vecinal y "Visto Bueno" Verificable
+
+Vincula el Visto Bueno Vecinal (recomendación) del Sistema Social con las reglas lógicas en src/lib/dominio/confianza/reputacion.ts.
+• Lógica del Visto Bueno: Cuando un Vecino aprueba el trabajo de un Emprendedor (RF02), el archivo VistoBueno.ts genera un registro de evento inmutable que incluye el ID del emisor, el ID del receptor y un campo de texto corto.
+• Cálculo de Reputación: En lugar de guardar una nota promedio estática en la base de datos (que causaría colisiones offline), la función en reputacion.ts procesa el flujo de eventos acumulados mediante el CRDT de contadores. Al calcular los "votos a favor" concurrentes, el sistema asigna dinámicamente las Insignias de progreso y emprendimiento (RF12) directamente en el perfil del programador, visibles en todo el directorio de proximidad.
+
+7. Internacionalización Crítica e Inclusión en Brecha Digital
+
+Mapea el módulo UI Accesible + i18n del Cliente PWA con las carpetas de idiomas y accesibilidad local.
+• Flujos de Idioma Diferenciados: En static/locales/, el archivo es.json contiene la traducción de toda la plataforma, mientras que qu.json (Quechua) u otros idiomas locales se configuran específicamente para el flujo crítico de 3 clics (RF03) y el Modo Emergencia.
+• Accesibilidad bajo Estrés: El código en src/lib/accesibilidad/ utiliza tokens de CSS de alto contraste y el archivo anunciador.ts inyecta propiedades aria-live en los componentes. Esto garantiza que si un vecino con dificultades visuales o un adulto mayor maneja la aplicación durante una alerta, los lectores de pantalla vocalicen de inmediato los cambios de estado del Tablero de Ayuda sin retrasos de renderizado.
+
+8. Gestión de Conectividad con Backoff Exponencial
+
+Mapea la relación del diagrama donde el Service Worker despierta la cola (Store Outbox) hacia la API Sync Push/Pull.
+• El Despertador de la Red: El archivo service-worker.ts monitorea el evento sync del navegador o el cambio de estado en el IndicadorRed.svelte. Al recuperar la conexión, invoca a reproductor.ts.
+• Algoritmo de Reintento (Backoff): Si el servidor web está saturado porque cientos de vecinos reconectan al mismo tiempo tras un corte de luz, reproductor.ts no bombardea la API. Aplica un retraso incremental (ej. reintentar en 2s, luego 4s, 8s, 16s) coordinado con antiAbuso.ts para estabilizar el tráfico de subida hacia PostgreSQL, asegurando la resiliencia de la infraestructura mínima de la plataforma.
+
+9. Ingesta de Alertas del Entorno Externo y Notificaciones Push
+
+Conecta el bloque del Entorno Externo (Fuentes oficiales) con los servicios del servidor en src/lib/server/ingesta/ y notificaciones/.
+• Automatización de Contingencias: El script en la carpeta ingesta/ corre tareas en segundo plano en el servidor que parsean feeds (RSS, JSON o web scraping) de entidades meteorológicas o de defensa civil.
+• Propagación Masiva: Cuando se detecta un reporte crítico, se procesa en el backend y se conecta automáticamente con lucia.ts para verificar las sesiones activas. A través de Notificaciones Push (VAPID), el servidor envía la alerta directamente al dispositivo del usuario. El Service Worker local procesa la notificación incluso si la app del vecino está cerrada, forzando la descarga del delta de datos más reciente de la emergencia.
+
+10. Ciclo de Vida del Favor y Cierre por Botón de Intercambio
+
+Mapea la Cadena de Favores del Sistema Social y el componente TarjetaFavor.svelte con la máquina de estados del dominio.
+• Máquina de Estados Inmutable: El archivo Favor.ts restringe las mutaciones del flujo de ayuda comunitaria. Un favor nace en estado ABIERTO en el muro; cuando otro vecino acepta colaborar, muta a ACORDADO bloqueando la edición por terceros mediante las reglas de politicas.ts.
+• Cierre Seguro Sincronizado: En cierre.ts, para cumplir con la eliminación de QRs complejos solicitada, el flujo se resuelve mediante un Botón de Confirmación Mutua. Ambos vecinos presionan "Confirmar Intercambio" en sus respectivas pantallas. Los dos terminales guardan un evento de confirmación en sus carpetas outbox locales de forma independiente. Al reconectar a la red, el servidor recibe ambos fragmentos de datos mediante la API síncrona, hace el match de los IDs, cierra el favor como TERMINADO y publica el agradecimiento en el muro de forma automática.

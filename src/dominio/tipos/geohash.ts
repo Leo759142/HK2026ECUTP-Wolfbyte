@@ -1,18 +1,28 @@
+import type { CoordenadaAprox } from './tipos';
+
+export interface UbicacionAproximada extends CoordenadaAprox {
+	geohash_muro: string;
+}
+
+export function validarCoordenadas(lat: number, lng: number): void {
+	if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+		throw new RangeError('Coordenadas fuera de rango');
+	}
+}
+
+/** Trunca coordenadas a ~100-150m para proteger la ubicación exacta del hogar. */
+export function enmascararCoordenadas(lat: number, lng: number): UbicacionAproximada {
+	validarCoordenadas(lat, lng);
+	const lat_aprox = Math.round(lat * 1000) / 1000;
+	const lng_aprox = Math.round(lng * 1000) / 1000;
+	const token = `${lat_aprox.toFixed(3)},${lng_aprox.toFixed(3)}`;
+	const geohash_muro =
+		typeof btoa !== 'undefined' ? btoa(token).replace(/=+$/, '').slice(0, 8) : token;
+	return { lat_aprox, lng_aprox, geohash_muro };
+}
+
 export class GeohashAnonimizador {
-  /**
-   * Trunca las coordenadas a una longitud corta fija para agrupar visualmente por manzanas o sectores sociales.
-   * Impide de forma determinista la fuga de la latitud y longitud exacta del hogar.
-   */
-  static anonimizarCoordenadas(latitud: number, longitud: number): string {
-    // Heurística base de truncado matemático simulando cajas de aproximación Geohash (Precisión de ~150 metros)
-    const latTruncada = latitud.toFixed(3);
-    const lonTruncada = longitud.toFixed(3);
-    
-    // Genera un token espacial hash codificado en Base32 básico para las consultas de proximidad offline
-    const combinacion = `${latTruncada},${lonTruncada}`;
-    if (typeof btoa !== 'undefined') {
-      return btoa(combinacion).substring(0, 7);
-    }
-    return combinacion;
-  }
+	static anonimizarCoordenadas(latitud: number, longitud: number): string {
+		return enmascararCoordenadas(latitud, longitud).geohash_muro;
+	}
 }

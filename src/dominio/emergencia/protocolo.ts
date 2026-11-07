@@ -1,18 +1,25 @@
-import type { Alerta } from './alerta';
-import type { RecursoCritico } from './recursocritico';
+import type { EstadoAlerta } from '../tipos/tipos';
+import { Alerta } from './alerta';
+import { RecursoCritico } from './recursocritico';
+
+const PRIORIDAD_ALERTA: Record<EstadoAlerta, number> = {
+	confirmado_vecinos: 3,
+	sin_verificar: 2,
+	atendido: 1,
+	descartado: 0
+};
 
 export class ProtocoloEmergencia {
-  /**
-   * Ordena y filtra las alertas priorizando el nivel de urgencia (3 -> 1) para el tablero humanitario.
-   */
-  static priorizarAlertas(alertas: Alerta[]): Alerta[] {
-    return [...alertas].sort((a, b) => b.urgencia - a.urgencia);
-  }
+	/** Prioriza confirmadas por vecinos, luego sin verificar, luego atendidas/descartadas. */
+	static priorizarAlertas(alertas: Alerta[]): Alerta[] {
+		return [...alertas].sort((a, b) => {
+			const p = PRIORIDAD_ALERTA[b.estado] - PRIORIDAD_ALERTA[a.estado];
+			return p !== 0 ? p : b.creado_en.localeCompare(a.creado_en);
+		});
+	}
 
-  /**
-   * Filtra únicamente los suministros que se encuentran activos y disponibles en la zona afectada.
-   */
-  static extraerRecursosDisponibles(recursos: RecursoCritico[]): RecursoCritico[] {
-    return recursos.filter(r => r.disponibilidad);
-  }
+	static extraerRecursosDisponibles(recursos: RecursoCritico[]): RecursoCritico[] {
+		return recursos.filter((r) => r.estaDisponible());
+	}
 }
+
