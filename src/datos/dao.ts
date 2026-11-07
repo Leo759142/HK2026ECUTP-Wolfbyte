@@ -34,6 +34,24 @@ export class DaoLocal {
 		return rows.filter(Boolean) as T[];
 	}
 
+	async contarLocal(entidad: string): Promise<number> {
+		const keys = await this.kv.keys(`entity:${entidad}:`);
+		return keys.length;
+	}
+
+	async listarLocalPaginado<T = Record<string, unknown>>(
+		entidad: string,
+		opts: { limite?: number; offset?: number }
+	): Promise<{ items: T[]; total: number }> {
+		const keys = await this.kv.keys(`entity:${entidad}:`);
+		const total = keys.length;
+		const offset = opts?.offset ?? 0;
+		const limite = opts?.limite ?? total;
+		const pageKeys = keys.slice(offset, offset + limite);
+		const rows = await Promise.all(pageKeys.map((k) => this.kv.get<T>(k)));
+		return { items: rows.filter(Boolean) as T[], total };
+	}
+
 	async eliminarLocal(entidad: string, id: string): Promise<void> {
 		await this.kv.del(`entity:${entidad}:${id}`);
 	}

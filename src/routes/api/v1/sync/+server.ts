@@ -1,22 +1,28 @@
 import { json } from '@sveltejs/kit';
 import { problem } from '../../_http';
+import { dao } from '../../../../datos/dao';
+import { idempotencyStore } from '../../../../lib/db/idempotency';
 
 type Op = { op_id?: string; entidad?: string; operacion?: string; payload?: unknown };
-const idem = new Map<string, { status: number; body: unknown }>();
-const store = new Map<string, Map<string, Record<string, unknown>>>();
-
-function tabla(entidad: string) {
-	if (!store.has(entidad)) store.set(entidad, new Map());
-	return store.get(entidad)!;
-}
 
 async function aplicar(op: Op) {
+	const opId = String(op.op_id ?? '');
+	const existente = await idempotencyStore.obtener(opId);
+	if (existente) return { op_id: opId, ...(existente.resultado as object), idempotente: true };
 	const entidad = String(op.entidad ?? '');
 	const payload = (op.payload && typeof op.payload === 'object' ? (op.payload as Record<string, unknown>) : {});
 	const id = String(payload.id ?? op.op_id ?? '');
 	if (!entidad || !id) return { op_id: op.op_id, resultado: 'rechazada', error: 'entidad/id requerido' };
-	tabla(entidad).set(id, { ...payload, id });
-	return { op_id: op.op_id, resultado: 'aplicada' };
+	const local = await dao.obtenerLocal<Record<string, unknown>>(entidad, id);
+	if (local) {
+		const r = { op_id: op.op_id, resultado: 'duplicada' };
+		await idempotencyStore.guardar(opId, entidad, String(op.operacion ?? 'crear'), r, 200);
+		return r;
+	}
+	await dao.aplicarLocal(entidad, { ...payload, id });
+	const r = { op_id: op.op_id, resultado: 'aplicada' };
+	await idempotencyStore.guardar(opId, entidad, String(op.operacion ?? 'crear'), r, 201);
+	return r;
 }
 
 export const POST = async ({ request }) => {
@@ -26,9 +32,7 @@ export const POST = async ({ request }) => {
 	for (const op of b.operaciones) {
 		const id = String(op?.op_id ?? '');
 		if (!id) { resultados.push({ op_id: id, resultado: 'rechazada', error: 'op_id requerido' }); continue; }
-		if (idem.has(id)) { resultados.push({ op_id: id, resultado: 'duplicada' }); continue; }
 		const r = await aplicar(op);
-		idem.set(id, { status: 200, body: r });
 		resultados.push(r);
 	}
 	return json({ resultados });

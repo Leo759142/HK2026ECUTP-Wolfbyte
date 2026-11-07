@@ -6,9 +6,9 @@ import { ServicioCierreFavor } from '../dominio/favores/cierre';
 /** RF09 publicar favor, RF10 ofrecerse (parcial). */
 export class FavorRepoLocal implements RepositorioFavor {
 	private entidad = 'favores' as const;
-	async listar(filtro?: { zona_id?: string; estado?: string }): Promise<Favor[]> {
-		const rows = await dao.listarLocal<Favor>(this.entidad);
-		return rows.filter((f) => (!filtro?.zona_id || f.zona_id === filtro.zona_id) && (!filtro?.estado || f.estado === filtro.estado));
+	async listar(filtro?: { zona_id?: string; estado?: string }, opts?: { limite?: number; offset?: number }): Promise<Favor[]> {
+		const paginado = await dao.listarLocalPaginado<Favor>(this.entidad, opts);
+		return paginado.items.filter((f) => (!filtro?.zona_id || f.zona_id === filtro.zona_id) && (!filtro?.estado || f.estado === filtro.estado));
 	}
 	async guardar(favor: Favor, opId = crypto.randomUUID()): Promise<Favor> {
 		await dao.transaccion(async () => {

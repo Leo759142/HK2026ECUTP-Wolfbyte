@@ -8,11 +8,24 @@ export class CifradoLocalMejora {
 	static async desempaquetar(datoEmpaquetado: string): Promise<string> {
 		return descifrarTexto(datoEmpaquetado);
 	}
+	/**
+	 * Cifrado real asíncrono con WebCrypto AES-GCM. Preferir sobre los métodos síncronos legacy.
+	 */
+	static async empaquetarDatoSensibleAsync(dato: string): Promise<string> {
+		return cifrarTexto(dato);
+	}
+	/**
+	 * Descifrado real asíncrono con WebCrypto AES-GCM.
+	 */
+	static async desempaquetarDatoSensibleAsync(datoEmpaquetado: string): Promise<string> {
+		return descifrarTexto(datoEmpaquetado);
+	}
+	/** Legacy sync: solo ofuscación base64, no cifrado real. Usar `empaquetarDatoSensibleAsync` en producción. */
 	static empaquetarDatoSensible(dato: string): string {
-		// Legacy sync: si hay WebCrypto no podemos cifrar sync; marcamos para migración async.
 		if (globalThis.crypto?.subtle) return `pending-v1:${btoa(unescape(encodeURIComponent(dato)))}`;
 		return dato;
 	}
+	/** Legacy sync: revierte ofuscación base64. Usar `desempaquetarDatoSensibleAsync` en producción. */
 	static desempaquetarDatoSensible(datoEmpaquetado: string): string {
 		if (datoEmpaquetado.startsWith('pending-v1:')) {
 			try {

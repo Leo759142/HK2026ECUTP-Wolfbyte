@@ -89,6 +89,21 @@ export class OutboxDAO {
 			.sort((a, b) => a.creado_en.localeCompare(b.creado_en));
 	}
 
+	async pendientesPaginado(opts: { limite?: number; offset?: number } = {}): Promise<{ items: OperacionOutbox[]; total: number }> {
+		await this.migrarLegacy();
+		const keys = await this.kv.keys(PREFIX);
+		const all = (await Promise.all(keys.map((k) => this.kv.get<OperacionOutbox>(k)))).filter(Boolean) as OperacionOutbox[];
+		const filtered = all
+			.filter((p) => p.estado === 'pendiente' || p.estado === 'enviando')
+			.filter((p) => !p.next_attempt_at || p.next_attempt_at <= Date.now())
+			.sort((a, b) => a.creado_en.localeCompare(b.creado_en));
+		const total = filtered.length;
+		const offset = opts.offset ?? 0;
+		const limite = opts.limite ?? total;
+		const page = filtered.slice(offset, offset + limite);
+		return { items: page, total };
+	}
+
 	async marcar(op_id: string, estado: EstadoOutbox, error?: string | null): Promise<void> {
 		const cur = await this.kv.get<OperacionOutbox>(key(op_id));
 		if (!cur) return;

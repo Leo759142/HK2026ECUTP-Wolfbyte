@@ -5,9 +5,9 @@ import type { Alerta, Emergencia, RecursoCritico, UUID } from '../dominio/tipos/
 /** RF13 reportar necesidad con ubicación aproximada (RF19). */
 export class AlertaRepoLocal implements RepositorioAlerta {
 	private entidad = 'alertas' as const;
-	async listar(filtro?: { zona_id?: string }): Promise<Alerta[]> {
-		const rows = await dao.listarLocal<Alerta>(this.entidad);
-		return rows.filter((a) => !filtro?.zona_id || a.zona_id === filtro.zona_id);
+	async listar(filtro?: { zona_id?: string }, opts?: { limite?: number; offset?: number }): Promise<Alerta[]> {
+		const paginado = await dao.listarLocalPaginado<Alerta>(this.entidad, opts);
+		return paginado.items.filter((a) => !filtro?.zona_id || a.zona_id === filtro.zona_id);
 	}
 	async guardar(alerta: Alerta, opId = crypto.randomUUID()): Promise<Alerta> {
 		await dao.transaccion(async () => {
@@ -37,9 +37,9 @@ export class EmergenciaRepoLocal implements RepositorioEmergencia {
 /** RF15 recursos críticos compartibles. */
 export class RecursoCriticoRepoLocal implements RepositorioRecursoCritico {
 	private entidad = 'recursos_criticos' as const;
-	async listar(filtro?: { zona_id?: string; emergencia_id?: string }): Promise<RecursoCritico[]> {
-		const rows = await dao.listarLocal<RecursoCritico>(this.entidad);
-		return rows.filter((r) => (!filtro?.zona_id || r.zona_id === filtro.zona_id) && (!filtro?.emergencia_id || r.emergencia_id === filtro.emergencia_id));
+	async listar(filtro?: { zona_id?: string; emergencia_id?: string }, opts?: { limite?: number; offset?: number }): Promise<RecursoCritico[]> {
+		const paginado = await dao.listarLocalPaginado<RecursoCritico>(this.entidad, opts);
+		return paginado.items.filter((r) => (!filtro?.zona_id || r.zona_id === filtro.zona_id) && (!filtro?.emergencia_id || r.emergencia_id === filtro.emergencia_id));
 	}
 	async guardar(recurso: RecursoCritico, opId = crypto.randomUUID()): Promise<RecursoCritico> {
 		await dao.transaccion(async () => {

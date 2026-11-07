@@ -1,19 +1,30 @@
 import { ok, problem, requireIdempotency } from '../../_http';
 import { CATEGORIAS_SERVICIO } from '../../../../dominio/tipos/tipos';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
+import { dao } from '../../../../datos/dao';
 
-const memoria: Array<Record<string, unknown>> = [];
-const seeds = [
+const SEEDS_SERVICIOS: Array<Record<string, unknown>> = [
 	{ id: 's1', zona_id: 'z1', categoria: 'gasfiteria', titulo: 'Gasfitero 24h', descripcion: 'Reparación de fugas y desagües.', lat_aprox: -12.05, lng_aprox: -77.04, usuario_id: 'u2', es_emprendimiento: 1, activo: 1, oculto: 0, creado_en: new Date().toISOString(), actualizado_en: new Date().toISOString() },
 	{ id: 's2', zona_id: 'z1', categoria: 'costura', titulo: 'Costurera del barrio', descripcion: 'Arreglos y confección.', lat_aprox: -12.051, lng_aprox: -77.041, usuario_id: 'u3', es_emprendimiento: 1, activo: 1, oculto: 0, creado_en: new Date().toISOString(), actualizado_en: new Date().toISOString() }
 ];
-for (const s of seeds) if (!memoria.some((m) => m.id === s.id)) memoria.push({ ...s });
+
+async function seedDemo() {
+	const existentes = await dao.listarLocal<Record<string, unknown>>('servicios');
+	if (existentes.length === 0) {
+		for (const s of SEEDS_SERVICIOS) await dao.aplicarLocal('servicios', s);
+	}
+}
+
+void seedDemo();
 
 export const GET = async ({ url }) => {
 	const zona = url.searchParams.get('zona_id');
 	const categoria = url.searchParams.get('categoria');
-	const items = memoria.filter((s) => (!zona || s.zona_id === zona) && (!categoria || s.categoria === categoria));
-	return ok({ items, nextCursor: null, total: items.length });
+	const limite = url.searchParams.get('limite');
+	const offset = url.searchParams.get('offset');
+	const paginado = await dao.listarLocalPaginado<Record<string, unknown>>('servicios', { limite: limite ? Number(limite) : undefined, offset: offset ? Number(offset) : undefined });
+	const filtered = paginado.items.filter((s) => (!zona || s.zona_id === zona) && (!categoria || s.categoria === categoria));
+	return ok({ items: filtered, nextCursor: null, total: paginado.total });
 };
 
 export const POST = async ({ request }) => {
@@ -25,7 +36,7 @@ export const POST = async ({ request }) => {
 	if (!b.zona_id || !b.categoria || !b.titulo || !b.descripcion || b.lat_aprox == null || b.lng_aprox == null)
 		return problem(422, 'Campos requeridos', 'zona_id, categoria, titulo, descripcion, lat_aprox, lng_aprox');
 	if (!CATEGORIAS_SERVICIO.includes(String(b.categoria) as never)) return problem(422, 'Categoría inválida');
-	const existente = memoria.find((s) => s.id === key);
+	const existente = await dao.obtenerLocal<Record<string, unknown>>('servicios', key);
 	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });
 	const aprox = enmascararCoordenadas(Number(b.lat_aprox), Number(b.lng_aprox));
 	const item = {
@@ -39,6 +50,21 @@ export const POST = async ({ request }) => {
 		creado_en: new Date().toISOString(),
 		actualizado_en: new Date().toISOString()
 	};
-	memoria.push(item);
+	await dao.aplicarLocal('servicios', item);
 	return ok(item, 201);
 };
+
+export async function _actualizarServicio(id: string, cambios: Record<string, unknown>): Promise<Record<string, unknown> | null> {
+	const existente = await dao.obtenerLocal<Record<string, unknown>>('servicios', id);
+	if (!existente) return null;
+	const actualizado = { ...existente, ...cambios, actualizado_en: new Date().toISOString() };
+	await dao.aplicarLocal('servicios', actualizado);
+	return actualizado;
+}
+
+export async function _eliminarServicio(id: string): Promise<boolean> {
+	const existente = await dao.obtenerLocal<Record<string, unknown>>('servicios', id);
+	if (!existente) return false;
+	await dao.eliminarLocal('servicios', id);
+	return true;
+}

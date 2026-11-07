@@ -1,3 +1,61 @@
+
+openapi: 3.1.0
+info:
+  title: ProyectoOneDrive / RedVecina API
+  version: 0.1.0
+  description: API contrato-primero alineada a schema_sqlite.sql, RF01-RF25 y RNF (offline-first, idempotencia, privacidad por aproximación, accesibilidad, moderación y emergencia).
+servers:
+  - url: /api/v1
+tags:
+  - name: auth
+  - name: servicios
+  - name: favores
+  - name: emergencias
+  - name: alertas
+  - name: recomendaciones
+  - name: sync
+components:
+  securitySchemes:
+    SessionCookie:
+      type: apiKey
+      in: cookie
+      name: pod_sesion
+    XRolHeader:
+      type: apiKey
+      in: header
+      name: x-rol
+  parameters:
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: true
+      schema:
+        type: string
+        minLength: 8
+    XRol:
+      in: header
+      name: x-rol
+      required: false
+      schema:
+        type: string
+        enum: [Vecino, Referente de manzana, Emprendedor, Coordinador de emergencia, Anunciante, Cualquiera]
+  responses:
+    Problem:
+      description: Error RFC 7807
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+  schemas:
+    Problem:
+      type: object
+      properties:
+        type: { type: string }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+
+
 openapi: 3.1.0
 info:
   title: ProyectoOneDrive / RedVecina API

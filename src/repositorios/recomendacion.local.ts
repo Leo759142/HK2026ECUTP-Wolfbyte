@@ -13,8 +13,8 @@ export class RecomendacionRepoLocal implements RepositorioRecomendacion {
 		});
 		return row;
 	}
-	async listarPorServicio(servicioId: UUID): Promise<RecomendacionEvento[]> {
-		const rows = await dao.listarLocal<RecomendacionEvento>(this.entidad);
-		return rows.filter((r) => r.servicio_id === servicioId);
+	async listarPorServicio(servicioId: UUID, opts?: { limite?: number; offset?: number }): Promise<RecomendacionEvento[]> {
+		const paginado = await dao.listarLocalPaginado<RecomendacionEvento>(this.entidad, opts);
+		return paginado.items.filter((r) => r.servicio_id === servicioId);
 	}
 }
