@@ -1,0 +1,43 @@
+/* src/dominio/accesibilidad/tokens.css */
+
+:root {
+  /* --- REGLAS DE CONTRASTE ACCESIBLE (APCA / WCAG 4.5:1 MÍNIMO) --- */
+  /* Diseñado para que adultos mayores o personas bajo situaciones de crisis lean sin fatiga visual */
+  --color-fondo-comunidad: #FFFFFF;
+  --color-texto-primario: #121212; /* Contraste ultra alto sobre blanco */
+  --color-borde-foco: #005A9C;     /* Azul de alta visibilidad para navegación por teclado */
+  
+  /* --- PALETA DE EMERGENCIA CRÍTICA --- */
+  --color-alerta-maxima: #D32F2F;   /* Rojo accesible, visible incluso con brillo de pantalla bajo */
+  --color-offline-espera: #F57C00;  /* Naranja informativo para acciones en cola */
+
+  /* --- REGLA DE DIMENSIÓN FÍSICA (Fitts's Law) --- */
+  /* Ningún elemento interactivo o botón de acción táctil puede medir menos de 48px */
+  /* Evita el error de pulsación accidental en pantallas táctiles de celulares antiguos */
+  --dimension-boton-minima: 48px;
+  --espaciado-toque-seguro: 12px;
+
+  /* --- FUENTES ACCESIBLES --- */
+  --fuente-legible: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* --- ESTILOS DE CORRECCIÓN GLOBAL --- */
+[aria-busy="true"] {
+  cursor: progress;
+}
+
+/* Forzar que el foco por teclado sea grueso, nítido y respete el contorno del botón */
+:focus-visible {
+  outline: 4px solid var(--color-borde-foco) !important;
+  outline-offset: 2px !important;
+}
+
+/* Respetar las preferencias del sistema si el dispositivo tiene activada la reducción de animaciones */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
