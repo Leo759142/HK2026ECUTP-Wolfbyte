@@ -1,7 +1,7 @@
 # Cuadra — Documentación técnica y de producto
 
 > **Estado:** documentación base v0.1 · **Fecha:** 2026-11-06
-> **Alcance:** revisión del repositorio actual y diseño de la base para implementar una PWA de incidencias urbanas con SvelteKit 3.
+> **Alcance:** revisión del repositorio actual y diseño de la base para implementar una PWA vecinal con SvelteKit 3.
 > **Naturaleza:** este paquete **no modifica código**. Es un contrato de trabajo: diagnóstico, arquitectura, decisiones, criterios de aceptación y backlog.
 
 ---
@@ -118,7 +118,7 @@ Los ejemplos de código son **ilustrativos y ejecutables en su mayoría**, pero 
 | 2 | Crear `src/env.ts`, `src/app.d.ts` y `src/hooks.server.ts` base | Backend | `pnpm check` sin errores; locales tipados |
 | 3 | Crear `src/service-worker/index.ts` + manifest + iconos | Frontend | Lighthouse PWA instalable |
 | 4 | Implementar dominio + repositorios + outbox | Full-stack | Reporte creado offline y sincronizado |
-| 5 | Publicar `openapi/openapi.yaml` y `/api/v1/incidents` | Backend | Swagger UI y contract tests en CI |
+| 5 | Implementar el contrato unificado [api/openapi.yaml](api/openapi.yaml) | Backend | Swagger UI y contract tests en CI |
 | 6 | Añadir Vitest (unit/component) y Playwright (e2e offline) | QA | Pipeline verde con umbral de cobertura |
 | 7 | Endurecer seguridad y privacidad (Ley 29733) | Seguridad | Checklist de [10-seguridad-privacidad.md](10-seguridad-privacidad.md) completo |
 

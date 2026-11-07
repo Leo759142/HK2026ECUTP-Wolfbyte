@@ -1,0 +1,2006 @@
+openapi: 3.1.0
+info:
+  title: VecinoYa API
+  version: 1.2.0
+  description: |
+    Contrato v1 entre backend y frontend de VecinoYa (minired vecinal offline-first).
+    Alineado al diagrama 'Sistema Social + Sistemas Tecnológicos'.
+
+    PERMISOS (RBAC): los roles (vecino, referente, emprendedor, coordinador) se
+    asignan por GRUPO mediante membresías; el admin de plataforma es un rol aparte.
+
+    IDS: los UUID los genera el CLIENTE, para poder crear datos sin conexión.
+    Si un POST llega con un `id` ya existente, el servidor responde 200 con el
+    recurso existente (idempotente por PK), salvo que el body contradiga el
+    estado actual (en ese caso 409).
+
+    UBICACIÓN (Ley 29733): las ubicaciones son SIEMPRE aproximadas (3 decimales).
+    El servidor redondea a 3 decimales y rechaza coordenadas con más precisión.
+
+    DERIVACIÓN DE ZONA: las escrituras en `servicios`, `favores`, `alertas` y
+    `recursos_criticos` NO reciben `zona_id` en el body. El servidor lo toma del
+    usuario autenticado (`usuarios.zona_id`) o, si el body trae `emergencia_id`,
+    de la zona de esa emergencia. No se puede crear contenido en otra zona.
+
+    APPEND-ONLY: recomendaciones, confirmaciones de favor y confirmaciones de
+    alerta solo se crean, nunca se editan ni se borran.
+
+    IDEMPOTENCIA: toda escritura REST acepta `Idempotency-Key` (= op_id de
+    sync_cola). Reintentos con la misma clave devuelven el resultado original.
+    El cliente oficial SIEMPRE encola en `sync_cola` y envía por `/sync/push`,
+    aunque esté online; los POST/PATCH REST existen para integraciones y pruebas.
+    Esto garantiza idempotencia uniforme vía `op_id`.
+
+    SYNC: `/sync` y `/sync/cambios` son aliases temporales de `/sync/push` y
+    `/sync/pull` para clientes anteriores. Los clientes nuevos deben usar
+    `/sync/push` y `/sync/pull`.
+
+servers:
+  - url: /api/v1tags:
+  - { name: Auth }
+  - { name: Zonas }
+  - { name: Servicios, description: "Módulo Servicios de Proximidad (RF01-RF03, RF12)" }
+  - { name: Favores, description: "Módulo Cadena de Favores (RF04-RF05)" }
+  - { name: Emergencia, description: "Modo Emergencia (RF07-RF08)" }
+  - { name: Moderacion, description: "RF11" }
+  - { name: Sync, description: "Offline-first (RF09)" }
+  - { name: Grupos, description: "Grupos y comunidades + roles (RBAC)" }
+  - { name: Anuncios, description: "Publicidad local (bloqueada en emergencia)" }
+  - { name: Notificaciones, description: "Push / WhatsApp" }
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ============================================================ AUTH
+  /auth/registro:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Registrar un vecino (contraseña o PIN)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegistroRequest' }
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SesionResponse' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/Invalido' }
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Iniciar sesión con teléfono/alias + contraseña o PIN
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+      responses:
+        '200':
+          description: Sesión iniciada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SesionResponse' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+
+  /auth/otp/solicitar:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Solicitar un código OTP para iniciar sesión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OtpSolicitud' }
+      responses:
+        '202':
+          description: Código enviado; nunca revela si el teléfono existe
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [expira_en]
+                properties:
+                  expira_en:
+                    type: integer
+                    description: Segundos hasta expiración del código
+                    example: 300
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /auth/otp/verificar:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Verificar OTP y crear o recuperar una sesión
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/OtpVerificacion' }
+      responses:
+        '200':
+          description: Sesión creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SesionResponse' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Perfil del usuario autenticado
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Usuario' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Cerrar sesión (revoca la sesión de este dispositivo)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '204': { description: Sesión cerrada }
+
+  /usuarios/me:
+    patch:
+      tags: [Auth]
+      summary: Actualizar alias / idioma / PIN
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                alias: { type: string, minLength: 2, maxLength: 40 }
+                idioma: { type: string, enum: [es, qu] }
+                pin: { type: string, pattern: '^[0-9]{4,6}$', writeOnly: true }
+      responses:
+        '200':
+          description: Perfil actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Usuario' }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '422': { $ref: '#/components/responses/Invalido' }
+
+  # ============================================================ ZONAS
+  /zonas:
+    get:
+      tags: [Zonas]
+      security: []
+      summary: Listar zonas (barrios) disponibles
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Zona' }
+
+  # ============================================================ SERVICIOS
+  /servicios:
+    get:
+      tags: [Servicios]
+      summary: Buscar servicios cercanos (RF01, CU01)
+      parameters:
+        - { $ref: '#/components/parameters/Lat' }
+        - { $ref: '#/components/parameters/Lng' }
+        - { $ref: '#/components/parameters/RadioM' }
+        - name: categoria
+          in: query
+          schema: { $ref: '#/components/schemas/CategoriaServicio' }
+        - name: q
+          in: query
+          description: Texto libre sobre título y descripción
+          schema: { type: string, maxLength: 60 }
+        - name: solo_recomendados
+          in: query
+          description: Si es true, solo con al menos un Visto Bueno
+          schema: { type: boolean, default: false }
+        - { $ref: '#/components/parameters/Mios' }
+        - { $ref: '#/components/parameters/Limite' }
+        - { $ref: '#/components/parameters/Cursor' }
+      responses:
+        '200':
+          description: Lista ordenada por Vistos Buenos de la misma zona y cercanía
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Servicio' }
+                  siguiente_cursor: { type: string, nullable: true }
+    post:
+      tags: [Servicios]
+      summary: Publicar un servicio o emprendimiento (RF03, CU03)
+      description: |
+        Máximo 3 pasos en la UI. Límite de publicaciones para usuarios nuevos.
+        Idempotente: si llega un `id` ya existente del mismo autor y mismo body,
+        devuelve 200 con el recurso existente; si difiere, 409.
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ServicioNuevo' }
+      responses:
+        '200':
+          description: Recurso ya existente (idempotente)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Servicio' }
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Servicio' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/Invalido' }
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /servicios/{servicioId}:
+    parameters:
+      - { $ref: '#/components/parameters/ServicioId' }
+    get:
+      tags: [Servicios]
+      summary: Detalle de un servicio
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Servicio' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+    patch:
+      tags: [Servicios]
+      summary: Editar mi servicio (última escritura gana)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ServicioEdicion' }
+      responses:
+        '200':
+          description: Actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Servicio' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /servicios/{servicioId}/recomendaciones:
+    parameters:
+      - { $ref: '#/components/parameters/ServicioId' }
+    get:
+      tags: [Servicios]
+      summary: Vistos Buenos vigentes de un servicio
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Recomendacion' }
+    post:
+      tags: [Servicios]
+      summary: Dar o retirar un Visto Bueno (RF02, CU02)
+      description: |
+        Se agrega un EVENTO (append-only). Reglas anti-abuso: no se puede
+        recomendar el propio servicio; límite de un Visto Bueno vigente por
+        usuario y por dispositivo para cada servicio.
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RecomendacionNueva' }
+      responses:
+        '201':
+          description: Evento registrado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Recomendacion' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /usuarios/{usuarioId}/perfil-emprendedor:
+    get:
+      tags: [Servicios]
+      summary: Reputación portátil e insignias de un vecino (RF12)
+      parameters:
+        - { $ref: '#/components/parameters/UsuarioId' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PerfilEmprendedor' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /usuarios/{usuarioId}/reputacion:
+    get:
+      tags: [Servicios]
+      summary: Reputación y confianza de un vecino (detalle de eventos)
+      parameters:
+        - { $ref: '#/components/parameters/UsuarioId' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reputacion' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  # ============================================================ FAVORES
+  /favores:
+    get:
+      tags: [Favores]
+      summary: Muro de favores cercano (RF04)
+      parameters:
+        - { $ref: '#/components/parameters/Lat' }
+        - { $ref: '#/components/parameters/Lng' }
+        - { $ref: '#/components/parameters/RadioM' }
+        - name: tipo
+          in: query
+          schema: { type: string, enum: [oferta, necesidad] }
+        - name: categoria
+          in: query
+          schema: { $ref: '#/components/schemas/CategoriaFavor' }
+        - name: estado
+          in: query
+          schema: { $ref: '#/components/schemas/EstadoFavor' }
+        - { $ref: '#/components/parameters/Mios' }
+        - { $ref: '#/components/parameters/Limite' }
+        - { $ref: '#/components/parameters/Cursor' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Favor' }
+                  siguiente_cursor: { type: string, nullable: true }
+    post:
+      tags: [Favores]
+      summary: Pedir u ofrecer un favor (RF03, CU04)
+      description: |
+        Idempotente por PK: si el `id` ya existe y el body coincide, 200 con
+        el recurso; si difiere, 409.
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FavorNuevo' }
+      responses:
+        '200':
+          description: Recurso ya existente (idempotente)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Favor' }
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Favor' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+        '422': { $ref: '#/components/responses/Invalido' }
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /favores/{favorId}/aceptar:
+    post:
+      tags: [Favores]
+      summary: Ofrecerme a ayudar / aceptar un favor (CU05)
+      description: |
+        El primero en aceptar gana. Idempotente por (favorId, usuario):
+        si el MISMO usuario reintenta, devuelve 200 con el favor actual;
+        si OTRO vecino ya lo aceptó, 409.
+      parameters:
+        - { $ref: '#/components/parameters/FavorId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Favor en curso (o ya aceptado por el mismo usuario)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Favor' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /favores/{favorId}/confirmar:
+    post:
+      tags: [Favores]
+      summary: Confirmar el cierre de un favor (QR o botón) (RF05)
+      description: Cuando confirman ambas partes el favor pasa a 'cerrado'.
+      parameters:
+        - { $ref: '#/components/parameters/FavorId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ConfirmacionFavor' }
+      responses:
+        '200':
+          description: Confirmación registrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Favor' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /favores/{favorId}/cancelar:
+    post:
+      tags: [Favores]
+      summary: Cancelar mi favor
+      parameters:
+        - { $ref: '#/components/parameters/FavorId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Cancelado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Favor' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  # ============================================================ EMERGENCIA
+  /emergencias/activa:
+    get:
+      tags: [Emergencia]
+      summary: ¿Hay una emergencia activa en mi zona? (RF07)
+      parameters:
+        - name: zona_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Emergencia activa o null
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                allOf:
+                  - $ref: '#/components/schemas/Emergencia'
+
+  /emergencias:
+    post:
+      tags: [Emergencia]
+      summary: Activar el modo emergencia (solo referente/coordinador) (CU06)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmergenciaNueva' }
+      responses:
+        '201':
+          description: Emergencia activada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Emergencia' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /emergencias/{emergenciaId}/cerrar:
+    post:
+      tags: [Emergencia]
+      summary: Cerrar la emergencia (solo coordinador)
+      parameters:
+        - { $ref: '#/components/parameters/EmergenciaId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Cerrada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Emergencia' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /puntos-apoyo:
+    get:
+      tags: [Emergencia]
+      summary: Directorio de servicios y grupos de apoyo (CU08)
+      parameters:
+        - { $ref: '#/components/parameters/Lat' }
+        - { $ref: '#/components/parameters/Lng' }
+        - { $ref: '#/components/parameters/RadioM' }
+        - name: tipo
+          in: query
+          schema: { $ref: '#/components/schemas/TipoPuntoApoyo' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PuntoApoyo' }
+    post:
+      tags: [Emergencia]
+      summary: Añadir un punto de apoyo (referente/coordinador)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PuntoApoyoNuevo' }
+      responses:
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PuntoApoyo' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /puntos-apoyo/{puntoId}:
+    parameters:
+      - { $ref: '#/components/parameters/PuntoId' }
+    patch:
+      tags: [Emergencia]
+      summary: Actualizar o verificar un punto de apoyo (referente/coordinador)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nombre: { type: string }
+                telefono: { type: string, nullable: true }
+                verificado: { type: boolean }
+      responses:
+        '200':
+          description: Actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PuntoApoyo' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  /alertas:
+    get:
+      tags: [Emergencia]
+      summary: Tablero de ayuda humanitaria (reportes geolocalizados)
+      parameters:
+        - { $ref: '#/components/parameters/Lat' }
+        - { $ref: '#/components/parameters/Lng' }
+        - { $ref: '#/components/parameters/RadioM' }
+        - name: estado
+          in: query
+          schema: { $ref: '#/components/schemas/EstadoAlerta' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Alerta' }
+    post:
+      tags: [Emergencia]
+      summary: Reportar una situación de vulnerabilidad (CU07)
+      description: No admite nombres, edades ni datos de menores. Ubicación aproximada.
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AlertaNueva' }
+      responses:
+        '201':
+          description: Creada (estado inicial 'sin_verificar')
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Alerta' }
+        '429': { $ref: '#/components/responses/LimiteExcedido' }
+
+  /alertas/{alertaId}:
+    parameters:
+      - { $ref: '#/components/parameters/AlertaId' }
+    patch:
+      tags: [Emergencia]
+      summary: Marcar una alerta como atendida o descartada (referente o coordinador)
+      description: |
+        Solo online (en sync la política de alertas es 'servidor_manda').
+        Pasa el estado a 'atendido' o 'descartado'; no se puede volver a 'sin_verificar'.
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [estado]
+              properties:
+                estado: { type: string, enum: [atendido, descartado] }
+      responses:
+        '200':
+          description: Actualizada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Alerta' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /alertas/{alertaId}/confirmar:
+    post:
+      tags: [Emergencia]
+      summary: Confirmar un reporte como vecino (confirmación SOCIAL)
+      description: |
+        Evento append-only. Al llegar a 2 confirmaciones de vecinos distintos
+        el estado pasa a 'confirmado_vecinos'. NO activa emergencia
+        (para eso está /alertas-oficiales/{id}/confirmar).
+      parameters:
+        - { $ref: '#/components/parameters/AlertaId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Alerta' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /recursos-criticos:
+    get:
+      tags: [Emergencia]
+      summary: Recursos críticos ofrecidos o necesitados (RF08, CU09)
+      parameters:
+        - { $ref: '#/components/parameters/Lat' }
+        - { $ref: '#/components/parameters/Lng' }
+        - { $ref: '#/components/parameters/RadioM' }
+        - name: tipo
+          in: query
+          schema: { $ref: '#/components/schemas/TipoRecurso' }
+        - name: modo
+          in: query
+          schema: { type: string, enum: [ofrece, necesita] }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RecursoCritico' }
+    post:
+      tags: [Emergencia]
+      summary: Ofrecer o pedir un recurso crítico
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RecursoCriticoNuevo' }
+      responses:
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RecursoCritico' }
+
+  /recursos-criticos/{recursoId}:
+    parameters:
+      - { $ref: '#/components/parameters/RecursoId' }
+    patch:
+      tags: [Emergencia]
+      summary: Marcar mi recurso como disponible o agotado
+      description: Solo quien lo publicó. Última escritura gana.
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                disponible: { type: boolean }
+                detalle: { type: string, maxLength: 200 }
+      responses:
+        '200':
+          description: Actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RecursoCritico' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  # ============================================================ ALERTAS OFICIALES
+  /alertas-oficiales:
+    get:
+      tags: [Emergencia]
+      summary: Alertas de INDECI, SENAMHI, IGP o municipio (propuestas por el sistema)
+      parameters:
+        - name: estado
+          in: query
+          schema: { type: string, enum: [propuesta, confirmada, descartada], default: propuesta }
+        - name: zona_id
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AlertaOficial' }
+
+  /alertas-oficiales/{alertaOficialId}/confirmar:
+    post:
+      tags: [Emergencia]
+      summary: El coordinador confirma la alerta y se activa el modo emergencia (confirmación INSTITUCIONAL)
+      description: |
+        Crea una emergencia y dispara la notificación push a la zona.
+        Distinto de /alertas/{id}/confirmar (que es social, no activa emergencia).
+      parameters:
+        - { $ref: '#/components/parameters/AlertaOficialId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emergencia_id, tipo, titulo]
+              properties:
+                emergencia_id: { type: string, format: uuid, description: ID generado por el cliente }
+                tipo: { $ref: '#/components/schemas/TipoEmergencia' }
+                titulo: { type: string, maxLength: 80 }
+      responses:
+        '201':
+          description: Emergencia activada; se dispara la notificación push
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Emergencia' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /alertas-oficiales/{alertaOficialId}/descartar:
+    post:
+      tags: [Emergencia]
+      summary: El coordinador descarta la alerta propuesta
+      parameters:
+        - { $ref: '#/components/parameters/AlertaOficialId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Descartada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AlertaOficial' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /internal/ingesta/alertas:
+    post:
+      tags: [Emergencia]
+      summary: (Interno) Ingesta de alertas desde fuentes oficiales
+      description: Solo lo llama el servicio de ingesta. Duplicados (fuente + id_externo) se ignoran.
+      security:
+        - ingestaKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AlertaOficialIngesta' }
+      responses:
+        '202': { description: Aceptada como 'propuesta' }
+        '200': { description: Duplicada; ignorada }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+
+  # ============================================================ MODERACIÓN
+  /reportes:
+    post:
+      tags: [Moderacion]
+      summary: Reportar contenido (RF11, CU11)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReporteNuevo' }
+      responses:
+        '201':
+          description: Reporte recibido
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reporte' }
+    get:
+      tags: [Moderacion]
+      summary: Cola de reportes pendientes (solo referente/coordinador)
+      parameters:
+        - name: estado
+          in: query
+          schema: { type: string, enum: [pendiente, ocultado, descartado], default: pendiente }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Reporte' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /reportes/{reporteId}:
+    parameters:
+      - { $ref: '#/components/parameters/ReporteId' }
+    patch:
+      tags: [Moderacion]
+      summary: Resolver un reporte (ocultar contenido o descartar)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [estado]
+              properties:
+                estado: { type: string, enum: [ocultado, descartado] }
+      responses:
+        '200':
+          description: Resuelto
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Reporte' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /bloqueos:
+    get:
+      tags: [Moderacion]
+      summary: Listar mis bloqueos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [usuario_id, bloqueado_id, creado_en]
+                  properties:
+                    usuario_id: { type: string, format: uuid }
+                    bloqueado_id: { type: string, format: uuid }
+                    bloqueado_alias: { type: string }
+                    creado_en: { type: string, format: date-time }
+    post:
+      tags: [Moderacion]
+      summary: Bloquear a otro vecino
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [bloqueado_id]
+              properties:
+                bloqueado_id: { type: string, format: uuid }
+      responses:
+        '204': { description: Bloqueado }
+
+  /bloqueos/{bloqueadoId}:
+    parameters:
+      - { $ref: '#/components/parameters/BloqueadoId' }
+    delete:
+      tags: [Moderacion]
+      summary: Desbloquear a un vecino
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '204': { description: Desbloqueado }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  # ============================================================ SYNC
+  /sync:
+    post:
+      tags: [Sync]
+      summary: (Deprecated) Alias de /sync/push
+      description: |
+        Conservado por compatibilidad. Usar /sync/push en clientes nuevos.
+        Idempotente: si un op_id ya fue procesado se responde 'duplicada'
+        sin volver a aplicarlo.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operaciones]
+              properties:
+                operaciones:
+                  type: array
+                  maxItems: 100
+                  items: { $ref: '#/components/schemas/OperacionSync' }
+      responses:
+        '200':
+          description: Resultado por operación
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resultados]
+                properties:
+                  resultados:
+                    type: array
+                    items: { $ref: '#/components/schemas/ResultadoSync' }
+
+  /sync/push:
+    post:
+      tags: [Sync]
+      summary: Enviar en lote las operaciones hechas sin conexión (RF09, CU10)
+      description: |
+        Idempotente: si un op_id ya fue procesado se responde 'duplicada'
+        sin volver a aplicarlo. Cada operación se evalúa por separado; una
+        rechazada no bloquea a las demás.
+        La estrategia de conflicto de cada entidad (append_only, ultima_escritura,
+        primero_gana, servidor_manda) se consulta en GET /sync/politicas.
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [operaciones]
+              properties:
+                operaciones:
+                  type: array
+                  maxItems: 100
+                  items: { $ref: '#/components/schemas/OperacionSync' }
+      responses:
+        '200':
+          description: Resultado por operación
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [resultados]
+                properties:
+                  resultados:
+                    type: array
+                    items: { $ref: '#/components/schemas/ResultadoSync' }
+
+  /sync/cambios:
+    get:
+      tags: [Sync]
+      summary: (Deprecated) Alias de /sync/pull
+      parameters:
+        - name: desde
+          in: query
+          required: true
+          description: ISO-8601; usar el 'hasta' devuelto en la descarga anterior
+          schema: { type: string, format: date-time }
+        - name: zona_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Cambios agrupados por entidad
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RespuestaSyncPull' }
+
+  /sync/pull:
+    get:
+      tags: [Sync]
+      summary: Descargar cambios del servidor desde una marca de tiempo
+      parameters:
+        - name: desde
+          in: query
+          required: true
+          description: ISO-8601; usar el 'hasta' devuelto en la descarga anterior
+          schema: { type: string, format: date-time }
+        - name: zona_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: limite
+          in: query
+          description: Máximo de filas por entidad. Si se llena, hay_mas=true.
+          schema: { type: integer, minimum: 50, maximum: 1000, default: 500 }
+      responses:
+        '200':
+          description: Cambios agrupados por entidad
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RespuestaSyncPull' }
+
+  /sync/politicas:
+    get:
+      tags: [Sync]
+      summary: Estrategia de resolución de conflictos por entidad
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/SyncPolitica' }
+
+  # ============================================================ GRUPOS (RBAC)
+  /grupos:
+    get:
+      tags: [Grupos]
+      summary: Grupos y comunidades de una zona
+      parameters:
+        - name: zona_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: tipo
+          in: query
+          schema: { type: string, enum: [manzana, barrio, comite_emergencia, interes] }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Grupo' }
+    post:
+      tags: [Grupos]
+      summary: Crear un grupo (coordinador o admin)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GrupoNuevo' }
+      responses:
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Grupo' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /grupos/{grupoId}/unirse:
+    post:
+      tags: [Grupos]
+      summary: Unirme a un grupo como vecino
+      parameters:
+        - { $ref: '#/components/parameters/GrupoId' }
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Membresía creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Membresia' }
+        '409': { $ref: '#/components/responses/Conflicto' }
+
+  /grupos/{grupoId}/miembros:
+    get:
+      tags: [Grupos]
+      summary: Miembros del grupo (referente o coordinador)
+      parameters:
+        - { $ref: '#/components/parameters/GrupoId' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Membresia' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  /grupos/{grupoId}/miembros/{usuarioId}:
+    parameters:
+      - { $ref: '#/components/parameters/GrupoId' }
+      - { $ref: '#/components/parameters/UsuarioId' }
+    patch:
+      tags: [Grupos]
+      summary: Asignar o quitar un rol / suspender a un miembro
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [rol]
+              properties:
+                rol: { $ref: '#/components/schemas/Rol' }
+                estado: { type: string, enum: [activa, suspendida], default: activa }
+      responses:
+        '200':
+          description: Actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Membresia' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+
+  # ============================================================ PUBLICIDAD LOCAL
+  /anuncios:
+    get:
+      tags: [Anuncios]
+      summary: Publicidad local visible en mi zona
+      description: Devuelve lista vacía mientras haya una emergencia activa en la zona.
+      parameters:
+        - name: zona_id
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Anuncio' }
+    post:
+      tags: [Anuncios]
+      summary: Proponer un anuncio (queda 'pendiente' hasta aprobación)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AnuncioNuevo' }
+      responses:
+        '201':
+          description: Creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Anuncio' }
+        '409':
+          description: Hay una emergencia activa; no se aceptan anuncios
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /anuncios/{anuncioId}:
+    parameters:
+      - { $ref: '#/components/parameters/AnuncioId' }
+    patch:
+      tags: [Anuncios]
+      summary: Aprobar, rechazar o pausar (referente o admin)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [estado]
+              properties:
+                estado: { type: string, enum: [aprobado, rechazado, pausado] }
+      responses:
+        '200':
+          description: Actualizado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Anuncio' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+    delete:
+      tags: [Anuncios]
+      summary: Eliminar mi anuncio (solo el anunciante o admin)
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '204': { description: Eliminado }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
+  # ============================================================ NOTIFICACIONES
+  /notificaciones:
+    get:
+      tags: [Notificaciones]
+      summary: Bandeja de notificaciones de mi zona
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Notificacion' }
+
+  /notificaciones/suscripciones:
+    post:
+      tags: [Notificaciones]
+      summary: Registrar mi dispositivo para recibir push o WhatsApp
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SuscripcionPush' }
+      responses:
+        '204': { description: Suscripción registrada }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    ingestaKey:
+      type: apiKey
+      in: header
+      name: X-Ingesta-Key
+      description: Clave del servicio interno que consume fuentes oficiales
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      description: |
+        op_id generado en el cliente (UUID). Reintentos con el mismo valor
+        devuelven el resultado original y NO duplican el efecto.
+      schema: { type: string, format: uuid }
+    Lat:
+      name: lat
+      in: query
+      description: Latitud aproximada del usuario (máx. 3 decimales)
+      schema: { type: number, minimum: -90, maximum: 90, example: -12.066 }
+    Lng:
+      name: lng
+      in: query
+      description: Longitud aproximada del usuario (máx. 3 decimales)
+      schema: { type: number, minimum: -180, maximum: 180, example: -75.210 }
+    RadioM:
+      name: radio_m
+      in: query
+      description: Radio de búsqueda en metros
+      schema: { type: integer, minimum: 100, maximum: 5000, default: 1000 }
+    Mios:
+      name: mios
+      in: query
+      description: Si es true, solo mis propias publicaciones
+      schema: { type: boolean, default: false }
+    Limite:
+      name: limite
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string }
+    ServicioId:
+      name: servicioId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    FavorId:
+      name: favorId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    AlertaId:
+      name: alertaId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    AlertaOficialId:
+      name: alertaOficialId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    RecursoId:
+      name: recursoId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    EmergenciaId:
+      name: emergenciaId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    PuntoId:
+      name: puntoId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ReporteId:
+      name: reporteId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    GrupoId:
+      name: grupoId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    UsuarioId:
+      name: usuarioId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    BloqueadoId:
+      name: bloqueadoId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    AnuncioId:
+      name: anuncioId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+
+  responses:
+    Invalido:
+      description: Datos inválidos
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NoAutorizado:
+      description: Falta autenticación o es inválida
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Prohibido:
+      description: Sin permiso para esta acción
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NoEncontrado:
+      description: No existe
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Conflicto:
+      description: Conflicto con el estado actual
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    LimiteExcedido:
+      description: Límite anti-abuso alcanzado
+      headers:
+        Retry-After:
+          description: Segundos hasta poder reintentar
+          schema: { type: integer }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          example: LIMITE_PUBLICACIONES
+        mensaje:
+          type: string
+          description: Texto simple, apto para mostrar al vecino
+        detalles:
+          type: object
+          additionalProperties: true
+
+    # ---------- base
+    Ubicacion:
+      type: object
+      required: [lat_aprox, lng_aprox]
+      description: Coordenadas aproximadas. El servidor las redondea a 3 decimales.
+      properties:
+        lat_aprox: { type: number, minimum: -90, maximum: 90, example: -12.066 }
+        lng_aprox: { type: number, minimum: -180, maximum: 180, example: -75.210 }
+
+    Rol:
+      type: string
+      enum: [vecino, referente, emprendedor, coordinador]
+      description: Rol comunitario dentro de un grupo (RBAC)
+    CategoriaServicio:
+      type: string
+      enum: [gasfiteria, carpinteria, electricidad, cerrajeria, clases,
+             paseo_mascotas, comida, costura, reparaciones, cuidado, otro]
+    CategoriaFavor:
+      type: string
+      enum: [prestamo_herramienta, ayuda_temporal, donacion,
+             trueque_habilidad, movilidad, otro]
+    EstadoFavor:
+      type: string
+      enum: [abierto, en_curso, cerrado, cancelado]
+    TipoEmergencia:
+      type: string
+      enum: [lluvias_inundacion, sismo, huaico, incendio, otro]
+    TipoAlerta:
+      type: string
+      enum: [persona_vulnerable, zona_inundada, via_bloqueada,
+             sin_servicios_basicos, riesgo_estructural, otro]
+    EstadoAlerta:
+      type: string
+      enum: [sin_verificar, confirmado_vecinos, atendido, descartado]
+    TipoRecurso:
+      type: string
+      enum: [agua, gas, medicinas, refugio, generador, bote, bomba_agua, alimentos, otro]
+    TipoPuntoApoyo:
+      type: string
+      enum: [comando, bomberos, posta_salud, refugio, punto_reunion, olla_comun, policia, otro]
+
+    # ---------- auth / usuarios
+    RegistroRequest:
+      type: object
+      required: [alias, zona_id, dispositivo_hash]
+      description: Debe enviarse al menos 'password' o 'pin'.
+      anyOf:
+        - required: [password]
+        - required: [pin]
+      properties:
+        alias: { type: string, minLength: 2, maxLength: 40 }
+        telefono: { type: string, nullable: true }
+        zona_id: { type: string, format: uuid }
+        password: { type: string, minLength: 8, writeOnly: true }
+        pin: { type: string, pattern: '^[0-9]{4,6}$', writeOnly: true }
+        idioma: { type: string, enum: [es, qu], default: es }
+        dispositivo_hash: { type: string, description: Huella anónima del dispositivo }
+        plataforma: { type: string, enum: [android, ios, web, otro], default: web }
+
+    LoginRequest:
+      type: object
+      required: [identificador, dispositivo_hash]
+      anyOf:
+        - required: [password]
+        - required: [pin]
+      properties:
+        identificador: { type: string, description: "Teléfono o alias" }
+        password: { type: string, writeOnly: true }
+        pin: { type: string, writeOnly: true }
+        dispositivo_hash: { type: string }
+        plataforma: { type: string, enum: [android, ios, web, otro], default: web }
+
+    OtpSolicitud:
+      type: object
+      required: [telefono]
+      properties:
+        telefono: { type: string, pattern: '^9[0-9]{8}$' }
+
+    OtpVerificacion:
+      type: object
+      required: [telefono, codigo, dispositivo_hash]
+      properties:
+        telefono: { type: string, pattern: '^9[0-9]{8}$' }
+        codigo: { type: string, minLength: 4, maxLength: 6 }
+        alias: { type: string, minLength: 2, maxLength: 40 }
+        zona_id: { type: string, format: uuid }
+        pin: { type: string, pattern: '^[0-9]{4,6}$', writeOnly: true }
+        idioma: { type: string, enum: [es, qu], default: es }
+        dispositivo_hash: { type: string }
+        plataforma: { type: string, enum: [android, ios, web, otro], default: web }
+
+    SesionResponse:
+      type: object
+      required: [token, usuario]
+      properties:
+        token: { type: string }
+        usuario: { $ref: '#/components/schemas/Usuario' }
+
+    Usuario:
+      type: object
+      required: [id, alias, zona_id, reputacion, idioma]
+      properties:
+        id: { type: string, format: uuid }
+        alias: { type: string }
+        zona_id: { type: string, format: uuid }
+        rol_plataforma: { type: string, enum: [usuario, admin], default: usuario }
+        membresias:
+          type: array
+          items: { $ref: '#/components/schemas/Membresia' }
+        reputacion: { type: integer, minimum: 0, description: Calculada desde reputacion_eventos }
+        idioma: { type: string, enum: [es, qu] }
+        creado_en: { type: string, format: date-time }
+
+    Zona:
+      type: object
+      required: [id, nombre, distrito, provincia, departamento, lat_centro, lng_centro]
+      properties:
+        id: { type: string, format: uuid }
+        nombre: { type: string }
+        distrito: { type: string }
+        provincia: { type: string }
+        departamento: { type: string }
+        lat_centro: { type: number }
+        lng_centro: { type: number }
+
+    # ---------- servicios
+    ServicioNuevo:
+      allOf:
+        - $ref: '#/components/schemas/Ubicacion'
+        - type: object
+          required: [id, categoria, titulo, descripcion]
+          properties:
+            id: { type: string, format: uuid, description: Generado por el cliente }
+            categoria: { $ref: '#/components/schemas/CategoriaServicio' }
+            titulo: { type: string, minLength: 3, maxLength: 80 }
+            descripcion: { type: string, maxLength: 500 }
+            es_emprendimiento: { type: boolean, default: false }
+
+    ServicioEdicion:
+      type: object
+      description: |
+        El campo 'actualizado_en' es server-set y NO se acepta del cliente.
+        La resolución 'última escritura gana' se hace dentro de sync_operaciones.
+      properties:
+        titulo: { type: string, minLength: 3, maxLength: 80 }
+        descripcion: { type: string, maxLength: 500 }
+        activo: { type: boolean }
+
+    Servicio:
+      allOf:
+        - $ref: '#/components/schemas/ServicioNuevo'
+        - type: object
+          required: [usuario_id, zona_id, total_vistos_buenos, activo, creado_en]
+          properties:
+            usuario_id: { type: string, format: uuid }
+            zona_id: { type: string, format: uuid }
+            autor_alias: { type: string }
+            total_vistos_buenos: { type: integer, minimum: 0 }
+            vistos_buenos_misma_zona: { type: integer, minimum: 0 }
+            distancia_m: { type: integer, nullable: true }
+            activo: { type: boolean }
+            creado_en: { type: string, format: date-time }
+            actualizado_en: { type: string, format: date-time }
+
+    RecomendacionNueva:
+      type: object
+      required: [id, tipo, dispositivo_hash]
+      properties:
+        id: { type: string, format: uuid }
+        tipo: { type: string, enum: [visto_bueno, retiro] }
+        comentario: { type: string, maxLength: 140, nullable: true }
+        dispositivo_hash: { type: string }
+
+    Recomendacion:
+      type: object
+      required: [id, servicio_id, usuario_id, tipo, misma_zona, creado_en]
+      properties:
+        id: { type: string, format: uuid }
+        servicio_id: { type: string, format: uuid }
+        usuario_id: { type: string, format: uuid }
+        usuario_alias: { type: string }
+        tipo: { type: string, enum: [visto_bueno, retiro] }
+        comentario: { type: string, nullable: true }
+        misma_zona: { type: boolean }
+        creado_en: { type: string, format: date-time }
+
+    PerfilEmprendedor:
+      type: object
+      required: [usuario_id, alias, total_vistos_buenos, reputacion]
+      properties:
+        usuario_id: { type: string, format: uuid }
+        alias: { type: string }
+        reputacion: { type: integer }
+        total_vistos_buenos: { type: integer }
+        favores_cerrados: { type: integer }
+        servicios_activos: { type: integer }
+        insignias:
+          type: array
+          items:
+            type: object
+            required: [codigo, nombre]
+            properties:
+              codigo: { type: string }
+              nombre: { type: string }
+              obtenida_en: { type: string, format: date-time }
+
+    Reputacion:
+      type: object
+      required: [usuario_id, reputacion, eventos]
+      properties:
+        usuario_id: { type: string, format: uuid }
+        reputacion: { type: integer, minimum: 0 }
+        eventos:
+          type: array
+          items: { $ref: '#/components/schemas/ReputacionEvento' }
+
+    ReputacionEvento:
+      type: object
+      required: [id, fuente, puntos, creado_en]
+      properties:
+        id: { type: string, format: uuid }
+        fuente:
+          type: string
+          enum: [visto_bueno_recibido, visto_bueno_retirado, favor_cerrado,
+                 reporte_confirmado, sancion, bono_emprendedor]
+        puntos: { type: integer }
+        referencia_id: { type: string, format: uuid, nullable: true }
+        creado_en: { type: string, format: date-time }
+
+    # ---------- favores
+    FavorNuevo:
+      allOf:
+        - $ref: '#/components/schemas/Ubicacion'
+        - type: object
+          required: [id, tipo, categoria, titulo, descripcion]
+          properties:
+            id: { type: string, format: uuid }
+            tipo: { type: string, enum: [oferta, necesidad] }
+            categoria: { $ref: '#/components/schemas/CategoriaFavor' }
+            titulo: { type: string, minLength: 3, maxLength: 80 }
+            descripcion: { type: string, maxLength: 500 }
+
+    Favor:
+      allOf:
+        - $ref: '#/components/schemas/FavorNuevo'
+        - type: object
+          required: [creador_id, zona_id, estado, creado_en]
+          properties:
+            creador_id: { type: string, format: uuid }
+            creador_alias: { type: string }
+            ayudante_id: { type: string, format: uuid, nullable: true }
+            zona_id: { type: string, format: uuid }
+            estado: { $ref: '#/components/schemas/EstadoFavor' }
+            agradecimiento: { type: string, maxLength: 200, nullable: true }
+            creado_en: { type: string, format: date-time }
+            cerrado_en: { type: string, format: date-time, nullable: true }
+
+    ConfirmacionFavor:
+      type: object
+      required: [id, metodo]
+      properties:
+        id: { type: string, format: uuid }
+        metodo: { type: string, enum: [qr, boton] }
+        token_qr: { type: string, description: Requerido si metodo = qr }
+        agradecimiento: { type: string, maxLength: 200, nullable: true }
+
+    # ---------- emergencia
+    EmergenciaNueva:
+      type: object
+      required: [id, zona_id, tipo, titulo]
+      properties:
+        id: { type: string, format: uuid }
+        zona_id: { type: string, format: uuid }
+        tipo: { $ref: '#/components/schemas/TipoEmergencia' }
+        titulo: { type: string, maxLength: 80 }
+
+    Emergencia:
+      allOf:
+        - $ref: '#/components/schemas/EmergenciaNueva'
+        - type: object
+          required: [activa, inicio]
+          properties:
+            activada_por: { type: string, format: uuid }
+            activa: { type: boolean }
+            inicio: { type: string, format: date-time }
+            fin: { type: string, format: date-time, nullable: true }
+
+    PuntoApoyoNuevo:
+      allOf:
+        - $ref: '#/components/schemas/Ubicacion'
+        - type: object
+          required: [id, zona_id, tipo, nombre]
+          properties:
+            id: { type: string, format: uuid }
+            zona_id: { type: string, format: uuid }
+            tipo: { $ref: '#/components/schemas/TipoPuntoApoyo' }
+            nombre: { type: string }
+            telefono: { type: string, nullable: true }
+
+    PuntoApoyo:
+      allOf:
+        - $ref: '#/components/schemas/PuntoApoyoNuevo'
+        - type: object
+          required: [verificado]
+          properties:
+            verificado: { type: boolean }
+
+    AlertaNueva:
+      allOf:
+        - $ref: '#/components/schemas/Ubicacion'
+        - type: object
+          required: [id, tipo, descripcion]
+          properties:
+            id: { type: string, format: uuid }
+            emergencia_id: { type: string, format: uuid, nullable: true }
+            tipo: { $ref: '#/components/schemas/TipoAlerta' }
+            descripcion:
+              type: string
+              maxLength: 300
+              description: Sin nombres, edades ni datos de menores
+
+    Alerta:
+      allOf:
+        - $ref: '#/components/schemas/AlertaNueva'
+        - type: object
+          required: [zona_id, usuario_id, estado, confirmaciones, creado_en]
+          properties:
+            zona_id: { type: string, format: uuid }
+            usuario_id: { type: string, format: uuid }
+            estado: { $ref: '#/components/schemas/EstadoAlerta' }
+            confirmaciones: { type: integer, minimum: 0 }
+            creado_en: { type: string, format: date-time }
+
+    RecursoCriticoNuevo:
+      allOf:
+        - $ref: '#/components/schemas/Ubicacion'
+        - type: object
+          required: [id, tipo, modo, detalle]
+          properties:
+            id: { type: string, format: uuid }
+            emergencia_id: { type: string, format: uuid, nullable: true }
+            tipo: { $ref: '#/components/schemas/TipoRecurso' }
+            modo: { type: string, enum: [ofrece, necesita] }
+            detalle: { type: string, maxLength: 200 }
+
+    RecursoCritico:
+      allOf:
+        - $ref: '#/components/schemas/RecursoCriticoNuevo'
+        - type: object
+          required: [zona_id, usuario_id, disponible, creado_en]
+          properties:
+            zona_id: { type: string, format: uuid }
+            usuario_id: { type: string, format: uuid }
+            disponible: { type: boolean }
+            creado_en: { type: string, format: date-time }
+
+    # ---------- moderación
+    ReporteNuevo:
+      type: object
+      required: [id, objeto_tipo, objeto_id, motivo]
+      properties:
+        id: { type: string, format: uuid }
+        objeto_tipo: { type: string, enum: [servicio, favor, alerta, recurso, usuario] }
+        objeto_id: { type: string, format: uuid }
+        motivo: { type: string, enum: [falso, ofensivo, spam, peligroso, datos_personales, otro] }
+        detalle: { type: string, maxLength: 300, nullable: true }
+
+    Reporte:
+      allOf:
+        - $ref: '#/components/schemas/ReporteNuevo'
+        - type: object
+          required: [estado, creado_en]
+          properties:
+            estado: { type: string, enum: [pendiente, ocultado, descartado] }
+            creado_en: { type: string, format: date-time }
+
+    # ---------- grupos / roles
+    GrupoNuevo:
+      type: object
+      required: [id, zona_id, tipo, nombre]
+      properties:
+        id: { type: string, format: uuid }
+        zona_id: { type: string, format: uuid }
+        padre_id: { type: string, format: uuid, nullable: true }
+        tipo: { type: string, enum: [manzana, barrio, comite_emergencia, interes] }
+        nombre: { type: string, minLength: 3, maxLength: 60 }
+        reglas: { type: string, maxLength: 1000 }
+
+    Grupo:
+      allOf:
+        - $ref: '#/components/schemas/GrupoNuevo'
+        - type: object
+          properties:
+            total_miembros: { type: integer, minimum: 0 }
+            creado_en: { type: string, format: date-time }
+
+    Membresia:
+      type: object
+      required: [grupo_id, usuario_id, rol, estado]
+      properties:
+        grupo_id: { type: string, format: uuid }
+        usuario_id: { type: string, format: uuid }
+        usuario_alias: { type: string }
+        rol: { $ref: '#/components/schemas/Rol' }
+        estado: { type: string, enum: [activa, suspendida] }
+        desde: { type: string, format: date-time }
+
+    # ---------- publicidad local
+    AnuncioNuevo:
+      type: object
+      required: [id, zona_id, titulo, descripcion]
+      properties:
+        id: { type: string, format: uuid }
+        zona_id: { type: string, format: uuid }
+        titulo: { type: string, minLength: 3, maxLength: 80 }
+        descripcion: { type: string, maxLength: 300 }
+        inicio: { type: string, format: date-time }
+        fin: { type: string, format: date-time, nullable: true }
+
+    Anuncio:
+      allOf:
+        - $ref: '#/components/schemas/AnuncioNuevo'
+        - type: object
+          required: [anunciante_id, etiqueta, estado]
+          properties:
+            anunciante_id: { type: string, format: uuid }
+            etiqueta: { type: string, enum: [publicidad] }
+            estado: { type: string, enum: [pendiente, aprobado, rechazado, pausado] }
+            aprobado_por: { type: string, format: uuid, nullable: true }
+            creado_en: { type: string, format: date-time }
+
+    # ---------- alertas oficiales
+    AlertaOficialIngesta:
+      type: object
+      required: [fuente, id_externo, titulo]
+      properties:
+        fuente: { type: string, enum: [indeci, senamhi, igp, municipio, otro] }
+        id_externo: { type: string }
+        titulo: { type: string }
+        detalle: { type: string, nullable: true }
+        nivel: { type: string, enum: [informativo, amarillo, naranja, rojo], default: informativo }
+        zona_id: { type: string, format: uuid, nullable: true }
+        url_origen: { type: string, format: uri, nullable: true }
+        payload: { type: object, additionalProperties: true }
+
+    AlertaOficial:
+      allOf:
+        - $ref: '#/components/schemas/AlertaOficialIngesta'
+        - type: object
+          required: [id, estado, recibida_en]
+          properties:
+            id: { type: string, format: uuid }
+            estado: { type: string, enum: [propuesta, confirmada, descartada] }
+            emergencia_id: { type: string, format: uuid, nullable: true }
+            recibida_en: { type: string, format: date-time }
+
+    # ---------- notificaciones
+    Notificacion:
+      type: object
+      required: [id, tipo, titulo, cuerpo, prioridad, creado_en]
+      properties:
+        id: { type: string, format: uuid }
+        tipo: { type: string, enum: [alerta_emergencia, alerta_oficial, favor, sistema] }
+        titulo: { type: string }
+        cuerpo: { type: string }
+        prioridad: { type: string, enum: [normal, alta] }
+        emergencia_id: { type: string, format: uuid, nullable: true }
+        creado_en: { type: string, format: date-time }
+
+    SuscripcionPush:
+      type: object
+      required: [canal, endpoint, dispositivo_hash]
+      properties:
+        canal: { type: string, enum: [webpush, whatsapp] }
+        endpoint: { type: string }
+        claves: { type: object, additionalProperties: { type: string }, nullable: true }
+        dispositivo_hash: { type: string }
+
+    # ---------- sync
+    SyncPolitica:
+      type: object
+      required: [entidad, estrategia]
+      properties:
+        entidad: { type: string }
+        estrategia: { type: string, enum: [append_only, ultima_escritura, primero_gana, servidor_manda] }
+        nota: { type: string, nullable: true }
+
+    OperacionSync:
+      type: object
+      required: [op_id, entidad, operacion, payload, creado_en]
+      properties:
+        op_id: { type: string, format: uuid, description: Clave de idempotencia }
+        entidad:
+          type: string
+          description: Nombre de la tabla (el mismo que usa sync_politicas)
+          enum: [servicios, recomendaciones_eventos, favores, favor_confirmaciones,
+                 alertas, alerta_confirmaciones, recursos_criticos,
+                 reportes_moderacion, anuncios]
+        operacion:
+          type: string
+          enum: [crear, actualizar]
+          description: Las entidades append-only solo aceptan 'crear'
+        payload:
+          type: object
+          additionalProperties: true
+          description: Mismo cuerpo que el endpoint REST equivalente
+        creado_en: { type: string, format: date-time, description: Hora del dispositivo }
+
+    ResultadoSync:
+      type: object
+      required: [op_id, resultado]
+      properties:
+        op_id: { type: string, format: uuid }
+        resultado: { type: string, enum: [aplicada, duplicada, rechazada] }
+        motivo: { type: string, nullable: true }
+
+    DeltaCambios:
+      type: object
+      properties:
+        servicios:
+          type: array
+          items: { $ref: '#/components/schemas/Servicio' }
+        recomendaciones:
+          type: array
+          items: { $ref: '#/components/schemas/Recomendacion' }
+        favores:
+          type: array
+          items: { $ref: '#/components/schemas/Favor' }
+        alertas:
+          type: array
+          items: { $ref: '#/components/schemas/Alerta' }
+        recursos_criticos:
+          type: array
+          items: { $ref: '#/components/schemas/RecursoCritico' }
+        puntos_apoyo:
+          type: array
+          items: { $ref: '#/components/schemas/PuntoApoyo' }
+        emergencias:
+          type: array
+          items: { $ref: '#/components/schemas/Emergencia' }
+        grupos:
+          type: array
+          items: { $ref: '#/components/schemas/Grupo' }
+        membresias:
+          type: array
+          items: { $ref: '#/components/schemas/Membresia' }
+        usuarios:
+          type: array
+          items: { $ref: '#/components/schemas/Usuario' }
+        notificaciones:
+          type: array
+          items: { $ref: '#/components/schemas/Notificacion' }
+        alertas_oficiales:
+          type: array
+          items: { $ref: '#/components/schemas/AlertaOficial' }
+        anuncios:
+          type: array
+          description: Vacío mientras haya una emergencia activa en la zona
+          items: { $ref: '#/components/schemas/Anuncio' }
+        sync_politicas:
+          type: array
+          items: { $ref: '#/components/schemas/SyncPolitica' }
+
+    RespuestaSyncPull:
+      type: object
+      required: [hasta, cambios]
+      properties:
+        hasta: { type: string, format: date-time }
+        hay_mas: { type: boolean, default: false }
+        siguiente_cursor: { type: string, format: date-time, nullable: true }
+        cambios: { $ref: '#/components/schemas/DeltaCambios' }
