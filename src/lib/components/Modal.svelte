@@ -13,10 +13,11 @@
 
 {#if open}
 	<div class="fixed inset-0 z-50 flex items-center justify-center">
-		<div
+		<button
 		 class="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
 		 onclick={onClose}
-		></div>
+		 aria-label="Close modal"
+		></button>
 		<div class="relative mx-4 w-full max-w-lg transform rounded-lg bg-white p-6 shadow-xl">
 			<div class="flex items-center justify-between">
 				<h3 class="text-lg font-semibold text-gray-900">{title}</h3>

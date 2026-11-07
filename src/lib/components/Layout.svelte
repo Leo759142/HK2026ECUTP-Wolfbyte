@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
-	import { browser } from '$app/environment';
-	import { writable } from 'svelte/store';
 	import type { Snippet } from 'svelte';
 
 	interface Props {
@@ -17,13 +15,13 @@
 		{ label: 'Settings', href: '/settings' }
 	];
 
-	const currentPath = writable('');
+	let currentPath = $state('');
 
-	if (browser) {
-		afterNavigate(({ url }) => {
-			currentPath.set(url.pathname);
-		});
-	}
+	afterNavigate((navigation) => {
+		if ('url' in navigation) {
+			currentPath = navigation.url.pathname;
+		}
+	});
 </script>
 
 <div class="min-h-screen bg-gray-50">
@@ -43,7 +41,7 @@
 						<a
 							href={item.href}
 							class={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-								$currentPath === item.href
+								currentPath === item.href
 									? 'bg-blue-100 text-blue-700'
 									: 'text-gray-700 hover:bg-gray-100'
 							}`}

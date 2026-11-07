@@ -12,4 +12,4 @@ export { default as StatItem } from './components/StatItem.svelte';
 export { default as Alert } from './components/Alert.svelte';
 
 export { cn, formatNumber, formatDate, debounce, truncate } from './utils';
-export { theme, toggleTheme, sidebarOpen, user, notifications, addNotification } from './stores';
+export { theme, toggleTheme, sidebarOpen, user, notifications, addNotification } from './stores.js';

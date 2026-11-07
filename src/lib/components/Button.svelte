@@ -8,6 +8,7 @@
 		type?: 'button' | 'submit' | 'reset';
 		disabled?: boolean;
 		onclick?: (event: MouseEvent) => void;
+		class?: string;
 		children: Snippet;
 	}
 
@@ -18,6 +19,7 @@
 		type = 'button',
 		disabled = false,
 		onclick,
+		class: className = '',
 		children
 	}: Props = $props();
 
@@ -34,7 +36,7 @@
 		lg: 'px-6 py-3 text-lg'
 	};
 
-	const classes = $derived(`${variants[variant]} ${sizes[size]} rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2`);
+	const classes = $derived(`${variants[variant]} ${sizes[size]} rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 ${className}`);
 </script>
 
 {#if href}

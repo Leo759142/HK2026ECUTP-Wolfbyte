@@ -2,7 +2,7 @@
 	import PageHeader from '#lib/components/PageHeader.svelte';
 	import Card from '#lib/components/Card.svelte';
 	import Button from '#lib/components/Button.svelte';
-	import { theme } from '#lib/stores';
+	import { theme } from '../lib/stores';
 </script>
 
 <PageHeader title="Settings" description="Configure your application preferences" />

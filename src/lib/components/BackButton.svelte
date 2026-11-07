@@ -23,7 +23,7 @@
 		lg: 'text-lg'
 	};
 
-	const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;
+	const classes = $derived(`${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`);
 </script>
 
 <button class={classes} onclick={() => window.history.back()}>

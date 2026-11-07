@@ -1,8 +1,10 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
+
 	interface Props {
 		variant?: 'primary' | 'secondary' | 'ghost';
 		class?: string;
-		children: any;
+		children: Snippet;
 	}
 
 	let { variant = 'primary', class: className = '', children }: Props = $props();
@@ -15,5 +17,5 @@
 </script>
 
 <div class={`inline-flex items-center gap-2 rounded-lg px-4 py-2 font-medium ${variants[variant]} ${className}`}>
-	{@render(children())}
+	{@render children()}
 </div>

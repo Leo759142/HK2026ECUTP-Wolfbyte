@@ -57,7 +57,7 @@
 		<Button variant="primary">Add User</Button>
 	</div>
 	<Table {columns} data={users}>
-		{#snippet cell(row, col)}
+		{#snippet children(row: any, col: any)}
 			{#if col.key === 'name'}
 				<div class="flex items-center gap-3">
 					<Avatar src={`https://i.pravatar.cc/150?u=${row.id}`} alt={row.name} size="sm" />
