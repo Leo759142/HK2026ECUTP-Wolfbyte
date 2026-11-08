@@ -15,6 +15,7 @@ BEGIN TRANSACTION;
 CREATE TABLE sectores (
   id             TEXT PRIMARY KEY,
   nombre         TEXT NOT NULL CHECK (length(trim(nombre)) BETWEEN 3 AND 80),
+  area_geojson   TEXT CHECK (area_geojson IS NULL OR (json_valid(area_geojson) AND json_type(area_geojson) = 'object')),
   fundador_id    TEXT,
   creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
@@ -34,12 +35,15 @@ CREATE TABLE usuarios (
   id                       TEXT PRIMARY KEY,
   nombre                   TEXT NOT NULL CHECK (length(trim(nombre)) >= 2),
   apellido                 TEXT NOT NULL DEFAULT '',
-  telefono                 TEXT NOT NULL UNIQUE CHECK (length(telefono) = 11 AND telefono GLOB '519[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+  telefono                 TEXT UNIQUE CHECK (telefono IS NULL OR (length(telefono) = 11 AND telefono GLOB '519[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]')),  -- NULL para los vecinos: solo se guarda el propio
   sector_id                TEXT NOT NULL REFERENCES sectores(id),
   manzana                  TEXT NOT NULL,
   lat_aprox                REAL CHECK (lat_aprox BETWEEN -90 AND 90),
   lng_aprox                REAL CHECK (lng_aprox BETWEEN -180 AND 180),
-  direccion_referencia     TEXT,                       -- solo la del propio usuario; nunca la de otros
+  foto                     TEXT,
+  distrito                 TEXT,
+  direccion                TEXT,                       -- solo la del propio usuario (un Guardián la recibe en emergencia, en línea)
+  referencia               TEXT,
   verificado               INTEGER NOT NULL DEFAULT 1 CHECK (verificado IN (0,1)),
   mostrar_nombre_completo  INTEGER NOT NULL DEFAULT 0 CHECK (mostrar_nombre_completo IN (0,1)),
   invitacion_guardian      TEXT CHECK (invitacion_guardian IN ('aceptada','despues','fundador')),
@@ -209,6 +213,7 @@ CREATE TABLE emergencias (
   revisada_en      TEXT,
   atendida_en      TEXT,
   cerrada_por      TEXT REFERENCES usuarios(id),
+  vence_en         TEXT,
   reportero_visto  INTEGER NOT NULL DEFAULT 0 CHECK (reportero_visto IN (0,1)),
   creado_en        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   actualizado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
@@ -229,6 +234,20 @@ WHEN NEW.estado <> OLD.estado AND NEW.estado <> 'pendiente'
                                       WHEN 'descartada' THEN NEW.revisada_por
                                       WHEN 'atendida' THEN NEW.cerrada_por END)
 BEGIN SELECT RAISE(ABORT, 'Solo un Guardián del sector puede cambiar el estado de la emergencia'); END;
+
+CREATE TABLE emergencia_confirmaciones (
+  emergencia_id TEXT NOT NULL REFERENCES emergencias(id) ON DELETE CASCADE,
+  guardian_id   TEXT NOT NULL REFERENCES usuarios(id),
+  confirmado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  PRIMARY KEY (emergencia_id, guardian_id)
+);
+CREATE TRIGGER trg_emerg_conf_guardian BEFORE INSERT ON emergencia_confirmaciones
+WHEN NOT EXISTS (SELECT 1 FROM emergencias e JOIN sector_guardianes g ON g.sector_id = e.sector_id AND g.usuario_id = NEW.guardian_id WHERE e.id = NEW.emergencia_id)
+BEGIN SELECT RAISE(ABORT, 'Solo un Guardián del sector puede confirmar la emergencia'); END;
+CREATE TRIGGER trg_emerg_conf_no_update BEFORE UPDATE ON emergencia_confirmaciones
+BEGIN SELECT RAISE(ABORT, 'emergencia_confirmaciones es append-only'); END;
+CREATE TRIGGER trg_emerg_conf_no_delete BEFORE DELETE ON emergencia_confirmaciones
+BEGIN SELECT RAISE(ABORT, 'emergencia_confirmaciones es append-only'); END;
 
 CREATE TABLE emergencia_acuses (
   emergencia_id  TEXT NOT NULL REFERENCES emergencias(id) ON DELETE CASCADE,
@@ -351,6 +370,27 @@ SELECT u.id AS usuario_id,
        CAST(julianday('now') - julianday(u.creado_en) AS INTEGER) AS dias_en_ayni,
        (julianday('now') - julianday(u.creado_en)) >= 60 AS elegible
 FROM usuarios u;
+
+CREATE VIEW v_vecino_stats AS
+SELECT u.id AS usuario_id,
+       ((SELECT count(*) FROM servicios s WHERE s.dueno_id = u.id AND s.eliminado_en IS NULL)
+      + (SELECT count(*) FROM favores f WHERE f.dueno_id = u.id AND f.eliminado_en IS NULL)) AS publicaciones,
+       (SELECT dados FROM v_balance_ayni b WHERE b.usuario_id = u.id) AS favores_dados,
+       (SELECT recibidos FROM v_balance_ayni b WHERE b.usuario_id = u.id) AS favores_recibidos,
+       (SELECT count(*) FROM recomendaciones r JOIN servicios s ON s.id = r.servicio_id WHERE s.dueno_id = u.id) AS vistos_buenos
+FROM usuarios u;
+
+CREATE VIEW v_emergencia_resumen AS
+SELECT e.id AS emergencia_id,
+       (SELECT count(*) FROM emergencia_confirmaciones c WHERE c.emergencia_id = e.id) AS confirmaciones,
+       (SELECT count(*) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id) AS pedidos_total,
+       (SELECT count(*) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id AND p.estado = 'resuelto') AS pedidos_resueltos,
+       (SELECT count(*) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id AND p.estado = 'abierto') AS pedidos_sin_atender,
+       (SELECT count(DISTINCT p.ayudante_id) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id AND p.ayudante_id IS NOT NULL) AS vecinos_ayudando,
+       (SELECT count(*) FROM emergencia_acuses a WHERE a.emergencia_id = e.id AND a.respuesta = 'bien') AS a_salvo,
+       (SELECT count(*) FROM emergencia_acuses a WHERE a.emergencia_id = e.id AND a.respuesta = 'ayuda') AS necesitan_ayuda,
+       (SELECT count(*) FROM usuarios u WHERE u.sector_id = e.sector_id) AS vecinos_avisados
+FROM emergencias e;
 
 CREATE VIEW v_reportes_pendientes AS
 SELECT coalesce(servicio_id, favor_id) AS objeto_id,
