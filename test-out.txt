@@ -1,0 +1,414 @@
+$ npm run test:unit -- --run
+
+> proyectoonedrive@0.0.1 test:unit
+> vitest --run
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mE:/Proyecto XYZ/ProyectoOneDrive[39m
+
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/datos/outbox.pagination.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 101[2mms[22m[39m
+ [31mÔØ»[39m [30m[42m server [49m[39m src/rutas/api/favores.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m6 failed[39m[2m)[22m[33m 457[2mms[22m[39m
+[31m     [31m├ù[31m cierra cuando confirman solicitante y ayudante[39m[33m 378[2mms[22m[39m
+[31m     [31m├ù[31m 404 si el favor no existe[39m[32m 19[2mms[22m[39m
+[31m     [31m├ù[31m 422 si el rol o el m├®todo no son v├ílidos[39m[32m 8[2mms[22m[39m
+[31m     [31m├ù[31m 403 si el usuario no corresponde al rol[39m[32m 9[2mms[22m[39m
+[31m     [31m├ù[31m 409 si el favor no tiene ayudante[39m[32m 11[2mms[22m[39m
+[31m     [31m├ù[31m repetir la misma Idempotency-Key no duplica[39m[32m 11[2mms[22m[39m
+     [32mÔ£ô[39m accionesCierre seg├║n estado[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m construirConfirmacion usa el usuario del rol[32m 7[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/datos/dao.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 780[2mms[22m[39m
+     [33m[2mÔ£ô[22m[39m roundtrip async [33m 697[2mms[22m[39m
+ [31mÔØ»[39m [30m[42m server [49m[39m src/lib/publicar.test.ts [2m([22m[2m6 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 5134[2mms[22m[39m
+     [32mÔ£ô[39m servicio v├ílido va a /servicios[32m 17[2mms[22m[39m
+     [32mÔ£ô[39m favor v├ílido va a /favores[32m 2[2mms[22m[39m
+     [32mÔ£ô[39m alerta usa el t├¡tulo si no hay descripci├│n[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m errores corregibles antes de encolar[32m 4[2mms[22m[39m
+     [32mÔ£ô[39m tipoDesdeUrl[32m 5[2mms[22m[39m
+[31m     [31m├ù[31m encolarAccion guarda la operaci├│n y no llama a la red[39m[33m 5083[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/aplicacion/servicios/listar-servicios.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 47[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/aplicacion/servicios/listar-favores.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 46[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/aplicacion/servicios/publicar-servicio.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 61[2mms[22m[39m
+ [31mÔØ»[39m [30m[42m server [49m[39m src/rutas/api/seguridad.test.ts [2m([22m[2m17 tests[22m[2m | [22m[31m12 failed[39m[2m)[22m[33m 347[2mms[22m[39m
+[31m     [31m├ù[31m favores: el cliente no puede fijar estado, oculto, creador ni id[39m[32m 256[2mms[22m[39m
+[31m     [31m├ù[31m alertas: no se puede marcar como verificada ni oculta[39m[32m 9[2mms[22m[39m
+     [32mÔ£ô[39m emergencias: activada_por y activa los pone el servidor[32m 8[2mms[22m[39m
+[31m     [31m├ù[31m servicios: usuario_id y activo los pone el servidor[39m[32m 7[2mms[22m[39m
+     [32mÔ£ô[39m las coordenadas se guardan enmascaradas[32m 5[2mms[22m[39m
+[31m     [31m├ù[31m favores con coordenadas NaN[39m[32m 8[2mms[22m[39m
+[31m     [31m├ù[31m favores con coordenadas fuera de rango[39m[32m 6[2mms[22m[39m
+[31m     [31m├ù[31m favores con coordenadas lng fuera de rango[39m[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m favores con coordenadas incompletas[39m[32m 7[2mms[22m[39m
+[31m     [31m├ù[31m favores con coordenadas texto vac├¡o[39m[32m 4[2mms[22m[39m
+     [32mÔ£ô[39m servicios exige coordenadas[32m 4[2mms[22m[39m
+[31m     [31m├ù[31m alertas con coordenadas fuera de rango no da 500[39m[32m 3[2mms[22m[39m
+     [32mÔ£ô[39m validarCoordenadas del dominio rechaza NaN[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m t├¡tulos y descripciones[39m[32m 3[2mms[22m[39m
+[31m     [31m├ù[31m comentario de recomendaci├│n hasta 140[39m[32m 5[2mms[22m[39m
+     [32mÔ£ô[39m errorTextos y elegir[32m 2[2mms[22m[39m
+[31m     [31m├ù[31m favores, servicios y alertas no devuelven oculto = 1[39m[32m 8[2mms[22m[39m
+ [31mÔØ»[39m [30m[42m server [49m[39m src/rutas/api/store.test.ts [2m([22m[2m5 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[32m 289[2mms[22m[39m
+[vitest-pool]: Timeout terminating forks worker for test files E:/Proyecto XYZ/ProyectoOneDrive/src/aplicacion/servicios/listar-favores.test.ts.
+     [32mÔ£ô[39m los +server.ts solo exportan handlers v├ílidos[32m 13[2mms[22m[39m
+[31m     [31m├ù[31m el almac├®n en memoria es compartido entre endpoints[39m[32m 258[2mms[22m[39m
+     [32mÔ£ô[39m reiniciarStore vuelve a las semillas[32m 1[2mms[22m[39m
+     [32mÔ£ô[39m $app/environment resuelve y fuera del navegador usa memoria[32m 1[2mms[22m[39m
+[31m     [31m├ù[31m POST de servicios usa el mismo almac├®n[39m[32m 9[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/datos/dao.pagination.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/repositorios/servicio.local.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 17[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/aplicacion/servicios/confirmar-favor.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/aplicacion/servicios/obtener-servicio.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/sync/motor.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 285[2mms[22m[39m
+ [32mÔ£ô[39m [30m[42m server [49m[39m src/lib/vitest-examples/greet.spec.ts [2m([22m[2m1 test[22m[2m)[22m[32m 16[2mms[22m[39m
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ» Failed Tests 21 ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»
+
+ FAIL   server  src/lib/publicar.test.ts > Paso 4 ┬À sin se├▒al se guarda en la cola > encolarAccion guarda la operaci├│n y no llama a la red
+Error: Test timed out in 5000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ÔØ» src/lib/publicar.test.ts:50:2
+     48|  afterEach(() => vi.unstubAllGlobals());
+     49|
+     50|  it('encolarAccion guarda la operaci├│n y no llama a la red', async () ÔÇª
+       |  ^
+     51|   vi.stubGlobal('navigator', { onLine: false });
+     52|   const fetchSpy = vi.fn();
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[1/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/favores.test.ts > Paso 2 ┬À "Se cumpli├│" cierra el favor > cierra cuando confirman solicitante y ayudante
+AssertionError: expected undefined to be 'en_curso' // Object.is equality
+
+- Expected:
+"en_curso"
+
++ Received:
+undefined
+
+ ÔØ» src/rutas/api/favores.test.ts:17:32
+     15|   const r1 = await enviar('f2', { rol_en_favor: 'solicitante', metodo:ÔÇª
+     16|   expect(r1.status).toBe(201);
+     17|   expect(r1.json.favor_estado).toBe('en_curso');
+       |                                ^
+     18|   const r2 = await enviar('f2', { rol_en_favor: 'ayudante', metodo: 'bÔÇª
+     19|   expect(r2.status).toBe(201);
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[2/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/favores.test.ts > Paso 2 ┬À "Se cumpli├│" cierra el favor > 404 si el favor no existe
+AssertionError: expected 201 to be 404 // Object.is equality
+
+- Expected
++ Received
+
+- 404
++ 201
+
+ ÔØ» src/rutas/api/favores.test.ts:26:20
+     24|  it('404 si el favor no existe', async () => {
+     25|   const r = await enviar('no-existe', { rol_en_favor: 'solicitante', mÔÇª
+     26|   expect(r.status).toBe(404);
+       |                    ^
+     27|  });
+     28|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[3/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/favores.test.ts > Paso 2 ┬À "Se cumpli├│" cierra el favor > 422 si el rol o el m├®todo no son v├ílidos
+AssertionError: expected 201 to be 422 // Object.is equality
+
+- Expected
++ Received
+
+- 422
++ 201
+
+ ÔØ» src/rutas/api/favores.test.ts:30:100
+     28|
+     29|  it('422 si el rol o el m├®todo no son v├ílidos', async () => {
+     30|   expect((await enviar('f2', { rol_en_favor: 'jefe', metodo: 'boton', ÔÇª
+       |                                                                                                    ^
+     31|   expect((await enviar('f2', { rol_en_favor: 'solicitante', metodo: 'tÔÇª
+     32|   expect((await enviar('f2', { rol_en_favor: 'solicitante', metodo: 'bÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[4/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/favores.test.ts > Paso 2 ┬À "Se cumpli├│" cierra el favor > 403 si el usuario no corresponde al rol
+AssertionError: expected 201 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 201
+
+ ÔØ» src/rutas/api/favores.test.ts:37:20
+     35|  it('403 si el usuario no corresponde al rol', async () => {
+     36|   const r = await enviar('f2', { rol_en_favor: 'solicitante', metodo: ÔÇª
+     37|   expect(r.status).toBe(403);
+       |                    ^
+     38|   expect(store.confirmaciones).toHaveLength(0);
+     39|  });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[5/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/favores.test.ts > Paso 2 ┬À "Se cumpli├│" cierra el favor > 409 si el favor no tiene ayudante
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ÔØ» src/rutas/api/favores.test.ts:43:20
+     41|  it('409 si el favor no tiene ayudante', async () => {
+     42|   const r = await enviar('f1', { rol_en_favor: 'solicitante', metodo: ÔÇª
+     43|   expect(r.status).toBe(409);
+       |                    ^
+     44|  });
+     45|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[6/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/favores.test.ts > Paso 2 ┬À "Se cumpli├│" cierra el favor > repetir la misma Idempotency-Key no duplica
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ÔØ» src/rutas/api/favores.test.ts:53:32
+     51|   expect(r.status).toBe(200);
+     52|   expect(r.headers.get('Idempotent-Replayed')).toBe('true');
+     53|   expect(store.confirmaciones).toHaveLength(1);
+       |                                ^
+     54|  });
+     55| });
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[7/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À lista blanca > favores: el cliente no puede fijar estado, oculto, creador ni id
+AssertionError: expected { id: 'f1', ÔÇª(16) } to match object { estado: 'abierto', oculto: +0, ÔÇª(1) }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "creador_id": "demo",
+-   "estado": "abierto",
+-   "oculto": 0,
++   "creador_id": "atacante",
++   "estado": "cerrado",
++   "oculto": 1,
+  }
+
+ ÔØ» src/rutas/api/seguridad.test.ts:25:18
+     23|   const r = await post(favores.POST, '/api/v1/favores', { ...favorOk, ÔÇª
+     24|   expect(r.status).toBe(201);
+     25|   expect(r.json).toMatchObject({ estado: 'abierto', oculto: 0, creadorÔÇª
+       |                  ^
+     26|   expect(r.json.id).not.toBe('f1');
+     27|   expect(r.json).not.toHaveProperty('extra');
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[8/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À lista blanca > alertas: no se puede marcar como verificada ni oculta
+AssertionError: expected { ÔÇª(13) } to match object { estado: 'sin_verificar', ÔÇª(2) }
+(10 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "estado": "sin_verificar",
+-   "oculto": 0,
+-   "usuario_id": "demo",
++   "estado": "confirmado_vecinos",
++   "oculto": 1,
++   "usuario_id": "otro",
+  }
+
+ ÔØ» src/rutas/api/seguridad.test.ts:32:18
+     30|  it('alertas: no se puede marcar como verificada ni oculta', async () ÔÇª
+     31|   const r = await post(alertas.POST, '/api/v1/alertas', { ...alertaOk,ÔÇª
+     32|   expect(r.json).toMatchObject({ estado: 'sin_verificar', oculto: 0, uÔÇª
+       |                  ^
+     33|  });
+     34|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[9/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À lista blanca > servicios: usuario_id y activo los pone el servidor
+ReferenceError: CAMPOS is not defined
+ ÔØ» POST src/rutas/api/v1/servicios/+server.ts:47:16
+     45|  const ahora = new Date().toISOString();
+     46|  const item = {
+     47|   ...elegir(b, CAMPOS),
+       |                ^
+     48|   ...enmascararCoordenadas(coords.lat, coords.lng),
+     49|   id: key,
+ ÔØ» llamar src/rutas/api/_test-utils.ts:21:14
+ ÔØ» src/rutas/api/seguridad.test.ts:42:13
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[10/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À coordenadas inv├ílidas ÔåÆ 422 > favores con coordenadas NaN
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À coordenadas inv├ílidas ÔåÆ 422 > favores con coordenadas fuera de rango
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À coordenadas inv├ílidas ÔåÆ 422 > favores con coordenadas lng fuera de rango
+RangeError: Coordenadas fuera de rango
+ ÔØ» validarCoordenadas src/dominio/tipos/geohash.ts:9:9
+      7| export function validarCoordenadas(lat: number, lng: number): void {
+      8|  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || laÔÇª
+      9|   throw new RangeError('Coordenadas fuera de rango');
+       |         ^
+     10|  }
+     11| }
+ ÔØ» enmascararCoordenadas src/dominio/tipos/geohash.ts:15:2
+ ÔØ» POST src/rutas/api/v1/favores/+server.ts:42:61
+ ÔØ» llamar src/rutas/api/_test-utils.ts:21:14
+ ÔØ» src/rutas/api/seguridad.test.ts:63:13
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[11/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À coordenadas inv├ílidas ÔåÆ 422 > favores con coordenadas incompletas
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À coordenadas inv├ílidas ÔåÆ 422 > favores con coordenadas texto vac├¡o
+AssertionError: expected 201 to be 422 // Object.is equality
+
+- Expected
++ Received
+
+- 422
++ 201
+
+ ÔØ» src/rutas/api/seguridad.test.ts:64:20
+     62|   const { lat_aprox: _a, lng_aprox: _b, ...base } = favorOk;
+     63|   const r = await post(favores.POST, '/api/v1/favores', { ...base, ...ÔÇª
+     64|   expect(r.status).toBe(422);
+       |                    ^
+     65|  });
+     66|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[12/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À coordenadas inv├ílidas ÔåÆ 422 > alertas con coordenadas fuera de rango no da 500
+RangeError: Coordenadas fuera de rango
+ ÔØ» validarCoordenadas src/dominio/tipos/geohash.ts:9:9
+      7| export function validarCoordenadas(lat: number, lng: number): void {
+      8|  if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || laÔÇª
+      9|   throw new RangeError('Coordenadas fuera de rango');
+       |         ^
+     10|  }
+     11| }
+ ÔØ» enmascararCoordenadas src/dominio/tipos/geohash.ts:15:2
+ ÔØ» POST src/rutas/api/v1/alertas/+server.ts:38:61
+ ÔØ» llamar src/rutas/api/_test-utils.ts:21:14
+ ÔØ» src/rutas/api/seguridad.test.ts:74:11
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[13/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À l├¡mites de longitud > t├¡tulos y descripciones
+AssertionError: expected 201 to be 422 // Object.is equality
+
+- Expected
++ Received
+
+- 422
++ 201
+
+ ÔØ» src/rutas/api/seguridad.test.ts:88:94
+     86|
+     87|  it('t├¡tulos y descripciones', async () => {
+     88|   expect((await post(favores.POST, '/api/v1/favores', { ...favorOk, tiÔÇª
+       |                                                                                              ^
+     89|   expect((await post(favores.POST, '/api/v1/favores', { ...favorOk, tiÔÇª
+     90|   expect((await post(servicios.POST, '/api/v1/servicios', { ...serviciÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[14/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À l├¡mites de longitud > comentario de recomendaci├│n hasta 140
+AssertionError: expected 201 to be 422 // Object.is equality
+
+- Expected
++ Received
+
+- 422
++ 201
+
+ ÔØ» src/rutas/api/seguridad.test.ts:98:78
+     96|   const base = { tipo: 'visto_bueno', misma_zona: true, dispositivo_haÔÇª
+     97|   const llamarRec = (body: unknown) => llamar(recomendar, '/api/v1/serÔÇª
+     98|   expect((await llamarRec({ ...base, comentario: 'x'.repeat(141) })).sÔÇª
+       |                                                                              ^
+     99|   expect((await llamarRec({ ...base, tipo: 'me_gusta' })).status).toBeÔÇª
+    100|   expect((await llamarRec({ ...base, comentario: 'Muy bueno' })).statuÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[15/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/seguridad.test.ts > Paso 3 ┬À GET filtra ocultos > favores, servicios y alertas no devuelven oculto = 1
+AssertionError: expected [ 'f1', 'f2', ÔÇª(4) ] to deeply equal [ 'f2' ]
+
+- Expected
++ Received
+
+  [
++   "f1",
+    "f2",
++   "test-key-1794154126743-5",
++   "test-key-1794154126767-9",
++   "test-key-1794154126773-10",
++   "test-key-1794154126786-14",
+  ]
+
+ ÔØ» src/rutas/api/seguridad.test.ts:119:53
+    117|   const ids = async (h: Parameters<typeof llamar>[0], ruta: string) =>
+    118|    ((await llamar(h, ruta)).json.items as Array<{ id: string }>).map((ÔÇª
+    119|   expect(await ids(favores.GET, '/api/v1/favores')).toEqual(['f2']);
+       |                                                     ^
+    120|   expect(await ids(servicios.GET, '/api/v1/servicios')).toEqual(['s2']ÔÇª
+    121|   expect(await ids(alertas.GET, '/api/v1/alertas')).toEqual(['a-visiblÔÇª
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[16/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/store.test.ts > Paso 1 ┬À arranque > el almac├®n en memoria es compartido entre endpoints
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ÔØ» src/rutas/api/store.test.ts:33:84
+     31|   store.favores.push({ ...store.favores[0], id: 'f-nuevo' });
+     32|   const r2 = await llamar(favores.GET, '/api/v1/favores');
+     33|   expect((r2.json.items as Array<{ id: string }>).some((f) => f.id ===ÔÇª
+       |                                                                                    ^
+     34|  });
+     35|
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[17/21]ÔÄ»
+
+ FAIL   server  src/rutas/api/store.test.ts > Paso 1 ┬À arranque > POST de servicios usa el mismo almac├®n
+ReferenceError: CAMPOS is not defined
+ ÔØ» POST src/rutas/api/v1/servicios/+server.ts:47:16
+     45|  const ahora = new Date().toISOString();
+     46|  const item = {
+     47|   ...elegir(b, CAMPOS),
+       |                ^
+     48|   ...enmascararCoordenadas(coords.lat, coords.lng),
+     49|   id: key,
+ ÔØ» llamar src/rutas/api/_test-utils.ts:21:14
+ ÔØ» src/rutas/api/store.test.ts:51:13
+
+ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»ÔÄ»[18/21]ÔÄ»
+
+
+[2m Test Files [22m [1m[31m4 failed[39m[22m[2m | [22m[1m[32m11 passed[39m[22m[90m (15)[39m
+[2m      Tests [22m [1m[31m21 failed[39m[22m[2m | [22m[1m[32m43 passed[39m[22m[90m (64)[39m
+[2m   Start at [22m 11:07:33
+[2m   Duration [22m 94.49s[2m (transform 76.98s, setup 0ms, import 115.95s, tests 7.65s, environment 22ms)[22m
+
+[ELIFECYCLE] Test failed. See above for more details.

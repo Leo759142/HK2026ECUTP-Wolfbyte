@@ -4,7 +4,7 @@ export type UUID = string;
 export const ROLES_PLATAFORMA = ['usuario', 'admin'] as const;
 export type RolPlataforma = (typeof ROLES_PLATAFORMA)[number];
 
-export const IDIOMAS = ['es', 'qu'] as const;
+export const IDIOMAS = ['es', 'en', 'qu'] as const;
 export type Idioma = (typeof IDIOMAS)[number];
 
 export const TIPOS_GRUPO = ['manzana', 'barrio', 'comite_emergencia', 'interes'] as const;

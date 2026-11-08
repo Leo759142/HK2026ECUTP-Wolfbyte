@@ -1,7 +1,32 @@
-import type { Idioma } from './formatos';
+import type { Idioma } from '../dominio/tipos/tipos';
+import { IDIOMAS } from '../dominio/tipos/tipos';
+
+export { IDIOMAS };
+export type { Idioma };
 
 export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
   es: {
+    'nav.inicio': 'Inicio',
+    'nav.favores': 'Favores',
+    'nav.mapa': 'Mapa',
+    'nav.yo': 'Yo',
+    'nav.ahora': 'Ahora',
+    'nav.grupos': 'Grupos',
+    'nav.publicar': 'Publicar',
+    hola: '¡Hola',
+    lema: 'Hoy por ti, mañana por mí',
+    buscar: '¿Qué necesitas hoy?',
+    oficios: 'Oficios del barrio',
+    recomendados: 'Los más recomendados',
+    crearCuenta: 'Crear cuenta',
+    yaTengo: 'Ya tengo cuenta',
+    favores: 'Cadena de Favores',
+    favoresSub: 'Sin dinero, entre vecinos',
+    reportar: '¿Pasa algo grave? Reportar emergencia',
+    misPublicaciones: 'Mis publicaciones',
+    idioma: 'Idioma y lectura',
+    enLinea: 'En línea',
+    sinConexion: 'Sin conexión · Ahorrando datos. Ves lo último guardado.',
     'emergencia.titulo': 'TABLERO DE AYUDA HUMANITARIA',
     'emergencia.subtitulo': 'Recursos críticos disponibles en tu manzana',
     'emergencia.alerta_vacio': 'No hay alertas críticas reportadas en este sector.',
@@ -14,9 +39,42 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
     'error.generico': 'Algo salió mal. El mensaje te indicará cómo corregirlo.',
     'error.permiso': 'Tu rol actual no tiene autorización para esta acción.'
   },
+  en: {
+    'nav.inicio': 'Home',
+    'nav.favores': 'Favors',
+    'nav.mapa': 'Map',
+    'nav.yo': 'Me',
+    'nav.ahora': 'Now',
+    'nav.grupos': 'Groups',
+    'nav.publicar': 'Post',
+    hola: 'Hi',
+    lema: 'Today for you, tomorrow for me',
+    buscar: 'What do you need today?',
+    oficios: 'Neighborhood trades',
+    recomendados: 'Most recommended',
+    crearCuenta: 'Create account',
+    yaTengo: 'I already have an account',
+    favores: 'Chain of Favors',
+    favoresSub: 'No money, between neighbors',
+    reportar: 'Something serious? Report an emergency',
+    misPublicaciones: 'My posts',
+    idioma: 'Language & reading',
+    enLinea: 'Online',
+    sinConexion: 'Offline · Saving data. You are seeing the last saved info.',
+    'emergencia.titulo': 'HUMANITARIAN AID BOARD',
+    'emergencia.subtitulo': 'Critical resources available in your block',
+    'emergencia.alerta_vacio': 'No critical alerts reported in this sector.',
+    'favor.estado.abierto': 'Open',
+    'favor.estado.acordado': 'Help on the way',
+    'favor.estado.cerrado': 'Closed and confirmed',
+    'favor.boton.cumplido': 'Confirm Exchange ("Completed")',
+    'offline.pendiente': 'Pending to send (Saved on device)',
+    'offline.enviado': 'Successfully sent to the neighborhood',
+    'error.generico': 'Something went wrong. The message will tell you how to fix it.',
+    'error.permiso': 'Your current role is not authorized for this action.'
+  },
   qu: {
-    // Inicializado en español como contingencia activa para evitar caídas de renderizado (Graceful Degradation)
-    // El traductor inyectará los morfemas del quechua chanka/collao en la siguiente iteración sin alterar el núcleo
+    hola: '¡Allinllachu',
     'emergencia.titulo': 'HUQ MUSYANA (EMERGENCIA)',
     'emergencia.subtitulo': 'Suministrokunata chay manzanapi kachkan',
     'emergencia.alerta_vacio': 'Manam kanchu alerts kay pacha.',
@@ -31,8 +89,12 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
   }
 };
 
+export function translate(lang: Idioma, key: string): string {
+  return DICCIONARIO_LOCAL[lang]?.[key] ?? DICCIONARIO_LOCAL.es[key] ?? key;
+}
+
 export class GestorIdiomas {
-  private _idiomaActual: Idioma = 'es';
+  private _idiomaActual: Idioma;
 
   constructor(idiomaInicial: Idioma = 'es') {
     this._idiomaActual = idiomaInicial;
@@ -46,9 +108,6 @@ export class GestorIdiomas {
     this._idiomaActual = nuevoIdioma;
   }
 
-  /**
-   * Recupera la cadena de texto con fallback automático al español si la clave no existe en Quechua.
-   */
   t(clave: string): string {
     const traduccion = DICCIONARIO_LOCAL[this._idiomaActual]?.[clave];
     if (!traduccion) {

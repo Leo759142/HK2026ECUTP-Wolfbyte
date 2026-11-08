@@ -80,7 +80,7 @@ Puntos a tener en cuenta:
 ## 3. Estructura de rutas
 
 ```text
-src/routes/
+src/rutas/
 ├─ +layout.svelte          # layout raíz
 ├─ +layout.server.ts       # datos comunes (sesión, distrito)
 ├─ +page.svelte            # /
@@ -108,7 +108,7 @@ Reglas prácticas:
 ### 4.1 `load` universal vs. de servidor
 
 ```ts
-// src/routes/casos/[code]/+page.server.ts
+// src/rutas/casos/[code]/+page.server.ts
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { getIncidentByCode } from '$lib/infra/server/incident-postgres-repository';
@@ -132,7 +132,7 @@ export const load: PageServerLoad = async ({ params, locals, setHeaders }) => {
 ```
 
 ```svelte
-<!-- src/routes/casos/[code]/+page.svelte -->
+<!-- src/rutas/casos/[code]/+page.svelte -->
 <script lang="ts">
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
@@ -251,7 +251,7 @@ Reglas:
 ## 6. Form actions y progressive enhancement
 
 ```ts
-// src/routes/reportar/+page.server.ts
+// src/rutas/reportar/+page.server.ts
 import { fail, redirect } from '@sveltejs/kit';
 import { z } from 'zod';
 import type { Actions } from './$types';
@@ -309,7 +309,7 @@ Buenas prácticas:
 ## 7. Endpoints (`+server.ts`)
 
 ```ts
-// src/routes/api/v1/incidents/+server.ts
+// src/rutas/api/v1/incidents/+server.ts
 import type { RequestHandler } from './$types';
 import { z } from 'zod';
 
@@ -359,7 +359,7 @@ sveltekit({
 ```
 
 ```ts
-// src/routes/reportar/data.remote.ts
+// src/rutas/reportar/data.remote.ts
 import { query, command } from '$app/server';
 import { z } from 'zod';
 

@@ -1,11 +1,11 @@
 # Implementación RF/RNF (borrador técnico)
 
 ## Ruta/estructura
-- `routes/` es el árbol de rutas SvelteKit (configurado en `svelte.config.js`).
+- `rutas/` es el árbol de rutas SvelteKit (configurado en `svelte.config.js`).
 - `src/dominio/` contiene reglas/tipos alineados a `docs/MrMDs/schema_sqlite.sql`.
 - `src/datos/dao.ts` es stub cliente para outbox/local DB; `src/sync/api.ts` publica con idempotencia.
 - `static/api/openapi.yaml` es el contrato Swagger/OpenAPI 3.1 servido en `/api/openapi.yaml`.
-- `routes/api/docs/+page.svelte` renderiza Swagger UI.
+- `rutas/api/docs/+page.svelte` renderiza Swagger UI.
 
 ## API v1 (stubs contrato-primero)
 - `POST/GET /api/v1/servicios` (RF05-RF08)

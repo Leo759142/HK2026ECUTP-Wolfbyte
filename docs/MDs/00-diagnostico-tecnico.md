@@ -1,7 +1,7 @@
 # 00 · Diagnóstico técnico del repositorio
 
 > **Método:** revisión estática de archivos, versiones instaladas en `node_modules`, estado de Git y artefactos de build existentes. **No se ejecutó** `pnpm build`, `pnpm check` ni se modificó código de aplicación.
-> **Fecha:** 2026-11-06 · **Commit base:** `ffbdfb8` ("Primer commit con mi codigo") · **Cambios sin commitear:** `src/lib/components/Layout.svelte`, `src/routes/+layout.svelte`.
+> **Fecha:** 2026-11-06 · **Commit base:** `ffbdfb8` ("Primer commit con mi codigo") · **Cambios sin commitear:** `src/lib/components/Layout.svelte`, `src/rutas/+layout.svelte`.
 
 ---
 
@@ -20,7 +20,7 @@ ProyectoOneDrive/
 │  │  ├─ stores.ts              # theme, sidebar, user, notifications (writable)
 │  │  ├─ utils.ts               # cn, formatNumber, formatDate, debounce, truncate
 │  │  └─ vitest-examples/       # greet.ts + greet.spec.ts (demo)
-│  └─ routes/
+│  └─ rutas/
 │     ├─ +layout.svelte         # monta Layout; NO importa layout.css
 │     ├─ +page.svelte           # home demo
 │     ├─ +page.ts
@@ -51,7 +51,7 @@ ProyectoOneDrive/
 | ESLint/Prettier | Configurados | `eslint.config.js`, `prettier.config.js` |
 | Adapter | `adapter-auto` | No define destino de despliegue |
 | PWA | Ausente | No hay `src/service-worker/`, manifest ni iconos |
-| API | Ausente | No hay `src/routes/api/` ni `openapi/` |
+| API | Ausente | No hay `src/rutas/api/` ni `openapi/` |
 | Hooks | Ausentes | No hay `src/hooks.server.ts` ni `src/hooks.client.ts` |
 
 ---
@@ -92,8 +92,8 @@ Severidad: **P0** bloquea demo/producción; **P1** bloquea una feature completa;
 
 | ID | Hallazgo | Evidencia | Impacto | Acción |
 |---|---|---|---|---|
-| **D-01** | Tailwind no se carga | `src/routes/layout.css` contiene `@import 'tailwindcss';` pero ningún archivo lo importa (`grep -rn "layout.css" src` no devuelve resultados) | Toda la UI basada en clases Tailwind se renderiza sin estilos; el kit es inservible | Añadir `import './layout.css';` en `src/routes/+layout.svelte` y retirar del CSS las reglas demo (`body`, `h1`, `a`, `.text-column`) |
-| **D-02** | No hay contrato ni capa de API | No existe `src/routes/api/` ni `openapi/` | Imposible conectar la PWA a datos reales o documentar para terceros | Implementar `/api/v1` y publicar `openapi/openapi.yaml` (ver [08](08-api-openapi-swagger.md)) |
+| **D-01** | Tailwind no se carga | `src/rutas/layout.css` contiene `@import 'tailwindcss';` pero ningún archivo lo importa (`grep -rn "layout.css" src` no devuelve resultados) | Toda la UI basada en clases Tailwind se renderiza sin estilos; el kit es inservible | Añadir `import './layout.css';` en `src/rutas/+layout.svelte` y retirar del CSS las reglas demo (`body`, `h1`, `a`, `.text-column`) |
+| **D-02** | No hay contrato ni capa de API | No existe `src/rutas/api/` ni `openapi/` | Imposible conectar la PWA a datos reales o documentar para terceros | Implementar `/api/v1` y publicar `openapi/openapi.yaml` (ver [08](08-api-openapi-swagger.md)) |
 
 ### P1 — Bloquean una feature completa
 
@@ -102,7 +102,7 @@ Severidad: **P0** bloquea demo/producción; **P1** bloquea una feature completa;
 | **D-03** | No es una PWA | Sin `src/service-worker/`, `static/manifest.webmanifest`, iconos ni meta tags | No se puede instalar, no funciona offline, no hay caché | Ver [04-pwa-offline.md](04-pwa-offline.md) |
 | **D-04** | Pruebas no representativas | Solo `src/lib/vitest-examples/greet.spec.ts`; no hay pruebas de componentes ni e2e | Regresiones invisibles; el pipeline no protege nada | Ver [09-testing.md](09-testing.md) |
 | **D-05** | Sin hooks ni sesión | No existen `src/hooks.*`; `app.d.ts` tiene `App` vacío | Sin autenticación, autorización, auditoría ni cabeceras de seguridad | Ver [07-hooks-y-seguridad.md](07-hooks-y-seguridad.md) |
-| **D-06** | Código demo en el build | Rutas `/sverdle` (juego) y `/users` con datos hardcodeados | Peso muerto, superficie de ataque y confusión de alcance | Mover a `src/routes/(lab)/` excluido del deploy o eliminar antes de release |
+| **D-06** | Código demo en el build | Rutas `/sverdle` (juego) y `/users` con datos hardcodeados | Peso muerto, superficie de ataque y confusión de alcance | Mover a `src/rutas/(lab)/` excluido del deploy o eliminar antes de release |
 | **D-07** | Adapter indefinido | `adapter-auto` en `vite.config.ts` | El build puede fallar o desplegarse en un runtime no soportado | Elegir `adapter-node` (ADR-0005) o `adapter-cloudflare` explícito |
 | **D-08** | `App` sin tipos | `src/app.d.ts` solo tiene comentarios | `locals`, `PageData` y `Error` sin tipar; se pierde seguridad | Declarar `Locals`, `PageData`, `PageState` y `Error` |
 
@@ -116,7 +116,7 @@ Severidad: **P0** bloquea demo/producción; **P1** bloquea una feature completa;
 | **D-12** | Dependencia externa de avatares | `/users` usa `https://i.pravatar.cc/150?u=...` | Fuga de identificadores a terceros, fallo sin red, costo de datos | Usar avatares locales o iniciales; `loading="lazy"` |
 | **D-13** | Idioma y formato | `app.html` tiene `lang="en"`; `utils.ts` formatea `en-US` | Mala accesibilidad y fechas/números incorrectos para Perú | `lang="es-PE"`, `Intl` con `es-PE`, zona `America/Lima` |
 | **D-14** | Activos duplicados | `src/lib/assets/favicon.svg` y `static/favicon.svg` | Confusión de fuente de verdad | Conservar solo `static/` para activos públicos |
-| **D-15** | Sin página de error | No existe `src/routes/+error.svelte` | Errores 404/500 muestran la página por defecto | Crear `+error.svelte` con recuperación y enlace a inicio |
+| **D-15** | Sin página de error | No existe `src/rutas/+error.svelte` | Errores 404/500 muestran la página por defecto | Crear `+error.svelte` con recuperación y enlace a inicio |
 | **D-16** | Sin validación de entorno | No existe `src/env.ts` | Fallos en runtime por variables ausentes | Usar `defineEnvVars` (ver [03](03-sveltekit-3.md#9-variables-de-entorno-tipadas)) |
 | **D-17** | CSS demo global | `layout.css` define `body` con gradiente, `h1` centrado y `a` rojo | Si se importa, rompe el design system | Reducir a tokens y `@import 'tailwindcss';` |
 
@@ -170,13 +170,13 @@ npx lighthouse http://localhost:4173 --only-categories=pwa,accessibility,perform
 
 | # | Tarea | Archivos | Resultado |
 |---|---|---|---|
-| 1 | Importar Tailwind y limpiar CSS demo | `src/routes/+layout.svelte`, `src/routes/layout.css` | UI con estilos reales |
+| 1 | Importar Tailwind y limpiar CSS demo | `src/rutas/+layout.svelte`, `src/rutas/layout.css` | UI con estilos reales |
 | 2 | Tipar `App` | `src/app.d.ts` | `locals.user` y errores tipados |
 | 3 | `lang="es-PE"` + `theme-color` + `manifest` | `src/app.html`, `static/manifest.webmanifest` | Base instalable y accesible |
-| 4 | Página de error | `src/routes/+error.svelte` | Recuperación ante 404/500 |
+| 4 | Página de error | `src/rutas/+error.svelte` | Recuperación ante 404/500 |
 | 5 | Scripts consistentes | `package.json` | `pnpm test` funciona sin npm |
-| 6 | Eliminar `i.pravatar.cc` | `src/routes/users/+page.svelte` | Sin dependencia externa ni fuga de IDs |
-| 7 | Mover demos a `(lab)` | `src/routes/sverdle`, `src/routes/users` | Build de producción limpio |
+| 6 | Eliminar `i.pravatar.cc` | `src/rutas/users/+page.svelte` | Sin dependencia externa ni fuga de IDs |
+| 7 | Mover demos a `(lab)` | `src/rutas/sverdle`, `src/rutas/users` | Build de producción limpio |
 
 ---
 
@@ -186,7 +186,7 @@ npx lighthouse http://localhost:4173 --only-categories=pwa,accessibility,perform
 - [ ] `pnpm build` produce un artefacto con adapter explícito.
 - [ ] La app carga Tailwind y no tiene CSS global de demo.
 - [ ] `App.Locals` y `App.Error` están tipados.
-- [ ] Existe `src/routes/+error.svelte`.
+- [ ] Existe `src/rutas/+error.svelte`.
 - [ ] Existe manifest + service worker y Lighthouse marca la app como instalable.
 - [ ] No hay rutas demo en el build de producción.
 - [ ] `src/env.ts` valida todas las variables requeridas al arrancar.

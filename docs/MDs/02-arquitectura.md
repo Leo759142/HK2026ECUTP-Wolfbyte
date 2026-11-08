@@ -87,8 +87,8 @@ flowchart LR
 | Aplicación | `src/lib/application/` | Casos de uso: crear reporte, triar, asignar, cerrar, confirmar | Dominio + puertos |
 | Puertos | `src/lib/application/ports/` | Interfaces de repositorios, reloj, IDs, almacenamiento | Dominio |
 | Adaptadores | `src/lib/infra/` | HTTP, IndexedDB, S3, Postgres, workers | Puertos + librerías |
-| UI | `src/lib/components/`, `src/routes/` | Componentes, páginas, formularios, estados de carga | Aplicación |
-| Borde | `src/hooks.server.ts`, `src/routes/api/` | Sesión, RBAC, validación, rate limit, contrato | Aplicación + infra |
+| UI | `src/lib/components/`, `src/rutas/` | Componentes, páginas, formularios, estados de carga | Aplicación |
+| Borde | `src/hooks.server.ts`, `src/rutas/api/` | Sesión, RBAC, validación, rate limit, contrato | Aplicación + infra |
 | Service Worker | `src/service-worker/` | Caché, offline shell, sync, push | `$app/*` |
 
 Regla de dependencia: **las flechas apuntan hacia el dominio**. Si un componente importa Drizzle o `fetch`, la frontera está mal.
@@ -126,7 +126,7 @@ src/
 │  ├─ components/                  # kit existente
 │  ├─ stores/                      # estado de UI (runes/stores)
 │  └─ utils/
-├─ routes/
+├─ rutas/
 │  ├─ (public)/                    # home, ayuda, privacidad
 │  ├─ (app)/reportar/              # flujo de reporte
 │  ├─ (app)/casos/[code]/          # seguimiento

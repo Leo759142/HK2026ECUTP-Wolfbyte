@@ -72,7 +72,7 @@ Los cinco hallazgos que bloquean cualquier demo creíble están en [00-diagnosti
 
 | ID | Severidad | Hallazgo |
 |---|---|---|
-| D-01 | P0 | `src/routes/layout.css` existe pero **no se importa**: Tailwind no se aplica. |
+| D-01 | P0 | `src/rutas/layout.css` existe pero **no se importa**: Tailwind no se aplica. |
 | D-02 | P0 | No existe capa de API ni contrato OpenAPI. |
 | D-03 | P1 | No existe PWA: sin manifest, iconos, service worker ni estrategia offline. |
 | D-04 | P1 | No hay pruebas de dominio, componentes ni e2e; el único test es un saludo. |
@@ -114,7 +114,7 @@ Los ejemplos de código son **ilustrativos y ejecutables en su mayoría**, pero 
 
 | # | Acción | Dueño | Criterio de salida |
 |---|---|---|---|
-| 1 | Importar Tailwind en `src/routes/+layout.svelte` y retirar el CSS demo | Frontend | `pnpm dev` muestra el kit con estilos |
+| 1 | Importar Tailwind en `src/rutas/+layout.svelte` y retirar el CSS demo | Frontend | `pnpm dev` muestra el kit con estilos |
 | 2 | Crear `src/env.ts`, `src/app.d.ts` y `src/hooks.server.ts` base | Backend | `pnpm check` sin errores; locales tipados |
 | 3 | Crear `src/service-worker/index.ts` + manifest + iconos | Frontend | Lighthouse PWA instalable |
 | 4 | Implementar dominio + repositorios + outbox | Full-stack | Reporte creado offline y sincronizado |

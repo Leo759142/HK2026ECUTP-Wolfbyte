@@ -29,9 +29,9 @@
 | Web Worker | *(no hay workers dedicados en `src/`)* | Faltante: no hay SQLite WASM worker, ni worker de compresión/hash |
 | Cipher/crypto local | `src/seguridad/cifradolocalmejora.ts` | Stub inseguro para producción: empaqueta/desempaqueta en plaintext |
 | Privacidad/geohash | `src/seguridad/anonimizador.ts` reexporta `src/dominio/tipos/geohash.ts` | Parcial: utilidades presentes; falta aplicar sistemáticamente en flujos y API |
-| API v1 | `routes/api/v1/**`, `src/routes/api/_http.ts` | Stubs contrato-primero; falta persistencia/adaptadores servidor, auth/RBAC, idempotencia real, rate limit |
+| API v1 | `rutas/api/v1/**`, `src/rutas/api/_http.ts` | Stubs contrato-primero; falta persistencia/adaptadores servidor, auth/RBAC, idempotencia real, rate limit |
 | OpenAPI | `static/api/openapi.yaml`, `/api/docs` | Parcial: contrato inicial; debe mantenerse alineado al comportamiento real |
-| UI/páginas | `src/routes/**` | Parcial/demo: navegación y flujos base; falta conexión a repositorios/casos de uso reales, estados de error/carga/offline consistentes |
+| UI/páginas | `src/rutas/**` | Parcial/demo: navegación y flujos base; falta conexión a repositorios/casos de uso reales, estados de error/carga/offline consistentes |
 | Auth/sesión/hooks | *(no se observó `src/hooks.server.ts` implementado en fuentes leídas)* | Faltante/crítico para RBAC, rate limit, trazabilidad y protección de rutas/API |
 
 ## Glosario breve
@@ -121,8 +121,8 @@
 | Dominio | `src/dominio/` (evolucionar) | Entidades, VOs, reglas, errores, invariantes, políticas puras (RBAC, cierre, anonimización) | Nada de SvelteKit/HTTP/DB/UI |
 | Aplicación | `src/aplicacion/` (crear) | Casos de uso, puertos (interfaces), orquestación, DTOs internos, políticas de transacción/sync | Dominio + puertos |
 | Infraestructura | `src/infra/` (crear) | Adaptadores HTTP, SQLite WASM/OPFS, Dexie fallback, WebCrypto, SW helpers, server repos | Aplicación/puertos + libs externas |
-| UI / rutas | `src/routes/`, `src/lib/components/` | Formularios, páginas, stores/runas, presentación, accesibilidad | Aplicación/casos de uso (no DB directa) |
-| Borde servidor | `src/hooks.server.ts`, `src/routes/api/` | Sesión, authz, validación, rate limit, idempotencia, headers, observabilidad | Aplicación + infra servidor |
+| UI / rutas | `src/rutas/`, `src/lib/components/` | Formularios, páginas, stores/runas, presentación, accesibilidad | Aplicación/casos de uso (no DB directa) |
+| Borde servidor | `src/hooks.server.ts`, `src/rutas/api/` | Sesión, authz, validación, rate limit, idempotencia, headers, observabilidad | Aplicación + infra servidor |
 
 > Regla: la UI no importa DAO/SQL/`fetch` ad hoc para negocio; consume casos de uso o repositorios inyectados.
 

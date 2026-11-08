@@ -2,7 +2,7 @@
  * Contrato de idempotencia para Postgres.
  * Tabla: idempotency_keys (op_id UNIQUE, resultado JSON, creado_en).
  * Cuando se disponga de conexión Postgres viva, se implementa el adaptador
- * reemplazando el Map en memoria de `src/routes/api/v1/sync/+server.ts`.
+ * reemplazando el Map en memoria de `src/rutas/api/v1/sync/+server.ts`.
  */
 
 export const IDEMPOTENCY_KEYS_SQL = `

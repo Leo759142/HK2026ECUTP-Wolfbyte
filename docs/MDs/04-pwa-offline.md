@@ -27,7 +27,7 @@ src/
 ├─ service-worker/
 │  ├─ index.ts              # el service worker
 │  └─ tsconfig.json         # extiende $app/tsconfig/service-worker
-├─ routes/
+├─ rutas/
 │  ├─ offline/+page.svelte  # fallback de navegación
 │  └─ +layout.svelte        # importa layout.css y registra la UI de update
 └─ app.html                 # manifest, theme-color, apple-touch-icon

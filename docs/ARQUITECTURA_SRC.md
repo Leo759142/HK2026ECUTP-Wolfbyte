@@ -10,7 +10,7 @@
 | `aplicacion/` | Casos de uso/orquestación (crear cuando haga falta) | dominio + puertos |
 | `seguridad/` | Cipher/anonimización/anti-abuso | utilidades runtime |
 | `sync/` | Motor de sincronización, fachadas legacy, backoff/idempotencia cliente | `datos`, accesibilidad |
-| `routes/` | UI + endpoints API (borde) | repositorios/casos de uso, no DB directa idealmente |
+| `rutas/` | UI + endpoints API (borde) | repositorios/casos de uso, no DB directa idealmente |
 | `service-worker/` | Cache/offline del shell/assets | sin negocio |
 
 ## Trazabilidad rápida
