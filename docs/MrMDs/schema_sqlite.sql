@@ -1,447 +1,363 @@
-
+-- =====================================================================
+-- AYNI · Hoy por ti, mañana por mí  ·  Base LOCAL del dispositivo (SQLite 3.38+)
+-- Misma lógica que schema_postgres.sql, pero con tipos de SQLite:
+--   uuid -> TEXT · timestamptz -> TEXT (ISO-8601 UTC) · boolean -> INTEGER 0/1 · jsonb -> TEXT
+-- NO incluye (son solo del servidor): otp_codigos, sesiones, sync_operaciones.
+-- SÍ incluye lo propio del celular: sync_cola y sync_estado.
+-- Ejecutar:  sqlite3 ayni.db < schema_sqlite.sql
+-- =====================================================================
 PRAGMA foreign_keys = ON;
-
-CREATE TABLE IF NOT EXISTS schema_version (
-  version     INTEGER PRIMARY KEY,
-  aplicado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
-);
-INSERT OR IGNORE INTO schema_version (version) VALUES (2);
+BEGIN TRANSACTION;
 
 -- ---------------------------------------------------------------------
--- 1. SECTORES Y MANZANAS 
+-- 1. SECTORES Y MANZANAS
 -- ---------------------------------------------------------------------
-CREATE TABLE sectores(
-  id          TEXT PRIMARY KEY,
-  nombre      TEXT NOT NULL (legth(nombre) BETWEEN 3 AND 60),
-  fundador_id TEXT,
-  creado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+CREATE TABLE sectores (
+  id             TEXT PRIMARY KEY,
+  nombre         TEXT NOT NULL CHECK (length(trim(nombre)) BETWEEN 3 AND 80),
+  fundador_id    TEXT,
+  creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
+CREATE UNIQUE INDEX ux_sectores_nombre ON sectores (lower(nombre));
 
-CREATE UNIQUE INDEX idx_sectores_nombre ON (lower(nombre));
-
-CREATE TABLE manzanas (
-  sector_id     TEXT NOT NULL REFERENCES sectores(id),
-  letra         TEXT NOT NULL CHECK (length(letra) = 1 AND letra BETWEEN 'A' AND 'Z'),
-  PRIMARY KEY   (sector_id, letra)
+CREATE TABLE sector_manzanas (
+  sector_id TEXT NOT NULL REFERENCES sectores(id) ON DELETE CASCADE,
+  letra     TEXT NOT NULL CHECK (length(letra) = 1 AND letra BETWEEN 'A' AND 'J'),
+  PRIMARY KEY (sector_id, letra)
+);
 
 -- ---------------------------------------------------------------------
--- USUARIOS (los vecinos del sector)
-----------------------------------------------------------------------
+-- 2. USUARIOS (los vecinos del sector, descargados con /sync/pull)
+-- ---------------------------------------------------------------------
 CREATE TABLE usuarios (
-  id             TEXT PRIMARY KEY,
-  zona_id        TEXT NOT NULL REFERENCES zonas(id),
-  alias          TEXT NOT NULL CHECK (length(alias) BETWEEN 2 AND 40),
-  telefono       TEXT UNIQUE,                  
-  password_hash  TEXT,
-  pin_hash       TEXT,                         
-  rol_plataforma TEXT NOT NULL DEFAULT 'usuario'
-                 CHECK (rol_plataforma IN ('usuario','admin')),
-  idioma         TEXT NOT NULL DEFAULT 'es' CHECK (idioma IN ('es','qu')),
-  bloqueado      INTEGER NOT NULL DEFAULT 0 CHECK (bloqueado IN (0,1)),
-  creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  CHECK (password_hash IS NOT NULL OR pin_hash IS NOT NULL)
-  
+  id                       TEXT PRIMARY KEY,
+  nombre                   TEXT NOT NULL CHECK (length(trim(nombre)) >= 2),
+  apellido                 TEXT NOT NULL DEFAULT '',
+  telefono                 TEXT NOT NULL UNIQUE CHECK (length(telefono) = 11 AND telefono GLOB '519[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+  sector_id                TEXT NOT NULL REFERENCES sectores(id),
+  manzana                  TEXT NOT NULL,
+  lat_aprox                REAL CHECK (lat_aprox BETWEEN -90 AND 90),
+  lng_aprox                REAL CHECK (lng_aprox BETWEEN -180 AND 180),
+  direccion_referencia     TEXT,                       -- solo la del propio usuario; nunca la de otros
+  verificado               INTEGER NOT NULL DEFAULT 1 CHECK (verificado IN (0,1)),
+  mostrar_nombre_completo  INTEGER NOT NULL DEFAULT 0 CHECK (mostrar_nombre_completo IN (0,1)),
+  invitacion_guardian      TEXT CHECK (invitacion_guardian IN ('aceptada','despues','fundador')),
+  idioma                   TEXT NOT NULL DEFAULT 'es' CHECK (idioma IN ('es','en','qu')),
+  letra_grande             INTEGER NOT NULL DEFAULT 0 CHECK (letra_grande IN (0,1)),
+  rol_plataforma           TEXT NOT NULL DEFAULT 'usuario' CHECK (rol_plataforma IN ('usuario','admin')),
+  creado_en                TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  actualizado_en           TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  FOREIGN KEY (sector_id, manzana) REFERENCES sector_manzanas(sector_id, letra),
+  CHECK ((lat_aprox IS NULL) = (lng_aprox IS NULL))
 );
-CREATE INDEX idx_usuarios_zona ON usuarios(zona_id);
+CREATE INDEX idx_usuarios_sector ON usuarios(sector_id);
 
-
-CREATE TABLE grupos (
-  id          TEXT PRIMARY KEY,
-  zona_id     TEXT NOT NULL REFERENCES zonas(id),
-  padre_id    TEXT REFERENCES grupos(id),        
-  tipo        TEXT NOT NULL CHECK (tipo IN
-                ('manzana','barrio','comite_emergencia','interes')),
-  nombre      TEXT NOT NULL CHECK (length(nombre) BETWEEN 3 AND 60),
-  reglas      TEXT NOT NULL DEFAULT '' CHECK (length(reglas) <= 1000),
-  creado_por  TEXT NOT NULL REFERENCES usuarios(id),
-  creado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+CREATE TABLE sector_guardianes (
+  sector_id   TEXT NOT NULL REFERENCES sectores(id) ON DELETE CASCADE,
+  usuario_id  TEXT NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  es_fundador INTEGER NOT NULL DEFAULT 0 CHECK (es_fundador IN (0,1)),
+  desde       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  PRIMARY KEY (sector_id, usuario_id)
 );
-CREATE INDEX idx_grupos_zona ON grupos(zona_id, tipo);
+CREATE UNIQUE INDEX ux_un_fundador_por_sector ON sector_guardianes(sector_id) WHERE es_fundador = 1;
 
-
-CREATE TABLE membresias (
-  grupo_id   TEXT NOT NULL REFERENCES grupos(id),
-  usuario_id TEXT NOT NULL REFERENCES usuarios(id),
-  rol        TEXT NOT NULL CHECK (rol IN
-               ('vecino','referente','emprendedor','coordinador')),
-  estado     TEXT NOT NULL DEFAULT 'activa' CHECK (estado IN ('activa','suspendida')),
-  desde      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  PRIMARY KEY (grupo_id, usuario_id, rol)
-);
-CREATE INDEX idx_membresias_usuario ON membresias(usuario_id);
-
-
-CREATE VIEW v_roles_usuario AS
-SELECT m.usuario_id, g.zona_id, m.grupo_id, m.rol
-FROM membresias m JOIN grupos g ON g.id = m.grupo_id
-WHERE m.estado = 'activa';
+CREATE TRIGGER trg_guardian_valido BEFORE INSERT ON sector_guardianes
+WHEN NOT EXISTS (SELECT 1 FROM usuarios WHERE id = NEW.usuario_id AND sector_id = NEW.sector_id)
+BEGIN SELECT RAISE(ABORT, 'El Guardián debe pertenecer al sector'); END;
 
 -- ---------------------------------------------------------------------
--- 2. MÓDULO SERVICIOS DE PROXIMIDAD (RF01, RF02, RF12)
+-- 3. SERVICIOS Y PRODUCTOS
 -- ---------------------------------------------------------------------
 CREATE TABLE servicios (
-  id               TEXT PRIMARY KEY,
-  usuario_id       TEXT NOT NULL REFERENCES usuarios(id),
-  zona_id          TEXT NOT NULL REFERENCES zonas(id),
-  categoria        TEXT NOT NULL CHECK (categoria IN (
-                     'gasfiteria','carpinteria','electricidad','cerrajeria',
-                     'clases','paseo_mascotas','comida','costura',
-                     'reparaciones','cuidado','otro')),
-  titulo           TEXT NOT NULL CHECK (length(titulo) BETWEEN 3 AND 80),
-  descripcion      TEXT NOT NULL CHECK (length(descripcion) <= 500),
-  es_emprendimiento INTEGER NOT NULL DEFAULT 0 CHECK (es_emprendimiento IN (0,1)),
-  lat_aprox        REAL NOT NULL CHECK (lat_aprox BETWEEN -90 AND 90),
-  lng_aprox        REAL NOT NULL CHECK (lng_aprox BETWEEN -180 AND 180),
-  activo           INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0,1)),
-  oculto           INTEGER NOT NULL DEFAULT 0 CHECK (oculto IN (0,1)), -- moderación
-  creado_en        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  actualizado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  id                      TEXT PRIMARY KEY,
+  dueno_id                TEXT NOT NULL REFERENCES usuarios(id),
+  clase                   TEXT NOT NULL DEFAULT 'servicio' CHECK (clase IN ('servicio','producto')),
+  categoria               TEXT NOT NULL CHECK (categoria IN
+                            ('gasfiteria','electricidad','carpinteria','cerrajeria','mascotas','clases','costura','comida','otros')),
+  titulo                  TEXT NOT NULL CHECK (length(trim(titulo)) BETWEEN 3 AND 40),
+  descripcion             TEXT NOT NULL CHECK (length(trim(descripcion)) BETWEEN 10 AND 200),
+  horario                 TEXT NOT NULL CHECK (length(trim(horario)) >= 1),
+  precio                  TEXT,
+  foto                    TEXT,
+  mostrar_nombre_completo INTEGER NOT NULL DEFAULT 0 CHECK (mostrar_nombre_completo IN (0,1)),
+  estado                  TEXT NOT NULL DEFAULT 'disponible' CHECK (estado IN ('disponible','pausado')),
+  moderacion              TEXT NOT NULL DEFAULT 'visible' CHECK (moderacion IN ('visible','en_revision','oculto')),
+  eliminado_en            TEXT,
+  creado_en               TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  actualizado_en          TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
-CREATE INDEX idx_servicios_zona_cat ON servicios(zona_id, categoria);
-CREATE INDEX idx_servicios_geo      ON servicios(lat_aprox, lng_aprox);
-CREATE INDEX idx_servicios_usuario  ON servicios(usuario_id);
+CREATE INDEX idx_servicios_dueno ON servicios(dueno_id);
+CREATE INDEX idx_servicios_cat ON servicios(categoria) WHERE eliminado_en IS NULL;
 
-
-CREATE TABLE recomendaciones_eventos (
-  id               TEXT PRIMARY KEY,
-  servicio_id      TEXT NOT NULL REFERENCES servicios(id),
-  usuario_id       TEXT NOT NULL REFERENCES usuarios(id),
-  tipo             TEXT NOT NULL CHECK (tipo IN ('visto_bueno','retiro')),
-  comentario       TEXT CHECK (comentario IS NULL OR length(comentario) <= 140),
-  misma_zona       INTEGER NOT NULL CHECK (misma_zona IN (0,1)), 
-  dispositivo_hash TEXT NOT NULL,        
-  creado_en        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+CREATE TABLE contactos (
+  id           TEXT PRIMARY KEY,
+  servicio_id  TEXT NOT NULL REFERENCES servicios(id),
+  usuario_id   TEXT NOT NULL REFERENCES usuarios(id),
+  respondido   INTEGER NOT NULL DEFAULT 0 CHECK (respondido IN (0,1)),
+  atendido     INTEGER CHECK (atendido IN (0,1)),
+  creado_en    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  CHECK ((respondido = 1 AND atendido IS NOT NULL) OR (respondido = 0 AND atendido IS NULL))
 );
-CREATE INDEX idx_reco_servicio ON recomendaciones_eventos(servicio_id, usuario_id, creado_en);
-CREATE INDEX idx_reco_disp     ON recomendaciones_eventos(dispositivo_hash, servicio_id);
+CREATE UNIQUE INDEX ux_contacto_abierto ON contactos(servicio_id, usuario_id) WHERE respondido = 0;
+CREATE INDEX idx_contactos_usuario ON contactos(usuario_id);
 
-
-CREATE VIEW v_visto_bueno_vigente AS
-SELECT servicio_id, usuario_id, comentario, misma_zona, creado_en
-FROM (
-  SELECT r.*,
-         ROW_NUMBER() OVER (PARTITION BY servicio_id, usuario_id
-                            ORDER BY creado_en DESC, id DESC) AS rn
-  FROM recomendaciones_eventos r
-)
-WHERE rn = 1 AND tipo = 'visto_bueno';
-
-CREATE VIEW v_servicio_resumen AS
-SELECT s.id AS servicio_id,
-       COUNT(v.usuario_id)           AS total_vistos_buenos,
-       COALESCE(SUM(v.misma_zona),0) AS vistos_buenos_misma_zona
-FROM servicios s
-LEFT JOIN v_visto_bueno_vigente v ON v.servicio_id = s.id
-GROUP BY s.id;
-
-CREATE TABLE insignias (
-  codigo      TEXT PRIMARY KEY,           
-  nombre      TEXT NOT NULL,
-  descripcion TEXT NOT NULL,
-  umbral      INTEGER NOT NULL            
+CREATE TABLE recomendaciones (
+  id           TEXT PRIMARY KEY,
+  servicio_id  TEXT NOT NULL REFERENCES servicios(id),
+  usuario_id   TEXT NOT NULL REFERENCES usuarios(id),
+  comentario   TEXT NOT NULL DEFAULT '' CHECK (length(comentario) <= 200),
+  creado_en    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  UNIQUE (servicio_id, usuario_id)
 );
-CREATE TABLE usuario_insignias (
-  usuario_id    TEXT NOT NULL REFERENCES usuarios(id),
-  insignia      TEXT NOT NULL REFERENCES insignias(codigo),
-  obtenida_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  PRIMARY KEY (usuario_id, insignia)
+CREATE TABLE recomendacion_etiquetas (
+  recomendacion_id TEXT NOT NULL REFERENCES recomendaciones(id),
+  etiqueta         TEXT NOT NULL CHECK (etiqueta IN ('puntual','precio','limpio','amable','rapido','volveria')),
+  PRIMARY KEY (recomendacion_id, etiqueta)
 );
+
+CREATE TRIGGER trg_reco_no_propio BEFORE INSERT ON recomendaciones
+WHEN EXISTS (SELECT 1 FROM servicios WHERE id = NEW.servicio_id AND dueno_id = NEW.usuario_id)
+BEGIN SELECT RAISE(ABORT, 'No puedes recomendar tu propio servicio'); END;
+CREATE TRIGGER trg_reco_atendido BEFORE INSERT ON recomendaciones
+WHEN NOT EXISTS (SELECT 1 FROM contactos WHERE servicio_id = NEW.servicio_id AND usuario_id = NEW.usuario_id AND atendido = 1)
+BEGIN SELECT RAISE(ABORT, 'Solo pueden dar Visto Bueno los vecinos que fueron atendidos'); END;
+
+CREATE TRIGGER trg_reco_no_update BEFORE UPDATE ON recomendaciones
+BEGIN SELECT RAISE(ABORT, 'recomendaciones es append-only'); END;
+CREATE TRIGGER trg_reco_no_delete BEFORE DELETE ON recomendaciones
+BEGIN SELECT RAISE(ABORT, 'recomendaciones es append-only'); END;
+CREATE TRIGGER trg_etiq_no_update BEFORE UPDATE ON recomendacion_etiquetas
+BEGIN SELECT RAISE(ABORT, 'recomendacion_etiquetas es append-only'); END;
+CREATE TRIGGER trg_etiq_no_delete BEFORE DELETE ON recomendacion_etiquetas
+BEGIN SELECT RAISE(ABORT, 'recomendacion_etiquetas es append-only'); END;
 
 -- ---------------------------------------------------------------------
--- 3. MÓDULO CADENA DE FAVORES (RF04, RF05)
+-- 4. CADENA DE FAVORES
 -- ---------------------------------------------------------------------
 CREATE TABLE favores (
-  id             TEXT PRIMARY KEY,
-  creador_id     TEXT NOT NULL REFERENCES usuarios(id),
-  ayudante_id    TEXT REFERENCES usuarios(id),
-  zona_id        TEXT NOT NULL REFERENCES zonas(id),
-  tipo           TEXT NOT NULL CHECK (tipo IN ('oferta','necesidad')),
-  categoria      TEXT NOT NULL CHECK (categoria IN (
-                   'prestamo_herramienta','ayuda_temporal','donacion',
-                   'trueque_habilidad','movilidad','otro')),
-  titulo         TEXT NOT NULL CHECK (length(titulo) BETWEEN 3 AND 80),
-  descripcion    TEXT NOT NULL CHECK (length(descripcion) <= 500),
-  lat_aprox      REAL NOT NULL,
-  lng_aprox      REAL NOT NULL,
-  estado         TEXT NOT NULL DEFAULT 'abierto'
-                 CHECK (estado IN ('abierto','en_curso','cerrado','cancelado')),
-  agradecimiento TEXT CHECK (agradecimiento IS NULL OR length(agradecimiento) <= 200),
-  oculto         INTEGER NOT NULL DEFAULT 0 CHECK (oculto IN (0,1)),
-  creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  cerrado_en     TEXT,
-  CHECK (ayudante_id IS NULL OR ayudante_id <> creador_id)
+  id               TEXT PRIMARY KEY,
+  dueno_id         TEXT NOT NULL REFERENCES usuarios(id),
+  tipo             TEXT NOT NULL CHECK (tipo IN ('pido','presto','regalo','intercambio')),
+  titulo           TEXT NOT NULL CHECK (length(trim(titulo)) >= 3),
+  detalles         TEXT NOT NULL DEFAULT '{}' CHECK (json_valid(detalles) AND json_type(detalles) = 'object'),
+  foto             TEXT,
+  estado           TEXT NOT NULL DEFAULT 'disponible' CHECK (estado IN ('disponible','reservado','cerrado')),
+  moderacion       TEXT NOT NULL DEFAULT 'visible' CHECK (moderacion IN ('visible','en_revision','oculto')),
+  tomador_id       TEXT REFERENCES usuarios(id),
+  reservado_en     TEXT,
+  dueno_confirmo   INTEGER NOT NULL DEFAULT 0 CHECK (dueno_confirmo IN (0,1)),
+  tomador_confirmo INTEGER NOT NULL DEFAULT 0 CHECK (tomador_confirmo IN (0,1)),
+  cerrado_en       TEXT,
+  eliminado_en     TEXT,
+  creado_en        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  actualizado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  CHECK (tomador_id IS NULL OR tomador_id <> dueno_id),
+  CHECK (estado <> 'disponible' OR (tomador_id IS NULL AND reservado_en IS NULL
+                                    AND dueno_confirmo = 0 AND tomador_confirmo = 0)),
+  CHECK (estado <> 'reservado' OR (tomador_id IS NOT NULL AND reservado_en IS NOT NULL AND cerrado_en IS NULL)),
+  CHECK (estado <> 'cerrado' OR (tomador_id IS NOT NULL AND dueno_confirmo = 1 AND tomador_confirmo = 1 AND cerrado_en IS NOT NULL))
 );
-CREATE INDEX idx_favores_zona_estado ON favores(zona_id, estado);
-CREATE INDEX idx_favores_geo         ON favores(lat_aprox, lng_aprox);
-
-
-CREATE TABLE favor_confirmaciones (
-  id            TEXT PRIMARY KEY,
-  favor_id      TEXT NOT NULL REFERENCES favores(id),
-  usuario_id    TEXT NOT NULL REFERENCES usuarios(id),
-  rol_en_favor  TEXT NOT NULL CHECK (rol_en_favor IN ('solicitante','ayudante')),
-  metodo        TEXT NOT NULL CHECK (metodo IN ('qr','boton')),
-  confirmado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  UNIQUE (favor_id, usuario_id)
-);
-
-
-CREATE VIEW v_favor_listo_para_cerrar AS
-SELECT favor_id
-FROM favor_confirmaciones
-GROUP BY favor_id
-HAVING COUNT(DISTINCT rol_en_favor) = 2;
+CREATE INDEX idx_favores_dueno ON favores(dueno_id);
+CREATE INDEX idx_favores_tomador ON favores(tomador_id) WHERE tomador_id IS NOT NULL;
+CREATE INDEX idx_favores_estado ON favores(estado) WHERE eliminado_en IS NULL;
 
 -- ---------------------------------------------------------------------
--- 4. MODO EMERGENCIA (RF07, RF08)
+-- 5. MODERACIÓN
+-- ---------------------------------------------------------------------
+CREATE TABLE reportes (
+  id           TEXT PRIMARY KEY,
+  servicio_id  TEXT REFERENCES servicios(id),
+  favor_id     TEXT REFERENCES favores(id),
+  usuario_id   TEXT NOT NULL REFERENCES usuarios(id),
+  motivo       TEXT NOT NULL CHECK (motivo IN ('estafa','falso','ofensivo','mala_experiencia','otro')),
+  decision     TEXT CHECK (decision IN ('aprobado','ocultado')),
+  resuelto_por TEXT REFERENCES usuarios(id),
+  resuelto_en  TEXT,
+  creado_en    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  CHECK ((servicio_id IS NOT NULL) + (favor_id IS NOT NULL) = 1),
+  CHECK ((decision IS NULL) = (resuelto_por IS NULL AND resuelto_en IS NULL))
+);
+CREATE UNIQUE INDEX ux_reporte_servicio ON reportes(usuario_id, servicio_id) WHERE servicio_id IS NOT NULL;
+CREATE UNIQUE INDEX ux_reporte_favor    ON reportes(usuario_id, favor_id)    WHERE favor_id IS NOT NULL;
+
+CREATE TRIGGER trg_reportes_ocultar_servicio AFTER INSERT ON reportes
+WHEN NEW.servicio_id IS NOT NULL
+ AND (SELECT count(*) FROM reportes WHERE servicio_id = NEW.servicio_id AND decision IS NULL) >= 3
+BEGIN UPDATE servicios SET moderacion = 'en_revision' WHERE id = NEW.servicio_id AND moderacion = 'visible'; END;
+CREATE TRIGGER trg_reportes_ocultar_favor AFTER INSERT ON reportes
+WHEN NEW.favor_id IS NOT NULL
+ AND (SELECT count(*) FROM reportes WHERE favor_id = NEW.favor_id AND decision IS NULL) >= 3
+BEGIN UPDATE favores SET moderacion = 'en_revision' WHERE id = NEW.favor_id AND moderacion = 'visible'; END;
+
+-- ---------------------------------------------------------------------
+-- 6. MODO EMERGENCIA
 -- ---------------------------------------------------------------------
 CREATE TABLE emergencias (
-  id            TEXT PRIMARY KEY,
-  zona_id       TEXT NOT NULL REFERENCES zonas(id),
-  tipo          TEXT NOT NULL CHECK (tipo IN
-                  ('lluvias_inundacion','sismo','huaico','incendio','otro')),
-  titulo        TEXT NOT NULL,
-  activada_por  TEXT NOT NULL REFERENCES usuarios(id),   
-  activa        INTEGER NOT NULL DEFAULT 1 CHECK (activa IN (0,1)),
-  inicio        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  fin           TEXT
+  id               TEXT PRIMARY KEY,
+  sector_id        TEXT NOT NULL REFERENCES sectores(id),
+  reportero_id     TEXT NOT NULL REFERENCES usuarios(id),
+  tipo             TEXT NOT NULL CHECK (tipo IN ('inundacion','incendio','sismo','servicios','accidente','otro')),
+  texto            TEXT NOT NULL DEFAULT '' CHECK (length(texto) <= 200),
+  foto             TEXT,
+  manzana          TEXT NOT NULL,
+  estado           TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','activa','descartada','atendida')),
+  confirmada_por   TEXT REFERENCES usuarios(id),
+  confirmada_en    TEXT,
+  motivo_descarte  TEXT,
+  revisada_por     TEXT REFERENCES usuarios(id),
+  revisada_en      TEXT,
+  atendida_en      TEXT,
+  cerrada_por      TEXT REFERENCES usuarios(id),
+  reportero_visto  INTEGER NOT NULL DEFAULT 0 CHECK (reportero_visto IN (0,1)),
+  creado_en        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  actualizado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  FOREIGN KEY (sector_id, manzana) REFERENCES sector_manzanas(sector_id, letra),
+  CHECK (estado NOT IN ('activa','atendida') OR (confirmada_por IS NOT NULL AND confirmada_en IS NOT NULL)),
+  CHECK (estado <> 'descartada' OR (revisada_por IS NOT NULL AND revisada_en IS NOT NULL
+                                     AND length(trim(coalesce(motivo_descarte,''))) > 0)),
+  CHECK (estado <> 'atendida' OR (atendida_en IS NOT NULL AND cerrada_por IS NOT NULL))
 );
-CREATE INDEX idx_emergencias_zona_activa ON emergencias(zona_id, activa);
+CREATE INDEX idx_emerg_sector_estado ON emergencias(sector_id, estado);
 
+CREATE TRIGGER trg_emerg_guardian BEFORE UPDATE OF estado ON emergencias
+WHEN NEW.estado <> OLD.estado AND NEW.estado <> 'pendiente'
+ AND NOT EXISTS (
+   SELECT 1 FROM sector_guardianes
+   WHERE sector_id = NEW.sector_id
+     AND usuario_id = CASE NEW.estado WHEN 'activa' THEN NEW.confirmada_por
+                                      WHEN 'descartada' THEN NEW.revisada_por
+                                      WHEN 'atendida' THEN NEW.cerrada_por END)
+BEGIN SELECT RAISE(ABORT, 'Solo un Guardián del sector puede cambiar el estado de la emergencia'); END;
 
-CREATE TABLE puntos_apoyo (
-  id         TEXT PRIMARY KEY,
-  zona_id    TEXT NOT NULL REFERENCES zonas(id),
-  tipo       TEXT NOT NULL CHECK (tipo IN ('comando','bomberos','posta_salud',
-               'refugio','punto_reunion','olla_comun','policia','otro')),
-  nombre     TEXT NOT NULL,
-  telefono   TEXT,
-  lat_aprox  REAL NOT NULL,
-  lng_aprox  REAL NOT NULL,
-  verificado INTEGER NOT NULL DEFAULT 0 CHECK (verificado IN (0,1))
-);
-CREATE INDEX idx_apoyo_zona ON puntos_apoyo(zona_id, tipo);
-
-
-CREATE TABLE alertas (
-  id              TEXT PRIMARY KEY,
-  emergencia_id   TEXT REFERENCES emergencias(id),
-  usuario_id      TEXT NOT NULL REFERENCES usuarios(id),
-  zona_id         TEXT NOT NULL REFERENCES zonas(id),
-  tipo            TEXT NOT NULL CHECK (tipo IN ('persona_vulnerable',
-                    'zona_inundada','via_bloqueada','sin_servicios_basicos',
-                    'riesgo_estructural','otro')),
-  descripcion     TEXT NOT NULL CHECK (length(descripcion) <= 300),
-  lat_aprox       REAL NOT NULL,
-  lng_aprox       REAL NOT NULL,
-  estado          TEXT NOT NULL DEFAULT 'sin_verificar' CHECK (estado IN
-                    ('sin_verificar','confirmado_vecinos','atendido','descartado')),
-  oculto          INTEGER NOT NULL DEFAULT 0 CHECK (oculto IN (0,1)),
-  creado_en       TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  actualizado_en  TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
-);
-CREATE INDEX idx_alertas_zona_estado ON alertas(zona_id, estado);
-CREATE INDEX idx_alertas_geo         ON alertas(lat_aprox, lng_aprox);
-
-
-CREATE TABLE alerta_confirmaciones (
-  id            TEXT PRIMARY KEY,
-  alerta_id     TEXT NOT NULL REFERENCES alertas(id),
-  usuario_id    TEXT NOT NULL REFERENCES usuarios(id),
-  confirmado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  UNIQUE (alerta_id, usuario_id)
+CREATE TABLE emergencia_acuses (
+  emergencia_id  TEXT NOT NULL REFERENCES emergencias(id) ON DELETE CASCADE,
+  usuario_id     TEXT NOT NULL REFERENCES usuarios(id),
+  respuesta      TEXT CHECK (respuesta IN ('visto','bien','ayuda')),
+  fin_visto      INTEGER NOT NULL DEFAULT 0 CHECK (fin_visto IN (0,1)),
+  actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  PRIMARY KEY (emergencia_id, usuario_id)
 );
 
-
-CREATE TABLE recursos_criticos (
-  id            TEXT PRIMARY KEY,
-  emergencia_id TEXT REFERENCES emergencias(id),
-  usuario_id    TEXT NOT NULL REFERENCES usuarios(id),
-  zona_id       TEXT NOT NULL REFERENCES zonas(id),
-  tipo          TEXT NOT NULL CHECK (tipo IN ('agua','gas','medicinas',
-                  'refugio','generador','bote','bomba_agua','alimentos','otro')),
-  modo          TEXT NOT NULL CHECK (modo IN ('ofrece','necesita')),
-  detalle       TEXT NOT NULL CHECK (length(detalle) <= 200),
-  lat_aprox     REAL NOT NULL,
-  lng_aprox     REAL NOT NULL,
-  disponible    INTEGER NOT NULL DEFAULT 1 CHECK (disponible IN (0,1)),
-  oculto        INTEGER NOT NULL DEFAULT 0 CHECK (oculto IN (0,1)),
-  creado_en     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+CREATE TABLE pedidos_ayuda (
+  id             TEXT PRIMARY KEY,
+  emergencia_id  TEXT NOT NULL REFERENCES emergencias(id),
+  dueno_id       TEXT NOT NULL REFERENCES usuarios(id),
+  necesidad      TEXT NOT NULL CHECK (necesidad IN ('agua','comida','salud','rescate','refugio','otro')),
+  cuantas        INTEGER NOT NULL DEFAULT 1 CHECK (cuantas BETWEEN 1 AND 99),
+  texto          TEXT NOT NULL DEFAULT '' CHECK (length(texto) <= 200),
+  foto           TEXT,
+  manzana        TEXT NOT NULL,
+  estado         TEXT NOT NULL DEFAULT 'abierto' CHECK (estado IN ('abierto','en_camino','resuelto')),
+  ayudante_id    TEXT REFERENCES usuarios(id),
+  ayudante_en    TEXT,
+  resuelto_en    TEXT,
+  creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  CHECK (ayudante_id IS NULL OR ayudante_id <> dueno_id),
+  CHECK (estado <> 'abierto' OR ayudante_id IS NULL),
+  CHECK (estado = 'abierto' OR ayudante_id IS NOT NULL OR estado = 'resuelto'),
+  CHECK (estado <> 'resuelto' OR resuelto_en IS NOT NULL)
 );
-CREATE INDEX idx_recursos_zona ON recursos_criticos(zona_id, tipo, modo);
+CREATE INDEX idx_pedidos_emergencia ON pedidos_ayuda(emergencia_id, estado);
 
--- ---------------------------------------------------------------------
--- 5. MODERACIÓN (RF11)
--- ---------------------------------------------------------------------
-CREATE TABLE reportes_moderacion (
-  id            TEXT PRIMARY KEY,
-  reportante_id TEXT NOT NULL REFERENCES usuarios(id),
-  grupo_id      TEXT REFERENCES grupos(id),   
-  objeto_tipo   TEXT NOT NULL CHECK (objeto_tipo IN
-                  ('servicio','favor','alerta','recurso','usuario')),
-  objeto_id     TEXT NOT NULL,
-  motivo        TEXT NOT NULL CHECK (motivo IN
-                  ('falso','ofensivo','spam','peligroso','datos_personales','otro')),
-  detalle       TEXT CHECK (detalle IS NULL OR length(detalle) <= 300),
-  estado        TEXT NOT NULL DEFAULT 'pendiente'
-                CHECK (estado IN ('pendiente','ocultado','descartado')),
-  resuelto_por  TEXT REFERENCES usuarios(id),
-  creado_en     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
-);
-CREATE INDEX idx_reportes_estado ON reportes_moderacion(estado);
-
-CREATE TABLE bloqueos (
-  usuario_id   TEXT NOT NULL REFERENCES usuarios(id),
-  bloqueado_id TEXT NOT NULL REFERENCES usuarios(id),
-  creado_en    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  PRIMARY KEY (usuario_id, bloqueado_id),
-  CHECK (usuario_id <> bloqueado_id)
+CREATE TABLE pedido_vulnerables (
+  pedido_id TEXT NOT NULL REFERENCES pedidos_ayuda(id) ON DELETE CASCADE,
+  grupo     TEXT NOT NULL CHECK (grupo IN ('adulto','ninos','discapacidad','gestante','mascotas')),
+  PRIMARY KEY (pedido_id, grupo)
 );
 
--- ---------------------------------------------------------------------
--- 5B. PUBLICIDAD LOCAL (etiquetada, bloqueada durante emergencias)
--- ---------------------------------------------------------------------
-CREATE TABLE anuncios (
-  id            TEXT PRIMARY KEY,
-  anunciante_id TEXT NOT NULL REFERENCES usuarios(id),
-  zona_id       TEXT NOT NULL REFERENCES zonas(id),
-  titulo        TEXT NOT NULL CHECK (length(titulo) BETWEEN 3 AND 80),
-  descripcion   TEXT NOT NULL CHECK (length(descripcion) <= 300),
-  etiqueta      TEXT NOT NULL DEFAULT 'publicidad' CHECK (etiqueta = 'publicidad'),
-  estado        TEXT NOT NULL DEFAULT 'pendiente'
-                CHECK (estado IN ('pendiente','aprobado','rechazado','pausado')),
-  aprobado_por  TEXT REFERENCES usuarios(id),
-  inicio        TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  fin           TEXT,
-  creado_en     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  CHECK (estado <> 'aprobado' OR aprobado_por IS NOT NULL)
+CREATE TABLE grupos_apoyo (
+  id             TEXT PRIMARY KEY,
+  sector_id      TEXT NOT NULL REFERENCES sectores(id),
+  emoji          TEXT NOT NULL DEFAULT '🤝',
+  nombre         TEXT NOT NULL CHECK (length(trim(nombre)) >= 3),
+  meta           TEXT NOT NULL DEFAULT '',
+  recurso        TEXT CHECK (recurso IN ('agua','refugio','salud','comida','energia','traslado')),
+  manzana        TEXT,
+  contacto_tipo  TEXT NOT NULL CHECK (contacto_tipo IN ('tel','wa')),
+  contacto_valor TEXT NOT NULL CHECK (length(contacto_valor) BETWEEN 3 AND 12 AND contacto_valor NOT GLOB '*[^0-9]*'),
+  creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  FOREIGN KEY (sector_id, manzana) REFERENCES sector_manzanas(sector_id, letra)
 );
-CREATE INDEX idx_anuncios_zona ON anuncios(zona_id, estado);
-
-
-CREATE VIEW v_anuncios_visibles AS
-SELECT a.*
-FROM anuncios a
-WHERE a.estado = 'aprobado'
-  AND a.inicio <= strftime('%Y-%m-%dT%H:%M:%fZ','now')
-  AND (a.fin IS NULL OR a.fin >= strftime('%Y-%m-%dT%H:%M:%fZ','now'))
-  AND NOT EXISTS (SELECT 1 FROM emergencias e
-                  WHERE e.zona_id = a.zona_id AND e.activa = 1);
+CREATE INDEX idx_grupos_sector ON grupos_apoyo(sector_id, recurso);
 
 -- ---------------------------------------------------------------------
--- 5C. REPUTACIÓN Y CONFIANZA (alimentada por Visto Bueno y Favores)
+-- 7. SINCRONIZACIÓN (solo local)
 -- ---------------------------------------------------------------------
-CREATE TABLE reputacion_eventos (                 
-  id            TEXT PRIMARY KEY,
-  usuario_id    TEXT NOT NULL REFERENCES usuarios(id),
-  fuente        TEXT NOT NULL CHECK (fuente IN ('visto_bueno_recibido',
-                  'visto_bueno_retirado','favor_cerrado','reporte_confirmado',
-                  'sancion','bono_emprendedor')),
-  puntos        INTEGER NOT NULL,
-  referencia_id TEXT,                              
-  creado_en     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  UNIQUE (fuente, referencia_id)
-);
-CREATE INDEX idx_reputacion_usuario ON reputacion_eventos(usuario_id);
-
-CREATE VIEW v_reputacion AS
-SELECT u.id AS usuario_id, MAX(0, COALESCE(SUM(r.puntos), 0)) AS reputacion
-FROM usuarios u
-LEFT JOIN reputacion_eventos r ON r.usuario_id = u.id
-GROUP BY u.id;
-
--- ---------------------------------------------------------------------
--- 5D. INGESTA DE ALERTAS OFICIALES (INDECI, SENAMHI, IGP, municipio)
--- El sistema PROPONE; el coordinador CONFIRMA y recién ahí nace la emergencia.
--- ---------------------------------------------------------------------
-CREATE TABLE alertas_oficiales (
-  id            TEXT PRIMARY KEY,
-  fuente        TEXT NOT NULL CHECK (fuente IN
-                  ('indeci','senamhi','igp','municipio','otro')),
-  id_externo    TEXT NOT NULL,                     
-  titulo        TEXT NOT NULL,
-  detalle       TEXT,
-  nivel         TEXT NOT NULL DEFAULT 'informativo'
-                CHECK (nivel IN ('informativo','amarillo','naranja','rojo')),
-  zona_id       TEXT REFERENCES zonas(id),
-  url_origen    TEXT,
-  payload       TEXT,                              
-  estado        TEXT NOT NULL DEFAULT 'propuesta'
-                CHECK (estado IN ('propuesta','confirmada','descartada')),
-  emergencia_id TEXT REFERENCES emergencias(id),
-  resuelta_por  TEXT REFERENCES usuarios(id),
-  recibida_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-  resuelta_en   TEXT,
-  UNIQUE (fuente, id_externo),                     
-  CHECK (estado = 'propuesta' OR resuelta_por IS NOT NULL),
-  CHECK (estado <> 'confirmada' OR emergencia_id IS NOT NULL)
-);
-CREATE INDEX idx_alertas_of_estado ON alertas_oficiales(estado, nivel);
-
--- ---------------------------------------------------------------------
--- 6. SINCRONIZACIÓN (solo local): cola de salida (outbox)
--- Cada escritura offline guarda aquí una operación con su propio op_id.
--- El servidor ignora op_id repetidos => reintentos seguros (idempotencia).
--- ---------------------------------------------------------------------
+-- Lo que el usuario hizo sin conexión y falta enviar. Reemplaza al "status: pendiente" del prototipo.
 CREATE TABLE sync_cola (
-  op_id       TEXT PRIMARY KEY,             
-  entidad     TEXT NOT NULL,                
-  operacion   TEXT NOT NULL CHECK (operacion IN ('crear','actualizar')),
-  payload     TEXT NOT NULL,                
-  estado      TEXT NOT NULL DEFAULT 'pendiente'
-              CHECK (estado IN ('pendiente','enviando','aplicada','rechazada')),
-  intentos    INTEGER NOT NULL DEFAULT 0,
-  error       TEXT,
-  creado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+  op_id        TEXT PRIMARY KEY,                      -- UUID generado en el celular (idempotencia)
+  entidad      TEXT NOT NULL CHECK (entidad IN
+                 ('servicios','favores','contactos','recomendaciones','reportes','emergencias','pedidos_ayuda','emergencia_acuses')),
+  operacion    TEXT NOT NULL CHECK (operacion IN ('crear','actualizar','eliminar')),
+  registro_id  TEXT NOT NULL,                         -- id del servicio/favor/etc. afectado
+  payload      TEXT NOT NULL CHECK (json_valid(payload)),
+  estado       TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','enviando','aplicada','rechazada')),
+  intentos     INTEGER NOT NULL DEFAULT 0 CHECK (intentos >= 0),
+  ultimo_error TEXT,
+  creado_en    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  enviado_en   TEXT
 );
-CREATE INDEX idx_sync_estado ON sync_cola(estado, creado_en);
+CREATE INDEX idx_cola_estado ON sync_cola(estado, creado_en);
 
-CREATE TABLE sync_estado (                 
-  clave TEXT PRIMARY KEY,                  
+CREATE TABLE sync_estado (
+  clave TEXT PRIMARY KEY CHECK (clave IN ('cursor_pull','sector_id','ultimo_sync')),
   valor TEXT NOT NULL
 );
 
-CREATE TABLE sync_politicas (
-  entidad    TEXT PRIMARY KEY,
-  estrategia TEXT NOT NULL CHECK (estrategia IN
-               ('append_only','ultima_escritura','primero_gana','servidor_manda')),
-  nota       TEXT
-);
-INSERT INTO sync_politicas (entidad, estrategia, nota) VALUES
- ('recomendaciones_eventos','append_only','Votos: solo se agregan eventos'),
- ('favor_confirmaciones','append_only','Confirmaciones: solo se agregan'),
- ('alerta_confirmaciones','append_only','Confirmaciones: solo se agregan'),
- ('reputacion_eventos','append_only','Puntos: solo se agregan eventos'),
- ('servicios','ultima_escritura','Edición del autor; gana actualizado_en más reciente'),
- ('usuarios','ultima_escritura','Solo datos de perfil'),
- ('favores','primero_gana','Aceptar: gana el primero en llegar al servidor'),
- ('alertas','servidor_manda','El estado lo fija el servidor (confirmaciones/coordinador)'),
- ('alertas_oficiales','servidor_manda','Propone el sistema, confirma el coordinador'),
- ('emergencias','servidor_manda','Solo referente/coordinador'),
- ('anuncios','servidor_manda','Aprobación por referente o admin'),
- ('membresias','servidor_manda','Roles asignados por referente/coordinador');
+-- "🕓 Pendiente de enviar" (lo que el frontend marcaba con status = 'pendiente')
+CREATE VIEW v_pendientes AS
+SELECT entidad, registro_id FROM sync_cola WHERE estado IN ('pendiente','enviando') AND operacion = 'crear';
 
 -- ---------------------------------------------------------------------
--- 7. TRIGGERS APPEND-ONLY
+-- 8. Fecha de actualización automática
 -- ---------------------------------------------------------------------
-CREATE TRIGGER trg_reco_no_update BEFORE UPDATE ON recomendaciones_eventos
-BEGIN SELECT RAISE(ABORT, 'recomendaciones_eventos es append-only'); END;
-CREATE TRIGGER trg_reco_no_delete BEFORE DELETE ON recomendaciones_eventos
-BEGIN SELECT RAISE(ABORT, 'recomendaciones_eventos es append-only'); END;
+CREATE TRIGGER trg_upd_servicios AFTER UPDATE ON servicios WHEN NEW.actualizado_en = OLD.actualizado_en
+BEGIN UPDATE servicios SET actualizado_en = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = NEW.id; END;
+CREATE TRIGGER trg_upd_favores AFTER UPDATE ON favores WHEN NEW.actualizado_en = OLD.actualizado_en
+BEGIN UPDATE favores SET actualizado_en = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = NEW.id; END;
+CREATE TRIGGER trg_upd_emerg AFTER UPDATE ON emergencias WHEN NEW.actualizado_en = OLD.actualizado_en
+BEGIN UPDATE emergencias SET actualizado_en = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = NEW.id; END;
+CREATE TRIGGER trg_upd_pedidos AFTER UPDATE ON pedidos_ayuda WHEN NEW.actualizado_en = OLD.actualizado_en
+BEGIN UPDATE pedidos_ayuda SET actualizado_en = strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id = NEW.id; END;
 
-CREATE TRIGGER trg_favconf_no_update BEFORE UPDATE ON favor_confirmaciones
-BEGIN SELECT RAISE(ABORT, 'favor_confirmaciones es append-only'); END;
-CREATE TRIGGER trg_favconf_no_delete BEFORE DELETE ON favor_confirmaciones
-BEGIN SELECT RAISE(ABORT, 'favor_confirmaciones es append-only'); END;
+-- ---------------------------------------------------------------------
+-- 9. VISTAS (lo que el frontend calculaba en JavaScript)
+-- ---------------------------------------------------------------------
+CREATE VIEW v_servicio_stats AS
+SELECT s.id AS servicio_id, count(r.id) AS total_vistos_buenos
+FROM servicios s LEFT JOIN recomendaciones r ON r.servicio_id = s.id
+GROUP BY s.id;
 
-CREATE TRIGGER trg_alconf_no_update BEFORE UPDATE ON alerta_confirmaciones
-BEGIN SELECT RAISE(ABORT, 'alerta_confirmaciones es append-only'); END;
-CREATE TRIGGER trg_alconf_no_delete BEFORE DELETE ON alerta_confirmaciones
-BEGIN SELECT RAISE(ABORT, 'alerta_confirmaciones es append-only'); END;
+CREATE VIEW v_servicio_etiquetas AS
+SELECT r.servicio_id, e.etiqueta, count(*) AS cantidad
+FROM recomendaciones r JOIN recomendacion_etiquetas e ON e.recomendacion_id = r.id
+GROUP BY r.servicio_id, e.etiqueta;
 
-CREATE TRIGGER trg_rep_no_update BEFORE UPDATE ON reputacion_eventos
-BEGIN SELECT RAISE(ABORT, 'reputacion_eventos es append-only'); END;
-CREATE TRIGGER trg_rep_no_delete BEFORE DELETE ON reputacion_eventos
-BEGIN SELECT RAISE(ABORT, 'reputacion_eventos es append-only'); END;
+CREATE VIEW v_balance_ayni AS
+WITH c AS (
+  SELECT CASE WHEN tipo = 'pido' THEN tomador_id ELSE dueno_id END AS da_id,
+         CASE WHEN tipo = 'pido' THEN dueno_id   ELSE tomador_id END AS recibe_id
+  FROM favores WHERE estado = 'cerrado' AND eliminado_en IS NULL
+)
+SELECT u.id AS usuario_id,
+       (SELECT count(*) FROM c WHERE da_id = u.id)     AS dados,
+       (SELECT count(*) FROM c WHERE recibe_id = u.id) AS recibidos
+FROM usuarios u;
+
+CREATE VIEW v_guardian_elegible AS
+SELECT u.id AS usuario_id,
+       CAST(julianday('now') - julianday(u.creado_en) AS INTEGER) AS dias_en_ayni,
+       (julianday('now') - julianday(u.creado_en)) >= 60 AS elegible
+FROM usuarios u;
+
+CREATE VIEW v_reportes_pendientes AS
+SELECT coalesce(servicio_id, favor_id) AS objeto_id,
+       CASE WHEN servicio_id IS NOT NULL THEN 'servicio' ELSE 'favor' END AS objeto_tipo,
+       count(*) AS total_reportes,
+       min(creado_en) AS primer_reporte
+FROM reportes WHERE decision IS NULL
+GROUP BY coalesce(servicio_id, favor_id), (servicio_id IS NOT NULL);
+
+COMMIT;
