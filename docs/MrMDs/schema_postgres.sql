@@ -1,5 +1,11 @@
-
+-- =====================================================================
+-- AYNI · Hoy por ti, mañana por mí  ·  Base central (PostgreSQL 13+)
+-- Alineada con el frontend ayni-app (React + localStorage).
+-- Ejecutar desde cero:  psql -d ayni -f schema_postgres.sql
+-- Los IDs (UUID) los genera el CLIENTE para poder crear datos sin conexión.
+-- =====================================================================
 BEGIN;
+
 
 -- ---------------------------------------------------------------------
 -- 0. Funciones comunes
@@ -16,6 +22,7 @@ END $$;
 CREATE TABLE sectores (
   id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   nombre         text NOT NULL CHECK (length(btrim(nombre)) BETWEEN 3 AND 80),
+  area_geojson   jsonb CHECK (area_geojson IS NULL OR jsonb_typeof(area_geojson) = 'object'),  -- polígono del sector (Figma 0.5)
   fundador_id    uuid,                                 -- FK se agrega tras crear usuarios
   creado_en      timestamptz NOT NULL DEFAULT now(),
   actualizado_en timestamptz NOT NULL DEFAULT now()
@@ -41,7 +48,10 @@ CREATE TABLE usuarios (
   manzana                  char(1) NOT NULL,
   lat_aprox                numeric(6,3) CHECK (lat_aprox BETWEEN -90 AND 90),    -- 3 decimales (~100 m)
   lng_aprox                numeric(7,3) CHECK (lng_aprox BETWEEN -180 AND 180),
-  direccion_referencia     text,                       -- PRIVADA: la API nunca la devuelve
+  foto                     text,                       -- foto de perfil opcional (Figma 2.6); solo la ven vecinos del sector
+  distrito                 text,                       -- Figma 1.7b: Distrito
+  direccion                text,                       -- Figma 1.7b: Calle y número. PRIVADA: solo la ven los Guardianes durante una emergencia
+  referencia               text,                       -- Figma 1.7b: Referencia (opcional)
   verificado               boolean NOT NULL DEFAULT true,
   mostrar_nombre_completo  boolean NOT NULL DEFAULT false,
   invitacion_guardian      text CHECK (invitacion_guardian IN ('aceptada','despues','fundador')),
@@ -106,6 +116,17 @@ CREATE TABLE sesiones (
   CHECK (proposito = 'registro' OR usuario_id IS NOT NULL)
 );
 CREATE INDEX idx_sesiones_usuario ON sesiones(usuario_id);
+
+-- Dispositivos que recibirán avisos push (Figma 4.3 "Emergencia por confirmar" y 4.6 "Alerta a los vecinos")
+CREATE TABLE suscripciones_push (
+  id           uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  usuario_id   uuid NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  canal        text NOT NULL CHECK (canal IN ('webpush','whatsapp')),
+  endpoint     text NOT NULL,
+  claves       jsonb CHECK (claves IS NULL OR jsonb_typeof(claves) = 'object'),
+  creado_en    timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (usuario_id, endpoint)
+);
 
 -- ---------------------------------------------------------------------
 -- 4. SERVICIOS Y PRODUCTOS  (frontend: "services")
@@ -268,6 +289,7 @@ CREATE TABLE emergencias (
   revisada_en      timestamptz,
   atendida_en      timestamptz,
   cerrada_por      uuid REFERENCES usuarios(id),
+  vence_en         timestamptz,                -- NULL = dura hasta que un Guardián la marque atendida (Figma 4.10); con fecha = 24 h (Figma 3.3)
   reportero_visto  boolean NOT NULL DEFAULT false,
   creado_en        timestamptz NOT NULL DEFAULT now(),
   actualizado_en   timestamptz NOT NULL DEFAULT now(),
@@ -295,6 +317,26 @@ BEGIN
 END $$;
 CREATE TRIGGER trg_emerg_guardian BEFORE UPDATE ON emergencias
   FOR EACH ROW EXECUTE FUNCTION validar_guardian_emergencia();
+
+-- Cada Guardián que confirma el reporte (la API activa la emergencia al llegar a CONFIRMACIONES_REQUERIDAS: 1 o 2)
+CREATE TABLE emergencia_confirmaciones (
+  emergencia_id uuid NOT NULL REFERENCES emergencias(id) ON DELETE CASCADE,
+  guardian_id   uuid NOT NULL REFERENCES usuarios(id),
+  confirmado_en timestamptz NOT NULL DEFAULT now(),
+  PRIMARY KEY (emergencia_id, guardian_id)
+);
+CREATE FUNCTION validar_confirmacion_guardian() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM emergencias e JOIN sector_guardianes g
+                 ON g.sector_id = e.sector_id AND g.usuario_id = NEW.guardian_id WHERE e.id = NEW.emergencia_id) THEN
+    RAISE EXCEPTION 'Solo un Guardián del sector puede confirmar la emergencia';
+  END IF;
+  RETURN NEW;
+END $$;
+CREATE TRIGGER trg_emerg_conf_guardian BEFORE INSERT ON emergencia_confirmaciones
+  FOR EACH ROW EXECUTE FUNCTION validar_confirmacion_guardian();
+CREATE TRIGGER trg_emerg_conf_append BEFORE UPDATE OR DELETE ON emergencia_confirmaciones
+  FOR EACH ROW EXECUTE FUNCTION prohibir_modificacion();
 
 -- Respuesta de cada vecino a la alerta: visto / bien / ayuda  (frontend: emergency.acks, endSeen)
 CREATE TABLE emergencia_acuses (
@@ -411,6 +453,29 @@ SELECT u.id AS usuario_id,
        (current_date - u.creado_en::date)::int AS dias_en_ayni,
        (current_date - u.creado_en::date) >= 60 AS elegible
 FROM usuarios u;
+
+-- Números de "Mi perfil" (Figma 2.5): publicaciones, favores dados, vistos buenos recibidos
+CREATE VIEW v_vecino_stats AS
+SELECT u.id AS usuario_id,
+       ((SELECT count(*) FROM servicios s WHERE s.dueno_id = u.id AND s.eliminado_en IS NULL)
+      + (SELECT count(*) FROM favores f WHERE f.dueno_id = u.id AND f.eliminado_en IS NULL))::int AS publicaciones,
+       (SELECT dados FROM v_balance_ayni b WHERE b.usuario_id = u.id) AS favores_dados,
+       (SELECT recibidos FROM v_balance_ayni b WHERE b.usuario_id = u.id) AS favores_recibidos,
+       (SELECT count(*) FROM recomendaciones r JOIN servicios s ON s.id = r.servicio_id WHERE s.dueno_id = u.id)::int AS vistos_buenos
+FROM usuarios u;
+
+-- Panel del Guardián durante una emergencia (Figma 4.10): pedidos, atendidos, vecinos ayudando…
+CREATE VIEW v_emergencia_resumen AS
+SELECT e.id AS emergencia_id,
+       (SELECT count(*) FROM emergencia_confirmaciones c WHERE c.emergencia_id = e.id)::int AS confirmaciones,
+       (SELECT count(*) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id)::int AS pedidos_total,
+       (SELECT count(*) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id AND p.estado = 'resuelto')::int AS pedidos_resueltos,
+       (SELECT count(*) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id AND p.estado = 'abierto')::int AS pedidos_sin_atender,
+       (SELECT count(DISTINCT p.ayudante_id) FROM pedidos_ayuda p WHERE p.emergencia_id = e.id AND p.ayudante_id IS NOT NULL)::int AS vecinos_ayudando,
+       (SELECT count(*) FROM emergencia_acuses a WHERE a.emergencia_id = e.id AND a.respuesta = 'bien')::int AS a_salvo,
+       (SELECT count(*) FROM emergencia_acuses a WHERE a.emergencia_id = e.id AND a.respuesta = 'ayuda')::int AS necesitan_ayuda,
+       (SELECT count(*) FROM usuarios u WHERE u.sector_id = e.sector_id)::int AS vecinos_avisados
+FROM emergencias e;
 
 -- Reportes pendientes agrupados por publicación (Panel del Guardián)
 CREATE VIEW v_reportes_pendientes AS

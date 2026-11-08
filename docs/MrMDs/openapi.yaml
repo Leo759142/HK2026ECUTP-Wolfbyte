@@ -1,14 +1,18 @@
 openapi: 3.0.3
 info:
   title: AYNI API
-  version: 2.0.0
+  version: 2.1.0
   description: |
     Contrato entre el backend y el frontend `ayni-app` (React). Reemplaza a `src/storage.js`:
     cada colección de localStorage tiene su endpoint (ver docs/MAPEO_FRONTEND.md).
     Reglas generales:
     - Los IDs son UUID y los genera el CLIENTE (así se puede crear sin conexión).
     - Las ubicaciones son aproximadas (máx. 3 decimales). `direccion_referencia` es privada: nunca se devuelve.
-    - El teléfono de un vecino solo se muestra a vecinos de su mismo sector (para abrir WhatsApp).
+    - Privacidad (Figma 1.4): los vecinos NO ven tu número. La API nunca lo lista; solo devuelve un enlace de WhatsApp
+      en el momento en que tú decides contactar (servicio o favor) o cuando hay una ayuda en camino en una emergencia.
+    - La dirección exacta (distrito, calle, referencia) solo la ven los Guardianes mientras haya una emergencia activa.
+    - Emergencia: se activa cuando confirman CONFIRMACIONES_REQUERIDAS Guardianes (1 en el flujo 4.x, 2 en las pantallas 3.x del Figma;
+      se cambia en el servidor sin tocar la base). Dura hasta que un Guardián la marque atendida, o hasta `vence_en` si se configura (24 h).
     - Recomendaciones (Visto Bueno) son append-only: se crean una vez, nunca se editan ni se borran.
     - Lo hecho sin conexión se envía en lote por POST /sync/push (idempotente por `op_id`).
     - Errores: siempre `{ codigo, mensaje }` con un texto simple para mostrar al vecino.
@@ -22,6 +26,7 @@ tags:
   - { name: Favores, description: "Cadena de Favores" }
   - { name: Moderacion }
   - { name: Emergencia }
+  - { name: Notificaciones }
   - { name: Sync, description: "Offline-first" }
 security:
   - bearerAuth: []
@@ -124,6 +129,25 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/Sector' }
+  /sectores/buscar:
+    get:
+      tags: [Sectores]
+      security: []
+      operationId: buscarSectorPorUbicacion
+      summary: '"Encontramos tu zona": el sector que contiene mi ubicación (o null si aún no existe, pantalla 0.4)'
+      parameters:
+        - { name: lat, in: query, schema: { type: number, minimum: -90, maximum: 90 } }
+        - { name: lng, in: query, schema: { type: number, minimum: -180, maximum: 180 } }
+        - { name: distrito, in: query, description: Para quien escribe su dirección en vez de usar el GPS (pantalla 1.7b), schema: { type: string } }
+      responses:
+        '200':
+          description: El sector encontrado o null
+          content:
+            application/json:
+              schema:
+                type: object
+                nullable: true
+                allOf: [{ $ref: '#/components/schemas/Sector' }]
   /sectores/{sectorId}:
     parameters: [{ $ref: '#/components/parameters/SectorId' }]
     get:
@@ -155,6 +179,10 @@ paths:
                 idioma: { $ref: '#/components/schemas/Idioma' }
                 letra_grande: { type: boolean }
                 manzana: { $ref: '#/components/schemas/Manzana' }
+                foto: { type: string, nullable: true, description: "null = quitar foto (Figma 2.6)" }
+                distrito: { type: string }
+                direccion: { type: string }
+                referencia: { type: string }
       responses:
         '200':
           description: Actualizado
@@ -208,6 +236,7 @@ paths:
         - { name: clase, in: query, schema: { $ref: '#/components/schemas/ClaseServicio' } }
         - { name: q, in: query, description: Texto libre sobre título y descripción, schema: { type: string, maxLength: 60 } }
         - { name: solo_recomendados, in: query, schema: { type: boolean, default: false } }
+        - { name: orden, in: query, description: Pantalla 5.1, schema: { type: string, enum: [recomendados_cerca, cercania, vistos_buenos], default: recomendados_cerca } }
         - { $ref: '#/components/parameters/Mios' }
         - { $ref: '#/components/parameters/Limite' }
         - { $ref: '#/components/parameters/Cursor' }
@@ -581,7 +610,7 @@ paths:
     post:
       tags: [Emergencia]
       operationId: confirmarEmergencia
-      summary: Un Guardián confirma → pasa a activa y se avisa a todos
+      summary: Un Guardián confirma. Al llegar a las confirmaciones requeridas pasa a activa y se avisa a todos (push)
       responses:
         '200':
           description: Activa
@@ -714,6 +743,26 @@ paths:
             application/json:
               schema: { type: array, items: { $ref: '#/components/schemas/GrupoApoyo' } }
 
+  # ------------------------------------------------------------ NOTIFICACIONES
+  /notificaciones/suscripcion:
+    post:
+      tags: [Notificaciones]
+      operationId: suscribirNotificaciones
+      summary: Registrar este dispositivo para los avisos de emergencia (pantallas 4.3 y 4.6)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [canal, endpoint]
+              properties:
+                canal: { type: string, enum: [webpush, whatsapp] }
+                endpoint: { type: string }
+                claves: { type: object, nullable: true, additionalProperties: { type: string } }
+      responses:
+        '204': { description: Suscripción guardada }
+
   # ------------------------------------------------------------ SYNC
   /sync/push:
     post:
@@ -836,9 +885,13 @@ components:
             id: { type: string, format: uuid }
             nombre: { type: string, minLength: 3, maxLength: 80 }
             manzanas: { type: array, minItems: 1, maxItems: 10, items: { $ref: '#/components/schemas/Manzana' } }
+            area_geojson: { type: object, nullable: true, description: Polígono GeoJSON dibujado en el mapa (Figma 0.5) }
         lat_aprox: { type: number, minimum: -90, maximum: 90 }
         lng_aprox: { type: number, minimum: -180, maximum: 180 }
-        direccion_referencia: { type: string, maxLength: 120, description: Privada; nunca se devuelve }
+        foto: { type: string, nullable: true }
+        distrito: { type: string, maxLength: 60 }
+        direccion: { type: string, maxLength: 120, description: "Calle y número. Privada: solo la ven los Guardianes en una emergencia" }
+        referencia: { type: string, maxLength: 120 }
         idioma: { $ref: '#/components/schemas/Idioma' }
         plataforma: { $ref: '#/components/schemas/Plataforma' }
     Usuario:
@@ -853,6 +906,10 @@ components:
         manzana: { $ref: '#/components/schemas/Manzana' }
         lat_aprox: { type: number, nullable: true }
         lng_aprox: { type: number, nullable: true }
+        foto: { type: string, nullable: true }
+        distrito: { type: string, nullable: true }
+        direccion: { type: string, nullable: true, description: "Solo la ve el propio usuario (y los Guardianes en una emergencia)" }
+        referencia: { type: string, nullable: true }
         verificado: { type: boolean }
         mostrar_nombre_completo: { type: boolean }
         invitacion_guardian: { type: string, enum: [aceptada, despues, fundador], nullable: true }
@@ -861,6 +918,15 @@ components:
         rol_plataforma: { type: string, enum: [usuario, admin] }
         es_guardian: { type: boolean, description: Derivado de sector_guardianes }
         dias_en_ayni: { type: integer, minimum: 0, description: Derivado de creado_en }
+        camino_guardian:
+          type: object
+          description: 'Figma 2.5 "Camino a Guardiana": lo que falta para la invitación'
+          properties:
+            dias_en_ayni: { type: integer }
+            dias_requeridos: { type: integer, example: 60 }
+            vistos_buenos_actuales: { type: integer }
+            vistos_buenos_requeridos: { type: integer, description: "0 si no se exige mínimo; se configura en el servidor" }
+            elegible: { type: boolean }
         creado_en: { type: string, format: date-time }
         actualizado_en: { type: string, format: date-time }
     VecinoPublico:
@@ -870,7 +936,7 @@ components:
         id: { type: string, format: uuid }
         nombre_visible: { type: string, example: "Rosa M.", description: "Nombre y apellido completos solo si el vecino lo eligió" }
         manzana: { $ref: '#/components/schemas/Manzana' }
-        telefono: { $ref: '#/components/schemas/Telefono' }
+        foto: { type: string, nullable: true, description: Foto de perfil opcional (Figma 2.6); solo la ven vecinos del sector }
         es_guardian: { type: boolean }
     PerfilVecino:
       allOf:
@@ -883,6 +949,12 @@ components:
               properties:
                 dados: { type: integer, minimum: 0 }
                 recibidos: { type: integer, minimum: 0 }
+            stats:
+              type: object
+              description: Números de Mi perfil (v_vecino_stats)
+              properties:
+                publicaciones: { type: integer, minimum: 0 }
+                vistos_buenos: { type: integer, minimum: 0 }
     Sector:
       type: object
       required: [id, nombre, manzanas]
@@ -891,6 +963,7 @@ components:
         nombre: { type: string }
         manzanas: { type: array, items: { $ref: '#/components/schemas/Manzana' } }
         guardianes: { type: array, items: { $ref: '#/components/schemas/VecinoPublico' } }
+        area_geojson: { type: object, nullable: true }
         fundador_id: { type: string, format: uuid, nullable: true }
         total_vecinos: { type: integer, minimum: 0 }
         creado_en: { type: string, format: date-time }
@@ -949,6 +1022,7 @@ components:
       type: object
       required: [id, servicio_id, usuario_id, respondido, creado_en]
       properties:
+        whatsapp_url: { type: string, format: uri, nullable: true, description: "Solo al crear el contacto: https://wa.me/… con el mensaje inicial. Así el número no se lista." }
         id: { type: string, format: uuid }
         servicio_id: { type: string, format: uuid }
         usuario_id: { type: string, format: uuid }
@@ -1011,6 +1085,7 @@ components:
             tomador: { allOf: [{ $ref: '#/components/schemas/VecinoPublico' }], nullable: true }
             reservado_en: { type: string, format: date-time, nullable: true }
             minutos_restantes: { type: integer, nullable: true, description: "De la reserva de 1 hora; calculado" }
+            whatsapp_url: { type: string, format: uri, nullable: true, description: "Solo en la respuesta de /reservar: enlace de WhatsApp con el dueño" }
             dueno_confirmo: { type: boolean }
             tomador_confirmo: { type: boolean }
             cerrado_en: { type: string, format: date-time, nullable: true }
@@ -1066,16 +1141,26 @@ components:
             atendida_en: { type: string, format: date-time, nullable: true }
             cerrada_por: { type: string, format: uuid, nullable: true }
             reportero_visto: { type: boolean }
+            vence_en: { type: string, format: date-time, nullable: true, description: "NULL = hasta que un Guardián la marque atendida" }
+            confirmaciones:
+              type: object
+              description: 'Figma 3.3 "1 de 2 confirmaciones"'
+              properties:
+                actuales: { type: integer, minimum: 0 }
+                requeridas: { type: integer, minimum: 1, maximum: 2 }
             mi_respuesta: { allOf: [{ $ref: '#/components/schemas/RespuestaAlerta' }], nullable: true }
             fin_visto: { type: boolean }
             resumen:
               type: object
-              description: Conteos del Panel del Guardián (emergencia_acuses y pedidos_ayuda)
+              description: Panel del Guardián, pantalla 4.10 (v_emergencia_resumen)
               properties:
+                pedidos_total: { type: integer }
+                pedidos_resueltos: { type: integer }
+                pedidos_sin_atender: { type: integer }
+                vecinos_ayudando: { type: integer }
                 a_salvo: { type: integer }
                 necesitan_ayuda: { type: integer }
-                pedidos_abiertos: { type: integer }
-                vecinos_en_sector: { type: integer }
+                vecinos_avisados: { type: integer }
             creado_en: { type: string, format: date-time }
             actualizado_en: { type: string, format: date-time }
     PedidoAyudaNuevo:
@@ -1103,6 +1188,15 @@ components:
             ayudante: { allOf: [{ $ref: '#/components/schemas/VecinoPublico' }], nullable: true }
             ayudante_en: { type: string, format: date-time, nullable: true }
             resuelto_en: { type: string, format: date-time, nullable: true }
+            contacto_telefono: { allOf: [{ $ref: '#/components/schemas/Telefono' }], nullable: true, description: "Solo lo ven quien pidió y quien va en camino, una vez aceptado" }
+            direccion_exacta:
+              type: object
+              nullable: true
+              description: Solo la ven los Guardianes mientras hay una emergencia activa (Figma 1.7b)
+              properties:
+                distrito: { type: string }
+                direccion: { type: string }
+                referencia: { type: string }
             creado_en: { type: string, format: date-time }
             actualizado_en: { type: string, format: date-time }
     GrupoApoyo:
