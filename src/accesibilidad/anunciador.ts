@@ -38,6 +38,7 @@ export class AnunciadorAccesible {
    * Despacha el mensaje textual directo hacia el sintetizador de voz del dispositivo.
    */
   vocalizar(mensaje: string, prioridad: PrioridadAnuncio = 'polite'): void {
+    if (typeof document === 'undefined') return;
     if (!this.contenedorLive) this.asegurarContenedor();
     if (!this.contenedorLive) return;
 

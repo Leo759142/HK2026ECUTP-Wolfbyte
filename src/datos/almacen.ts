@@ -1,4 +1,4 @@
-import { browser } from '$app/env';
+import { browser } from '$app/environment';
 
 export interface AlmacenKV {
 	get<T>(key: string): Promise<T | null>;
