@@ -3,7 +3,7 @@
 import { cloneElement, isValidElement, useId, useRef } from 'react';
 import { useApp } from '../AppContext';
 import { NUMEROS_EMERGENCIA } from '../data';
-import { Icon } from './iconos.jsx';
+import { Icon, emojiToIcon } from './iconos.jsx';
 
 const BOTON = {
   primario: 'bg-petroleo text-white',
@@ -49,7 +49,7 @@ export function Header({ title, right, onBack, light = false }) {
         onClick={onBack ?? back}
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl font-black ${light ? 'text-white active:bg-white/15' : 'text-tinta active:bg-linea'}`}
       >
-        <Icon name="fa-arrow-left" className="text-2xl font-black" />
+        <Icon name="volver" className="text-2xl font-black" />
       </button>
       <div className={`min-w-0 flex-1 truncate text-base font-extrabold ${light ? 'text-white' : 'text-gris'}`}>{title}</div>
       {right}
@@ -65,7 +65,7 @@ export function Chip({ className = 'bg-petroleo-claro text-petroleo-osc', childr
   return <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold ${className}`}>{children}</span>;
 }
 
-export const ChipPendiente = () => <Chip className="border border-dashed border-gris bg-white text-gris"><Icon name="fa-clock" /> Pendiente de enviar</Chip>;
+export const ChipPendiente = () => <Chip className="border border-dashed border-gris bg-white text-gris"><Icon name="reloj" className="text-gris" /> Pendiente de enviar</Chip>;
 
 export function Card({ onClick, className = '', children }) {
   const base = `flex w-full gap-3 rounded-[20px] border border-linea bg-white p-3.5 text-left ${className}`;
@@ -176,7 +176,13 @@ export function OptionGrid({ options, value, onChange, multi = false, cols = 3, 
           onClick={() => toggle(o.id)}
           className={`flex min-h-[76px] flex-col items-center justify-center gap-1 rounded-2xl border-2 px-1 text-center text-xs font-extrabold leading-tight ${isOn(o.id) ? TONO_OPCION[tone] : 'border-linea bg-white text-tinta'}`}
         >
-          <span className="text-2xl" aria-hidden="true">{o.emoji}</span>
+          {o.icon ? (
+            <Icon name={o.icon} className="text-2xl" />
+          ) : emojiToIcon(o.emoji) ? (
+            <Icon name={emojiToIcon(o.emoji)} className="text-2xl" />
+          ) : (
+            <span className="text-2xl" aria-hidden="true">{o.emoji}</span>
+          )}
           {o.label}
         </button>
       ))}
