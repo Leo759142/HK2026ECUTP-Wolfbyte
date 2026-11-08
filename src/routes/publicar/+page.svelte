@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { encolarAccion } from '../../sync/outbox.svelte';
-	import { construirPublicacion, tipoDesdeUrl, type TipoPublicacion } from '$lib/publicar';
+	import { construirPublicacion, tipoDesdeUrl, type TipoPublicacion } from '#lib/publicar';
 
 	let paso = $state(1);
 	// $state (no $derived) porque el select lo modifica.

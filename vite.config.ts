@@ -7,7 +7,7 @@ export default defineConfig(async () => ({
 	plugins: [
 		tailwindcss(),
 		await sveltekit({
-			adapter: adapter({ fallback: 'index.html' }),
+			adapter: adapter(),
 			files: { routes: 'src/routes', appTemplate: 'src/app.html' },
 			compilerOptions: {
 				runes: ({ filename }) =>

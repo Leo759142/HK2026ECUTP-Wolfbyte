@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { accionesCierre, construirConfirmacion, type FavorVista } from '$lib/favores';
+	import { accionesCierre, construirConfirmacion, type FavorVista } from '#lib/favores';
 	import type { RolEnFavor } from '../../dominio/tipos/tipos';
 
 	let items = $state<FavorVista[]>([]);
