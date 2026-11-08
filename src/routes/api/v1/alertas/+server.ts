@@ -1,4 +1,7 @@
+import type { RequestHandler } from './$types';
 import { ok, problem, requireIdempotency } from '../../_http';
+import { store } from '../../_store';
+import { elegir, errorTextos, esRespuesta, leerCoordenadas, leerObjeto } from '../../_validar';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 import { dao } from '../../../../datos/dao';
 

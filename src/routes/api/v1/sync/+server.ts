@@ -1,3 +1,4 @@
+import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
 import { problem } from '../../_http';
 import { dao } from '../../../../datos/dao';
@@ -25,7 +26,7 @@ async function aplicar(op: Op) {
 	return r;
 }
 
-export const POST = async ({ request }) => {
+export const POST: RequestHandler = async ({ request }) => {
 	const b = (await request.json().catch(() => null)) as { operaciones?: Op[] } | null;
 	if (!b || !Array.isArray(b.operaciones)) return problem(400, 'JSON inválido', 'Se requiere { operaciones: [{ op_id, entidad, operacion, payload }] }');
 	const resultados = [] as unknown[];
@@ -38,4 +39,4 @@ export const POST = async ({ request }) => {
 	return json({ resultados });
 };
 
-export const GET = async ({ url }) => json({ cursor: url.searchParams.get('cursor') ?? new Date(0).toISOString(), nextCursor: new Date().toISOString(), cambios: [] });
+export const GET: RequestHandler = async ({ url }) => json({ cursor: url.searchParams.get('cursor') ?? new Date(0).toISOString(), nextCursor: new Date().toISOString(), cambios: [] });

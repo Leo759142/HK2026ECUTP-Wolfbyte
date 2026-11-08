@@ -79,14 +79,32 @@ export class OutboxDAO {
 		return item;
 	}
 
-	async pendientes(): Promise<OperacionOutbox[]> {
+	/** Todas las operaciones guardadas (las aplicadas se borran), en orden de creación. Para mostrar en la UI. */
+	async listarTodas(): Promise<OperacionOutbox[]> {
 		await this.migrarLegacy();
 		const keys = await this.kv.keys(PREFIX);
 		const items = (await Promise.all(keys.map((k) => this.kv.get<OperacionOutbox>(k)))).filter(Boolean) as OperacionOutbox[];
-		return items
-			.filter((p) => p.estado === 'pendiente' || p.estado === 'enviando')
-			.filter((p) => !p.next_attempt_at || p.next_attempt_at <= Date.now())
-			.sort((a, b) => a.creado_en.localeCompare(b.creado_en));
+		return items.sort((a, b) => a.creado_en.localeCompare(b.creado_en));
+	}
+
+	/** Operaciones listas para enviar ahora (sin reintento programado a futuro). Las usa el motor de sync. */
+	async pendientes(ahora = Date.now()): Promise<OperacionOutbox[]> {
+		return (await this.listarTodas())
+			.filter((p) => esPendiente(p.estado))
+			.filter((p) => !p.next_attempt_at || p.next_attempt_at <= ahora);
+	}
+
+	/** Momento (ms epoch) del próximo reintento programado, o null si no hay ninguno. */
+	async proximoReintento(): Promise<number | null> {
+		const tiempos = (await this.listarTodas())
+			.filter((p) => esPendiente(p.estado) && p.next_attempt_at)
+			.map((p) => p.next_attempt_at as number);
+		return tiempos.length ? Math.min(...tiempos) : null;
+	}
+
+	/** Borra una operación (p. ej. una rechazada que el usuario decide descartar). */
+	async descartar(op_id: string): Promise<void> {
+		await this.kv.del(key(op_id));
 	}
 
 	async pendientesPaginado(opts: { limite?: number; offset?: number } = {}): Promise<{ items: OperacionOutbox[]; total: number }> {
@@ -112,7 +130,8 @@ export class OutboxDAO {
 			estado,
 			error: error ?? cur.error ?? null,
 			actualizado_en: new Date().toISOString(),
-			intentos: estado === 'enviando' || error ? cur.intentos + 1 : cur.intentos
+			// Un intento = un envío. Se cuenta solo al pasar a "enviando".
+			intentos: estado === 'enviando' ? cur.intentos + 1 : cur.intentos
 		};
 		if (estado === 'aplicada') await this.kv.del(key(op_id));
 		else await this.kv.set(key(op_id), next);
@@ -124,12 +143,21 @@ export class OutboxDAO {
 		await this.kv.set(key(op_id), {
 			...cur,
 			estado: 'pendiente',
-			intentos: cur.intentos + 1,
 			next_attempt_at: Date.now() + ms,
 			error: error ?? cur.error ?? null,
 			actualizado_en: new Date().toISOString()
 		});
 	}
+}
+
+/** Pendiente de enviar (incluye las que quedaron "enviando" si se cerró la app a mitad). */
+export function esPendiente(estado: EstadoOutbox): boolean {
+	return estado === 'pendiente' || estado === 'enviando';
+}
+
+/** Rechazada por el servidor o en conflicto: necesita que alguien la revise. */
+export function requiereAtencion(estado: EstadoOutbox): boolean {
+	return estado === 'rechazada' || estado === 'conflicto';
 }
 
 function safeParse(s: string): unknown {

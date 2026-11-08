@@ -5,7 +5,7 @@ export interface UbicacionAproximada extends CoordenadaAprox {
 }
 
 export function validarCoordenadas(lat: number, lng: number): void {
-	if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+	if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
 		throw new RangeError('Coordenadas fuera de rango');
 	}
 }

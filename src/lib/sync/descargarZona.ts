@@ -1,4 +1,4 @@
-import bd from '$lib/datos/local';
+import bd from '#lib/datos/local';
 
 export interface ZonaDescarga {
 	tablas: string[];

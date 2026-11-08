@@ -1,16 +1,34 @@
-import { writable, get } from 'svelte/store';
-import { outboxDAO, type OperacionOutbox } from '../datos/outbox';
-import { iniciarAutoSync, vaciarColaOutbox } from './motor';
+import { writable, derived, get } from 'svelte/store';
+import { outboxDAO, esPendiente, requiereAtencion, type OperacionOutbox } from '../datos/outbox';
+import { vaciarColaOutbox } from './motor';
 import { AnunciadorAccesible } from '../accesibilidad/anunciador';
 
+/** Todas las operaciones guardadas en el celular (pendientes, con reintento programado, rechazadas…). */
 export const operacionesOutbox = writable<OperacionOutbox[]>([]);
 export const sincronizando = writable(false);
 
+/** Pendientes de enviar, incluidas las que esperan un reintento programado. */
+export const pendientesEnvio = derived(operacionesOutbox, (ops) => ops.filter((o) => esPendiente(o.estado)));
+/** Rechazadas o en conflicto: "Requiere atención". */
+export const requierenAtencion = derived(operacionesOutbox, (ops) => ops.filter((o) => requiereAtencion(o.estado)));
+
 const anunciador = new AnunciadorAccesible();
 let iniciado = false;
+let timerReintento: ReturnType<typeof setTimeout> | null = null;
 
 export async function refrescarOutbox() {
-	operacionesOutbox.set(await outboxDAO.pendientes());
+	operacionesOutbox.set(await outboxDAO.listarTodas());
+}
+
+/** Programa un sync para cuando venza el próximo reintento (solo en el navegador). */
+export async function programarSiguienteReintento(ahora = Date.now()): Promise<number | null> {
+	if (timerReintento) clearTimeout(timerReintento);
+	timerReintento = null;
+	const proximo = await outboxDAO.proximoReintento();
+	if (proximo === null || typeof window === 'undefined') return proximo === null ? null : Math.max(0, proximo - ahora);
+	const espera = Math.max(0, proximo - ahora) + 50;
+	timerReintento = setTimeout(() => void sincronizarAhora(), espera);
+	return espera;
 }
 
 export async function encolarAccion(entidad: string, payload: unknown, operacion: 'crear' | 'actualizar' = 'crear') {
@@ -30,7 +48,14 @@ export async function sincronizarAhora() {
 	} finally {
 		sincronizando.set(false);
 		await refrescarOutbox();
+		await programarSiguienteReintento();
 	}
+}
+
+/** El usuario descarta una operación rechazada. */
+export async function descartarOperacion(opId: string) {
+	await outboxDAO.descartar(opId);
+	await refrescarOutbox();
 }
 
 /** Fachada compatible con el nombre legacy usado en el dominio/sync anterior. */
@@ -45,7 +70,7 @@ export class OutboxComunitario {
 		}));
 	}
 	get longitud() {
-		return get(operacionesOutbox).length;
+		return get(pendientesEnvio).length;
 	}
 	encolarAccion(accion: string, payload: unknown) {
 		void encolarAccion(accion, payload);
@@ -58,6 +83,7 @@ export class OutboxComunitario {
 export function iniciarOutbox() {
 	if (iniciado || typeof window === 'undefined') return;
 	iniciado = true;
-	iniciarAutoSync();
+	window.addEventListener('online', () => void sincronizarAhora());
 	void refrescarOutbox();
+	void sincronizarAhora();
 }

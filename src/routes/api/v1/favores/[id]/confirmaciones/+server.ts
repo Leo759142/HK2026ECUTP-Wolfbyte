@@ -1,3 +1,4 @@
+import type { RequestHandler } from './$types';
 import { ok, problem, requireIdempotency } from '../../../../_http';
 import { dao } from '../../../../../../datos/dao';
 

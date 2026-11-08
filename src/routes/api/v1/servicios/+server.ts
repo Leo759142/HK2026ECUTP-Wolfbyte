@@ -1,5 +1,8 @@
+import type { RequestHandler } from './$types';
 import { ok, problem, requireIdempotency } from '../../_http';
-import { CATEGORIAS_SERVICIO } from '../../../../dominio/tipos/tipos';
+import { store } from '../../_store';
+import { elegir, errorTextos, esRespuesta, leerCoordenadas, leerObjeto } from '../../_validar';
+import { CATEGORIAS_SERVICIO, type CategoriaServicio } from '../../../../dominio/tipos/tipos';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 import { dao } from '../../../../datos/dao';
 
@@ -17,7 +20,7 @@ async function seedDemo() {
 
 void seedDemo();
 
-export const GET = async ({ url }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const zona = url.searchParams.get('zona_id');
 	const categoria = url.searchParams.get('categoria');
 	const limite = url.searchParams.get('limite');
@@ -27,7 +30,7 @@ export const GET = async ({ url }) => {
 	return ok({ items: filtered, nextCursor: null, total: paginado.total });
 };
 
-export const POST = async ({ request }) => {
+export const POST: RequestHandler = async ({ request }) => {
 	const key = requireIdempotency(request);
 	if (!(typeof key === 'string')) return key;
 	const body = await request.json().catch(() => null);
@@ -38,17 +41,18 @@ export const POST = async ({ request }) => {
 	if (!CATEGORIAS_SERVICIO.includes(String(b.categoria) as never)) return problem(422, 'Categoría inválida');
 	const existente = await dao.obtenerLocal<Record<string, unknown>>('servicios', key);
 	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });
-	const aprox = enmascararCoordenadas(Number(b.lat_aprox), Number(b.lng_aprox));
+
+	const ahora = new Date().toISOString();
 	const item = {
+		...elegir(b, CAMPOS),
+		...enmascararCoordenadas(coords.lat, coords.lng),
 		id: key,
 		usuario_id: 'demo',
-		...b,
-		...aprox,
 		es_emprendimiento: b.es_emprendimiento ? 1 : 0,
 		activo: 1,
 		oculto: 0,
-		creado_en: new Date().toISOString(),
-		actualizado_en: new Date().toISOString()
+		creado_en: ahora,
+		actualizado_en: ahora
 	};
 	await dao.aplicarLocal('servicios', item);
 	return ok(item, 201);

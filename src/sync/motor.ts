@@ -1,4 +1,18 @@
 import { outboxDAO } from '../datos/dao';
+import { esPendiente } from '../datos/outbox';
+
+export interface ResultadoSync {
+	enviadas: number;
+	pendientes: number;
+	conflicto: boolean;
+}
+
+/** Espera antes del siguiente reintento: 1s, 2s, 4s… hasta 30s. */
+export function esperaReintento(intentos: number): number {
+	return Math.min(30000, 1000 * 2 ** Math.min(Math.max(intentos, 0), 5));
+}
+
+const sinConexion = () => typeof navigator !== 'undefined' && navigator.onLine === false;
 
 async function fetchConIdempotencia(path: string, payload: unknown, opId: string): Promise<Response | null> {
 	return fetch(path, {
@@ -8,11 +22,14 @@ async function fetchConIdempotencia(path: string, payload: unknown, opId: string
 	}).catch(() => null);
 }
 
+async function contarPendientes(): Promise<number> {
+	return (await outboxDAO.listarTodas()).filter((o) => esPendiente(o.estado)).length;
+}
+
 let _syncing = false;
-export async function vaciarColaOutbox(): Promise<{ enviadas: number; pendientes: number; conflicto: boolean }> {
-	const run = async (): Promise<{ enviadas: number; pendientes: number; conflicto: boolean }> => {
-		if (_syncing) return { enviadas: 0, pendientes: 0, conflicto: false };
-		if (typeof navigator !== 'undefined' && !navigator.onLine) return { enviadas: 0, pendientes: 0, conflicto: false };
+export async function vaciarColaOutbox(): Promise<ResultadoSync> {
+	const run = async (): Promise<ResultadoSync> => {
+		if (_syncing || sinConexion()) return { enviadas: 0, pendientes: await contarPendientes(), conflicto: false };
 		_syncing = true;
 		let enviadas = 0;
 		let conflicto = false;
@@ -30,19 +47,17 @@ export async function vaciarColaOutbox(): Promise<{ enviadas: number; pendientes
 				} else if (res && res.status >= 400 && res.status < 500) {
 					await outboxDAO.marcar(op.op_id, 'rechazada', await res.text().catch(() => String(res.status)));
 				} else {
-					await outboxDAO.programarReintento(op.op_id, Math.min(30000, 1000 * 2 ** Math.min(op.intentos, 5)), res ? `HTTP ${res.status}` : 'sin red');
+					await outboxDAO.programarReintento(op.op_id, esperaReintento(op.intentos), res ? `HTTP ${res.status}` : 'sin red');
 					break;
 				}
 			}
 		} finally {
 			_syncing = false;
 		}
-		const pendientes = (await outboxDAO.pendientes()).length;
-		return { enviadas, pendientes, conflicto };
+		return { enviadas, pendientes: await contarPendientes(), conflicto };
 	};
-	if (typeof navigator !== 'undefined' && 'locks' in navigator) {
-		return (navigator as any).locks.request('outbox-sync', run);
-	}
+	const nav = typeof navigator !== 'undefined' ? (navigator as Navigator & { locks?: LockManager }) : undefined;
+	if (nav?.locks) return nav.locks.request('outbox-sync', run);
 	return run();
 }
 

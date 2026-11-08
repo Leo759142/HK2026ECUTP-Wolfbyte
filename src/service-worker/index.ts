@@ -18,12 +18,16 @@ sw.addEventListener('activate', (event) => {
 	sw.clients.claim();
 });
 
+const offline = () => new Response('Offline', { status: 503, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+
 sw.addEventListener('fetch', (event) => {
 	if (event.request.method !== 'GET') return;
 	const url = new URL(event.request.url);
 	if (url.origin !== self.location.origin) return;
 	if (url.pathname.startsWith('/api/')) {
-		event.respondWith(fetch(event.request).catch(() => caches.match(event.request) as Promise<Response>));
+		event.respondWith(
+			fetch(event.request).catch(async () => (await caches.match(event.request)) ?? offline())
+		);
 		return;
 	}
 	event.respondWith(
@@ -33,7 +37,7 @@ sw.addEventListener('fetch', (event) => {
 					if (res.ok) caches.open(CACHE).then((c) => c.put(event.request, res.clone()));
 					return res;
 				})
-				.catch(() => cached ?? caches.match('/') ?? new Response('Offline', { status: 503 }));
+				.catch(async () => cached ?? (await caches.match(aUrl('/'))) ?? offline());
 			return cached ?? network;
 		})
 	);

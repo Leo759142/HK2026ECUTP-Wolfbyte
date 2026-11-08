@@ -1,5 +1,8 @@
+import type { RequestHandler } from './$types';
 import { ok, problem, requireIdempotency } from '../../_http';
-import { CATEGORIAS_FAVOR, TIPOS_FAVOR } from '../../../../dominio/tipos/tipos';
+import { store } from '../../_store';
+import { elegir, errorTextos, esRespuesta, leerCoordenadas, leerObjeto } from '../../_validar';
+import { CATEGORIAS_FAVOR, TIPOS_FAVOR, type CategoriaFavor, type Favor, type TipoFavor } from '../../../../dominio/tipos/tipos';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 import { ServicioCierreFavor } from '../../../../dominio/favores/cierre';
 import { dao } from '../../../../datos/dao';
@@ -18,19 +21,24 @@ async function seedDemo() {
 
 void seedDemo();
 
-export const GET = async ({ url }) => {
+export const GET: RequestHandler = async ({ url }) => {
 	const zona = url.searchParams.get('zona_id');
 	const estado = url.searchParams.get('estado');
+<<<<<<< HEAD
 	const limite = url.searchParams.get('limite');
 	const offset = url.searchParams.get('offset');
 	const paginado = await dao.listarLocalPaginado<Record<string, unknown>>('favores', { limite: limite ? Number(limite) : undefined, offset: offset ? Number(offset) : undefined });
 	const filtered = paginado.items.filter((f) => (!zona || f.zona_id === zona) && (!estado || f.estado === estado));
 	return ok({ items: filtered, total: paginado.total });
+=======
+	return ok({ items: store.favores.filter((f) => f.oculto === 0 && (!zona || f.zona_id === zona) && (!estado || f.estado === estado)) });
+>>>>>>> deep-backend1/deep-backend1
 };
 
-export const POST = async ({ request }) => {
+export const POST: RequestHandler = async ({ request }) => {
 	const key = requireIdempotency(request);
 	if (!(typeof key === 'string')) return key;
+<<<<<<< HEAD
 	const b = (await request.json().catch(() => null)) as Record<string, unknown> | null;
 	if (!b?.zona_id || !b?.tipo || !b?.categoria || !b?.titulo || !b?.descripcion) return problem(422, 'Campos requeridos');
 	if (!TIPOS_FAVOR.includes(String(b.tipo) as never) || !CATEGORIAS_FAVOR.includes(String(b.categoria) as never)) return problem(422, 'Tipo/categoría inválida');
@@ -62,3 +70,35 @@ export async function _cerrarSiMutuo(favorId: string) {
 	if (!favor?.ayudante_id || !favor?.creador_id) return;
 	void ServicioCierreFavor;
 }
+=======
+	const b = await leerObjeto(request);
+	if (esRespuesta(b)) return b;
+
+	const errTexto = errorTextos(b, { zona_id: { max: 64 }, titulo: { min: 3, max: 80 }, descripcion: { max: 500 } });
+	if (errTexto) return problem(422, 'Datos inválidos', errTexto);
+	if (!TIPOS_FAVOR.includes(String(b.tipo) as TipoFavor) || !CATEGORIAS_FAVOR.includes(String(b.categoria) as CategoriaFavor))
+		return problem(422, 'Tipo/categoría inválida');
+	const coords = leerCoordenadas(b, false);
+	if (esRespuesta(coords)) return coords;
+
+	const existente = store.favores.find((f) => f.id === key);
+	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });
+
+	const aprox = coords ? enmascararCoordenadas(coords.lat, coords.lng) : UBICACION_POR_DEFECTO;
+	// Lista blanca primero; los campos que controla el servidor van después y no se pueden sobrescribir.
+	const item = {
+		...elegir(b, CAMPOS),
+		...aprox,
+		id: key,
+		creador_id: 'demo',
+		ayudante_id: null,
+		estado: 'abierto',
+		oculto: 0,
+		agradecimiento: null,
+		cerrado_en: null,
+		creado_en: new Date().toISOString()
+	} as unknown as Favor;
+	store.favores.push(item);
+	return ok(item, 201);
+};
+>>>>>>> deep-backend1/deep-backend1

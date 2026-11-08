@@ -1,24 +1,45 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { encolarAccion } from '../../sync/outbox.svelte';
+	import { construirPublicacion, tipoDesdeUrl, type TipoPublicacion } from '#lib/publicar';
+
 	let paso = $state(1);
-	let tipo = $derived(page.url.searchParams.get('tipo') ?? 'servicio');
+	// $state (no $derived) porque el select lo modifica.
+	let tipo = $state<TipoPublicacion>(tipoDesdeUrl(page.url.searchParams.get('tipo')));
 	let mensaje = $state('');
 	let error = $state('');
+	let guardando = $state(false);
 	let form = $state({ zona_id: 'zona-demo', titulo: '', descripcion: '', categoria: 'otro', tipo_favor: 'necesidad', categoria_favor: 'otro', tipo_alerta: 'otro', lat_aprox: -12.046, lng_aprox: -77.043 });
 
 	async function enviar() {
-		error = ''; mensaje = '';
+		error = '';
+		mensaje = '';
+		const pub = construirPublicacion(tipo, form);
+		if (!pub.ok) {
+			error = pub.error;
+			return;
+		}
+		guardando = true;
 		try {
-			const path = tipo === 'favor' ? '/api/v1/favores' : tipo === 'alerta' ? '/api/v1/alertas' : '/api/v1/servicios';
-			const body = tipo === 'favor'
-				? { zona_id: form.zona_id, tipo: form.tipo_favor, categoria: form.categoria_favor, titulo: form.titulo, descripcion: form.descripcion, lat_aprox: form.lat_aprox, lng_aprox: form.lng_aprox }
-				: tipo === 'alerta'
-				? { zona_id: form.zona_id, tipo: form.tipo_alerta, descripcion: form.descripcion || form.titulo, lat_aprox: form.lat_aprox, lng_aprox: form.lng_aprox }
-				: { zona_id: form.zona_id, categoria: form.categoria, titulo: form.titulo, descripcion: form.descripcion, lat_aprox: form.lat_aprox, lng_aprox: form.lng_aprox };
-			const r = await fetch(path, { method: 'POST', headers: { 'content-type': 'application/json', 'Idempotency-Key': crypto.randomUUID() }, body: JSON.stringify(body) });
-			if (!r.ok) throw new Error((await r.json().catch(() => ({}))).detail ?? 'No se pudo publicar');
-			paso = 3; mensaje = 'Publicación guardada. Estado: Pendiente de enviar o Enviada según conectividad.';
-		} catch (e) { error = e instanceof Error ? e.message : 'Error al publicar. Revisa los campos e intenta de nuevo.'; }
+			// Se guarda primero en el celular (outbox) y se envía cuando hay señal.
+			await encolarAccion(pub.entidad, pub.body);
+			const enLinea = typeof navigator === 'undefined' || navigator.onLine !== false;
+			mensaje = enLinea
+				? 'Publicación guardada. Enviando… (mira el estado arriba a la derecha).'
+				: 'Publicación guardada en tu celular: Pendiente de enviar. Se enviará sola al volver la señal.';
+			paso = 3;
+		} catch {
+			error = 'No se pudo guardar en el celular. Intenta de nuevo.';
+		} finally {
+			guardando = false;
+		}
+	}
+
+	function otra() {
+		paso = 1;
+		form.titulo = '';
+		form.descripcion = '';
+		mensaje = '';
 	}
 </script>
 
@@ -35,15 +56,14 @@
 		<button class="mt-4 rounded bg-stone-900 px-4 py-3 text-white" onclick={() => (paso = 2)}>Continuar</button>
 	{:else if paso === 2}
 		<label class="mt-3 block text-sm">Título<input class="mt-1 w-full rounded border p-3" bind:value={form.titulo} maxlength="80" required /></label>
-		<label class="mt-3 block text-sm">Descripción<textarea class="mt-1 w-full rounded border p-3" bind:value={form.descripcion} maxlength="500" rows="4"></textarea></label>
+		<label class="mt-3 block text-sm">Descripción<textarea class="mt-1 w-full rounded border p-3" bind:value={form.descripcion} maxlength={tipo === 'alerta' ? 300 : 500} rows="4"></textarea></label>
 		{#if tipo === 'servicio'}<label class="mt-3 block text-sm">Categoría<select class="mt-1 w-full rounded border p-3" bind:value={form.categoria}><option>gasfiteria</option><option>electricidad</option><option>carpinteria</option><option>cerrajeria</option><option>comida</option><option>cuidado</option><option>otro</option></select></label>{/if}
 		{#if tipo === 'favor'}<label class="mt-3 block text-sm">Tipo<select class="mt-1 w-full rounded border p-3" bind:value={form.tipo_favor}><option value="necesidad">Necesidad</option><option value="oferta">Oferta</option></select></label>{/if}
 		{#if tipo === 'alerta'}<label class="mt-3 block text-sm">Tipo de alerta<select class="mt-1 w-full rounded border p-3" bind:value={form.tipo_alerta}><option>persona_vulnerable</option><option>zona_inundada</option><option>sin_servicios_basicos</option><option>riesgo_estructural</option><option>otro</option></select></label>{/if}
 		<p class="mt-3 text-xs text-stone-600">Ubicación aproximada: se enmascara a sector/manzana (RF19). No publiques dirección exacta.</p>
-		<div class="mt-4 flex gap-2"><button class="rounded border px-4 py-3" onclick={() => (paso = 1)}>Atrás</button><button class="rounded bg-teal-700 px-4 py-3 text-white" onclick={enviar}>Publicar</button></div>
+		<div class="mt-4 flex gap-2"><button class="rounded border px-4 py-3" onclick={() => (paso = 1)}>Atrás</button><button class="rounded bg-teal-700 px-4 py-3 text-white" onclick={enviar} disabled={guardando}>{guardando ? 'Guardando…' : 'Publicar'}</button></div>
 	{:else}
 		<p class="mt-3 rounded border border-green-200 bg-green-50 p-3 text-sm" role="status">{mensaje}</p>
-		<div class="mt-4 flex gap-2"><a class="rounded bg-stone-900 px-4 py-3 text-white" href="/">Ir al inicio</a><button class="rounded border px-4 py-3" onclick={() => { paso = 1; form.titulo=''; form.descripcion=''; mensaje=''; }}>Publicar otra</button></div>
+		<div class="mt-4 flex gap-2"><a class="rounded bg-stone-900 px-4 py-3 text-white" href="/">Ir al inicio</a><button class="rounded border px-4 py-3" onclick={otra}>Publicar otra</button></div>
 	{/if}
 </div>
-
