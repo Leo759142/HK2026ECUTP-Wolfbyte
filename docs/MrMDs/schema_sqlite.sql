@@ -8,19 +8,26 @@ CREATE TABLE IF NOT EXISTS schema_version (
 INSERT OR IGNORE INTO schema_version (version) VALUES (2);
 
 -- ---------------------------------------------------------------------
--- 1. ZONAS Y USUARIOS
+-- 1. SECTORES Y MANZANAS 
 -- ---------------------------------------------------------------------
-CREATE TABLE zonas (
-  id           TEXT PRIMARY KEY,
-  nombre       TEXT NOT NULL,                 
-  distrito     TEXT NOT NULL,
-  provincia    TEXT NOT NULL,
-  departamento TEXT NOT NULL,
-  lat_centro   REAL NOT NULL,
-  lng_centro   REAL NOT NULL,
-  creado_en    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+CREATE TABLE sectores(
+  id          TEXT PRIMARY KEY,
+  nombre      TEXT NOT NULL (legth(nombre) BETWEEN 3 AND 60),
+  fundador_id TEXT,
+  creado_en   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
 );
 
+CREATE UNIQUE INDEX idx_sectores_nombre ON (lower(nombre));
+
+CREATE TABLE manzanas (
+  sector_id     TEXT NOT NULL REFERENCES sectores(id),
+  letra         TEXT NOT NULL CHECK (length(letra) = 1 AND letra BETWEEN 'A' AND 'Z'),
+  PRIMARY KEY   (sector_id, letra)
+
+-- ---------------------------------------------------------------------
+-- USUARIOS (los vecinos del sector)
+----------------------------------------------------------------------
 CREATE TABLE usuarios (
   id             TEXT PRIMARY KEY,
   zona_id        TEXT NOT NULL REFERENCES zonas(id),
