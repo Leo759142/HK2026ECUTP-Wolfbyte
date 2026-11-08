@@ -3,7 +3,7 @@
 import { cloneElement, isValidElement, useId, useRef } from 'react';
 import { useApp } from '../AppContext';
 import { NUMEROS_EMERGENCIA } from '../data';
-import { comprimirImagen } from '../util';
+import { Icon } from './iconos.jsx';
 
 const BOTON = {
   primario: 'bg-petroleo text-white',
@@ -49,7 +49,7 @@ export function Header({ title, right, onBack, light = false }) {
         onClick={onBack ?? back}
         className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl font-black ${light ? 'text-white active:bg-white/15' : 'text-tinta active:bg-linea'}`}
       >
-        ←
+        <Icon name="fa-arrow-left" className="text-2xl font-black" />
       </button>
       <div className={`min-w-0 flex-1 truncate text-base font-extrabold ${light ? 'text-white' : 'text-gris'}`}>{title}</div>
       {right}
@@ -65,7 +65,7 @@ export function Chip({ className = 'bg-petroleo-claro text-petroleo-osc', childr
   return <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-extrabold ${className}`}>{children}</span>;
 }
 
-export const ChipPendiente = () => <Chip className="border border-dashed border-gris bg-white text-gris">🕓 Pendiente de enviar</Chip>;
+export const ChipPendiente = () => <Chip className="border border-dashed border-gris bg-white text-gris"><Icon name="fa-clock" /> Pendiente de enviar</Chip>;
 
 export function Card({ onClick, className = '', children }) {
   const base = `flex w-full gap-3 rounded-[20px] border border-linea bg-white p-3.5 text-left ${className}`;
@@ -222,7 +222,7 @@ export function ConnectionStatus() {
   }
   return (
     <div role="status" className="rounded-xl border border-ambar bg-ambar-claro px-3 py-2 text-sm font-bold">
-      📶 {t('sinConexion')}
+      <Icon name="fa-wifi" /> {t('sinConexion')}
     </div>
   );
 }
@@ -236,13 +236,19 @@ export function LangChip({ className = '' }) {
       aria-label="Cambiar idioma"
       className={`flex h-12 min-w-[72px] items-center justify-center gap-1 rounded-full border-[1.5px] border-linea bg-white px-3 text-sm font-extrabold text-tinta ${className}`}
     >
-      🌐 {settings.lang.toUpperCase()}
+      <Icon name="fa-globe" /> {(settings?.lang ?? 'es').toUpperCase()}
     </button>
   );
 }
 
-export function Avatar({ letter, className = 'h-11 w-11 bg-ambar text-lg' }) {
-  return <span className={`flex shrink-0 items-center justify-center rounded-full font-black text-tinta ${className}`}>{letter}</span>;
+export function Avatar({ letter, src = '/avatar-default.png', className = 'h-11 w-11 bg-ambar text-lg' }) {
+  return (
+    <img
+      src={src}
+      alt={letter ? `Avatar ${letter}` : 'Avatar'}
+      className={`shrink-0 rounded-full object-cover ${className}`}
+    />
+  );
 }
 
 export function Circle({ emoji, className = 'bg-petroleo-claro' }) {
@@ -315,7 +321,7 @@ export function PhotoPicker({ value, onChange }) {
     <div className="flex items-center gap-3">
       {value && <img src={value} alt="Foto adjunta" className="h-14 w-14 rounded-xl object-cover" />}
       <button type="button" onClick={() => input.current?.click()} className="min-h-[48px] rounded-full border-2 border-linea bg-white px-4 text-sm font-extrabold">
-        📷 {value ? 'Cambiar foto' : 'Agregar foto (opcional)'}
+        <Icon name="fa-camera" /> {value ? 'Cambiar foto' : 'Agregar foto (opcional)'}
       </button>
       {value && (
         <button type="button" onClick={() => onChange(null)} className="min-h-[48px] px-2 text-sm font-bold text-gris">
@@ -347,7 +353,7 @@ export function Steps({ items }) {
 export function EmergencyBanner({ emergencia, tipo }) {
   return (
     <div className="bg-rojo px-5 pb-3 pt-3 text-sm font-extrabold text-white" role="status">
-      🚨 Modo emergencia · {tipo?.label ?? 'Emergencia'}
+      <Icon name="fa-triangle-exclamation" /> Modo emergencia · {tipo?.label ?? 'Emergencia'}
       {emergencia?.zona && <span className="font-semibold opacity-90"> · {emergencia.zona}</span>}
     </div>
   );

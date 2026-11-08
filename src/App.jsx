@@ -9,6 +9,7 @@ import { Publicar } from './screens/Publicar';
 import { Ajustes, GuardianAceptado, InvitacionGuardian, InvitacionSheet, PanelGuardian, Perfil, Reportar } from './screens/Perfil';
 import { AlertaEmergencia, FinEmergencia, Grupos, MiPedido, PedirAyuda, ReportarEmergencia, ReporteEnviado, ResultadoReporte } from './screens/Emergencia';
 import { Mapa } from './screens/Mapa';
+import { ApiDocs } from './screens/ApiDocs';
 
 export const SCREENS = {
   // Acceso y registro
@@ -34,6 +35,7 @@ export const SCREENS = {
   favorCerrado: FavorCerrado,
   publicar: Publicar,
   mapa: Mapa,
+  apiDocs: ApiDocs,
   // Perfil y Guardianes
   perfil: Perfil,
   ajustes: Ajustes,

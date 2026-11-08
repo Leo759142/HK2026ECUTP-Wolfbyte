@@ -6,7 +6,7 @@ import { DIAS_PARA_GUARDIAN, MOTIVOS_REPORTE, REPORTES_PARA_OCULTAR, emergenciaB
 import { IDIOMAS } from '../i18n';
 import { reiniciarDemo } from '../seed';
 import { balanceAyni, diasEnAyni, hace, inicial, nombreVisible, progresoGuardian } from '../util';
-import { Avatar, Btn, Chip, Circle, EmptyState, H1, Header, LangChip, Pills, Screen, Sheet, Sub, TextArea, Toggle } from '../ui';
+import { Avatar, Btn, Chip, Circle, EmptyState, H1, Header, Icon, LangChip, Pills, Screen, Sheet, Sub, TextArea, Toggle } from '../ui';
 
 const DIA = 24 * 60 * 60 * 1000;
 
@@ -92,8 +92,8 @@ export function Perfil() {
         </div>
 
         <nav className="overflow-hidden rounded-[20px] border border-linea bg-white" aria-label="Menú">
-          <button type="button" className={fila} onClick={() => go('misPublicaciones')}><span aria-hidden="true">📋</span><span className="flex-1 font-bold">Mis publicaciones</span>›</button>
-          {isGuardian && <button type="button" className={fila} onClick={() => go('panelGuardian')}><span aria-hidden="true">🛡️</span><span className="flex-1 font-bold">Panel del Guardián</span>›</button>}
+          <button type="button" className={fila} onClick={() => go('misPublicaciones')}><Icon name="fa-clipboard-list" /> <span className="flex-1 font-bold">Mis publicaciones</span>›</button>
+          {isGuardian && <button type="button" className={fila} onClick={() => go('panelGuardian')}><Icon name="fa-shield-halved" /> <span className="flex-1 font-bold">Panel del Guardián</span>›</button>}
           <button type="button" className={fila} onClick={() => go('ajustes')}><span aria-hidden="true">⚙️</span><span className="flex-1 font-bold">Idioma, letra grande y zona</span>›</button>
           <button type="button" className={fila} onClick={() => go('tutorial', { desdePerfil: true })}><span aria-hidden="true">📖</span><span className="flex-1 font-bold">Ver tutorial otra vez</span>›</button>
           <button type="button" className={fila} onClick={logout}><span aria-hidden="true">🚪</span><span className="flex-1 font-bold text-gris">Cerrar sesión</span>›</button>
@@ -119,7 +119,7 @@ export function Perfil() {
 
 /* ---------- 6.5 Idioma, letra grande y zona ---------- */
 export function Ajustes() {
-  const { user, sector, settings, setSettings, back, updateUser } = useApp();
+  const { user, sector, settings, setSettings, back, updateUser, go } = useApp();
   return (
     <Screen>
       <Header title="Ajustes" />
@@ -145,6 +145,7 @@ export function Ajustes() {
         </>
       )}
       <div className="flex-1" />
+      <Btn variant="borde" onClick={() => go('apiDocs')}>🛠️ Docs API (dev)</Btn>
       <Btn onClick={back}>Listo</Btn>
     </Screen>
   );

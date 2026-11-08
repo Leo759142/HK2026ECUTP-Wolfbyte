@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useApp } from '../AppContext';
 import { db } from '../storage';
 import { CATEGORIAS } from '../data';
-import { Btn, Field, H1, Header, Input, Pills, PhotoPicker, Screen, Segmented, Select, Sub, TextArea, Toggle } from '../ui';
+import { Btn, Field, H1, Header, Icon, Input, Pills, PhotoPicker, Screen, Segmented, Select, Sub, TextArea, Toggle } from '../ui';
 
 const OPCIONES = [
   { id: 'servicio', emoji: '🛠️', titulo: 'Ofrezco producto o servicio', sub: 'Tu oficio, profesión o lo que vendes', bg: 'bg-ambar-claro' },
@@ -92,7 +92,7 @@ function FormServicio({ item, onSave, onBack, editando }) {
     <Screen className="gap-3">
       <Header title={editando ? 'Editar' : 'Clic 2 de 3'} onBack={onBack} />
       <H1>Ofrezco producto o servicio</H1>
-      <Segmented options={[{ id: 'servicio', label: '🛠️ Servicio' }, { id: 'producto', label: '🛍️ Producto' }]} value={clase} onChange={setClase} />
+      <Segmented options={[{ id: 'servicio', label: <><Icon name="fa-screwdriver-wrench" /> Servicio</> }, { id: 'producto', label: <><Icon name="fa-bag-shopping" /> Producto</> }]} value={clase} onChange={setClase} />
       <Field label="Categoría">
         <Select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
           {CATEGORIAS.map((c) => (
@@ -213,7 +213,7 @@ function FormPido({ item, onSave, onBack, editando }) {
       <H1>¿Qué necesitas?</H1>
       <Sub>Se publica en la Cadena de Favores. Tus vecinos responden con “Puedo ayudar”.</Sub>
       <Field label="Es un…">
-        <Pills options={[{ id: 'Producto', label: '🛍️ Producto' }, { id: 'Servicio', label: '🛠️ Servicio' }, { id: 'Favor', label: '🤝 Favor' }]} value={clase} onChange={setClase} />
+        <Pills options={[{ id: 'Producto', label: <><Icon name="fa-bag-shopping" /> Producto</> }, { id: 'Servicio', label: <><Icon name="fa-screwdriver-wrench" /> Servicio</> }, { id: 'Favor', label: <><Icon name="fa-handshake" /> Favor</> }]} value={clase} onChange={setClase} />
       </Field>
       <Field label="Cuéntalo en pocas palabras">
         <TextArea value={texto} maxLength={160} onChange={(e) => setTexto(e.target.value)} placeholder="Ej: Necesito que alguien me preste un taladro para colgar una repisa." />

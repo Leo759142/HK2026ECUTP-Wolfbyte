@@ -3,3 +3,4 @@
  * Este archivo re-exporta todo para que las pantallas en src/screens/ sigan importando de '../ui' sin cambios.
  */
 export * from './componentes/ui.jsx';
+export * from './componentes/iconos.jsx';

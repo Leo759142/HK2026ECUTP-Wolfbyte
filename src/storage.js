@@ -1,6 +1,6 @@
-/* =====================================================================
+/* ==================================================================
  *  AYNI · Capa de persistencia en localStorage (CRUD genérico)
- * ---------------------------------------------------------------------
+ *  ---------------------------------------------------------------------
  *  Cada "colección" es un arreglo JSON guardado bajo la clave
  *  `ayni:v1:<coleccion>`. Las pantallas nunca tocan localStorage
  *  directamente: usan `db` para escribir y `useCollection` / `useStored`
@@ -103,18 +103,12 @@ export const db = {
 
   /** DELETE: elimina por id. */
   remove(collection, id) {
-    save(
-      collection,
-      load(collection, []).filter((item) => item.id !== id)
-    );
+    save(collection, load(collection, []).filter((item) => item.id !== id));
   },
 
   /** DELETE varios que cumplan una condición. */
   removeWhere(collection, predicate) {
-    save(
-      collection,
-      load(collection, []).filter((item) => !predicate(item))
-    );
+    save(collection, load(collection, []).filter((item) => !predicate(item)));
   },
 
   /** Borra TODOS los datos de AYNI (botón "Reiniciar datos de demostración"). */

@@ -4,7 +4,7 @@ import { useApp } from '../AppContext';
 import { db, useCollection } from '../storage';
 import { CATEGORIAS, ETIQUETAS, MAX_ETIQUETAS, catById, etiquetaById } from '../data';
 import { abrirEnlace, cuadras, cuadrasTxt, hace, inicial, nombreVisible, normalizar, statsServicio, whatsappLink } from '../util';
-import { Avatar, Btn, Card, Chip, ChipPendiente, Circle, ConnectionStatus, EmptyState, Field, H1, Header, LangChip, LinkBtn, Screen, Sheet, Sub, TextArea } from '../ui';
+import { Avatar, Btn, Card, Chip, ChipPendiente, Circle, ConnectionStatus, EmptyState, Field, H1, Header, Icon, LangChip, LinkBtn, Screen, Sheet, Sub, TextArea } from '../ui';
 import { InicioEmergencia } from './Emergencia';
 
 /** Servicios visibles con su dueño, Vistos Buenos y distancia. */
@@ -100,7 +100,7 @@ export function Inicio() {
         }}
         className="flex min-h-[54px] items-center gap-2 rounded-2xl border-2 border-linea bg-white px-4 focus-within:border-morado"
       >
-        <span aria-hidden="true">🔍</span>
+            <span aria-hidden="true"><Icon name="fa-magnifying-glass" /></span>
         <input aria-label={t('buscar')} value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t('buscar')} className="min-h-[50px] flex-1 bg-transparent text-base font-semibold placeholder:text-gris focus:outline-none" />
       </form>
       <button type="button" onClick={() => go('reportarEmergencia')} className="flex min-h-[52px] items-center gap-2 rounded-2xl border-2 border-dashed border-rojo bg-white px-4 text-left text-sm font-extrabold text-rojo">
@@ -116,7 +116,7 @@ export function Inicio() {
           </button>
         ))}
         <button type="button" onClick={() => go('resultados', {})} className="flex min-h-[80px] flex-col items-center justify-center gap-1 rounded-2xl border border-linea bg-white text-[11px] font-extrabold">
-          <span className="text-2xl" aria-hidden="true">➕</span>
+          <span className="text-2xl" aria-hidden="true"><Icon name="fa-plus" /></span>
           Ver todo
         </button>
       </div>
@@ -132,7 +132,7 @@ export function Inicio() {
       ))}
 
       <button type="button" onClick={() => go('publicar', { kind: 'servicio' })} className="flex items-center gap-3 rounded-[20px] border-2 border-morado bg-morado-claro p-4 text-left">
-        <span className="text-3xl" aria-hidden="true">🛠️</span>
+          <span className="text-3xl" aria-hidden="true"><Icon name="fa-screwdriver-wrench" /></span>
         <span className="flex-1">
           <span className="block font-black text-morado-osc">¿Tienes un oficio o vendes algo?</span>
           <span className="block text-sm font-semibold text-morado-osc">Ofrécelo a tus vecinos en 3 clics.</span>
@@ -267,7 +267,7 @@ export function PerfilServicio({ id }) {
   return (
     <div className="flex flex-1 flex-col">
       <div className="relative rounded-b-[28px] bg-petroleo px-5 pb-14 pt-3">
-        <Header light right={!mine && <LinkBtn className="!w-auto px-2 !text-white/90" onClick={() => go('reportar', { col: 'services', id })}>⚑ Reportar</LinkBtn>} />
+        <Header light right={!mine && <LinkBtn className="!w-auto px-2 !text-white/90" onClick={() => go('reportar', { col: 'services', id })}><Icon name="fa-flag" /> Reportar</LinkBtn>} />
         <div className="absolute -bottom-12 left-5 flex h-24 w-24 items-center justify-center overflow-hidden rounded-[28px] border-4 border-white bg-ambar text-5xl" aria-hidden="true">
           {s.foto ? <img src={s.foto} alt="" className="h-full w-full object-cover" /> : cat.emoji}
         </div>
