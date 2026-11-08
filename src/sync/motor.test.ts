@@ -2,16 +2,28 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { get } from 'svelte/store';
 import { outboxDAO } from '../datos/outbox';
 import { vaciarColaOutbox, esperaReintento } from './motor';
-import { pendientesEnvio, requierenAtencion, refrescarOutbox, programarSiguienteReintento, sincronizarAhora } from './outbox.svelte';
+import {
+	pendientesEnvio,
+	requierenAtencion,
+	refrescarOutbox,
+	programarSiguienteReintento,
+	sincronizarAhora
+} from './outbox.svelte';
 
-const respuesta = (status: number, body: unknown = {}) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+const respuesta = (status: number, body: unknown = {}) =>
+	new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
 async function limpiarCola() {
 	for (const op of await outboxDAO.listarTodas()) await outboxDAO.descartar(op.op_id);
 }
 
 async function encolar(id: string) {
-	await outboxDAO.encolar({ op_id: id, entidad: 'favores', operacion: 'crear', payload: { titulo: 'x' } });
+	await outboxDAO.encolar({
+		op_id: id,
+		entidad: 'favores',
+		operacion: 'crear',
+		payload: { titulo: 'x' }
+	});
 }
 
 describe('Paso 5 · cola honesta', () => {
@@ -49,7 +61,14 @@ describe('Paso 5 · cola honesta', () => {
 	});
 
 	it('un 4xx queda como "Requiere atención" y no como pendiente', async () => {
-		vi.stubGlobal('fetch', vi.fn().mockResolvedValue(respuesta(422, { title: 'Datos inválidos', detail: 'titulo es requerido.' })));
+		vi.stubGlobal(
+			'fetch',
+			vi
+				.fn()
+				.mockResolvedValue(
+					respuesta(422, { title: 'Datos inválidos', detail: 'titulo es requerido.' })
+				)
+		);
 		await encolar('op-422');
 		await vaciarColaOutbox();
 		await refrescarOutbox();

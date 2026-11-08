@@ -99,8 +99,8 @@ export const PERMISOS_POR_ROL: Record<Rol, readonly Accion[]> = {
 
 export function puedeRol(rol: Rol, accion: Accion): boolean {
 	if (rol === 'Cualquiera') return accion === 'consultar_directorio';
-	if (rol === 'Anunciante') return accion === 'consultar_directorio' || accion === 'publicar_anuncio';
+	if (rol === 'Anunciante')
+		return accion === 'consultar_directorio' || accion === 'publicar_anuncio';
 	const mapeado = MAPA_ROL_UI[rol];
 	return mapeado ? puede(mapeado, accion as AccionRbac) : false;
 }
-

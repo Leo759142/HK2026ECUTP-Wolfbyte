@@ -3,7 +3,16 @@
  * Implementaciones locales: `src/repositorios/*.local.ts` (usan DAO + outbox).
  * Implementaciones HTTP/server: futuras, detrás del mismo contrato.
  */
-import type { Alerta, Emergencia, Favor, FavorConfirmacion, RecomendacionEvento, RecursoCritico, Servicio, UUID } from '../tipos/tipos';
+import type {
+	Alerta,
+	Emergencia,
+	Favor,
+	FavorConfirmacion,
+	RecomendacionEvento,
+	RecursoCritico,
+	Servicio,
+	UUID
+} from '../tipos/tipos';
 
 // S3 Proximidad: servicios (RF05,RF06) + recomendaciones append-only (RF07,RF08)
 export interface RepositorioServicio {

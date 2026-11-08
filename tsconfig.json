@@ -1,13 +1,25 @@
 {
 	"compilerOptions": {
-		"target": "ES2022",
-		"module": "ESNext",
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"module": "esnext",
 		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
 		"strict": true,
-		"jsx": "react-jsx",
-		"types": ["node"],
-		"noEmit": true
+		"target": "es2022"
 	},
-	"include": ["src", "vite.config.ts"],
-	"exclude": ["temp", "node_modules", ".svelte-kit", "dist", "build"]
+	"extends": "$app/tsconfig",
+	"include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte", "vite.config.ts"],
+	"exclude": [
+		"temp",
+		"docs",
+		"node_modules",
+		".svelte-kit",
+		"dist",
+		"build",
+		"backup_frontend_react",
+		"src/service-worker"
+	]
 }

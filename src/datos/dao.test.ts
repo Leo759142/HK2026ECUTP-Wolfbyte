@@ -10,7 +10,12 @@ describe('DAO/outbox unificado', () => {
 	});
 
 	it('encola y marca aplicada', async () => {
-		await dao.encolar({ op_id: 'op_test_1', entidad: 'servicios', operacion: 'crear', payload: { id: 't1' } });
+		await dao.encolar({
+			op_id: 'op_test_1',
+			entidad: 'servicios',
+			operacion: 'crear',
+			payload: { id: 't1' }
+		});
 		const pend = await dao.pendientes();
 		expect(pend.some((p) => p.id === 'op_test_1')).toBe(true);
 		await dao.marcar('op_test_1', 'aplicada');

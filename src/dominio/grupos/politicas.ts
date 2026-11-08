@@ -16,4 +16,3 @@ export class PoliticasGrupo {
 		return this.puedeEjecutarAccion(membresia, grupo, 'moderar_contenido');
 	}
 }
-

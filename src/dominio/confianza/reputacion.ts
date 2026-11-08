@@ -1,4 +1,10 @@
-import type { Favor, FuenteReputacion, ReputacionEvento, ReputacionVista, UUID } from '../tipos/tipos';
+import type {
+	Favor,
+	FuenteReputacion,
+	ReputacionEvento,
+	ReputacionVista,
+	UUID
+} from '../tipos/tipos';
 import type { VistoBuenoVigente } from '../tipos/tipos';
 
 export interface PerfilReputacion extends ReputacionVista {
@@ -20,7 +26,10 @@ export class CalculadorReputacion {
 	}
 
 	static desdeEventos(usuarioId: UUID, eventos: ReputacionEvento[]): PerfilReputacion {
-		const puntos = Math.max(0, eventos.filter((e) => e.usuario_id === usuarioId).reduce((acc, e) => acc + e.puntos, 0));
+		const puntos = Math.max(
+			0,
+			eventos.filter((e) => e.usuario_id === usuarioId).reduce((acc, e) => acc + e.puntos, 0)
+		);
 		return this.clasificar(usuarioId, puntos);
 	}
 
@@ -29,7 +38,8 @@ export class CalculadorReputacion {
 		vistosBuenosRecibidos: VistoBuenoVigente[],
 		favoresCompletados: Array<Pick<Favor, 'creador_id' | 'ayudante_id' | 'estado'>>
 	): PerfilReputacion {
-		const puntosPorVistoBueno = vistosBuenosRecibidos.length * PUNTOS_POR_FUENTE.visto_bueno_recibido;
+		const puntosPorVistoBueno =
+			vistosBuenosRecibidos.length * PUNTOS_POR_FUENTE.visto_bueno_recibido;
 		const favoresCerrados = favoresCompletados.filter(
 			(f) => f.estado === 'cerrado' && (f.ayudante_id === usuarioId || f.creador_id === usuarioId)
 		).length;
@@ -45,4 +55,3 @@ export class CalculadorReputacion {
 		return { usuario_id, reputacion, insignia };
 	}
 }
-

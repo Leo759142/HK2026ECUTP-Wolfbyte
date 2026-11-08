@@ -21,7 +21,11 @@ export class DaoLocal {
 	// ---- CRUD local genérico (base para repositorios). Entidades alineadas a schema_sqlite.sql ----
 	async aplicarLocal(entidad: string, payload: Record<string, unknown>): Promise<void> {
 		const id = String(payload.id ?? payload.op_id ?? crypto.randomUUID());
-		await this.kv.set(`entity:${entidad}:${id}`, { ...payload, _entidad: entidad, _actualizado_local: new Date().toISOString() });
+		await this.kv.set(`entity:${entidad}:${id}`, {
+			...payload,
+			_entidad: entidad,
+			_actualizado_local: new Date().toISOString()
+		});
 	}
 
 	async obtenerLocal<T = Record<string, unknown>>(entidad: string, id: string): Promise<T | null> {
@@ -41,7 +45,7 @@ export class DaoLocal {
 
 	async listarLocalPaginado<T = Record<string, unknown>>(
 		entidad: string,
-		opts: { limite?: number; offset?: number }
+		opts: { limite?: number; offset?: number } = {}
 	): Promise<{ items: T[]; total: number }> {
 		const keys = await this.kv.keys(`entity:${entidad}:`);
 		const total = keys.length;
@@ -57,13 +61,32 @@ export class DaoLocal {
 	}
 
 	// ---- Outbox (sync_cola / cola offline) ----
-	async encolar(op: { op_id: string; entidad: string; operacion: OperacionSync; payload: unknown }): Promise<void> {
+	async encolar(op: {
+		op_id: string;
+		entidad: string;
+		operacion: OperacionSync;
+		payload: unknown;
+	}): Promise<void> {
 		await outboxDAO.encolar(op);
 	}
 
-	async pendientes(): Promise<Array<{ id: string; entidad?: string; operacion?: OperacionSync; payload: unknown; intentos?: number }>> {
+	async pendientes(): Promise<
+		Array<{
+			id: string;
+			entidad?: string;
+			operacion?: OperacionSync;
+			payload: unknown;
+			intentos?: number;
+		}>
+	> {
 		const items = await outboxDAO.pendientes();
-		return items.map((p) => ({ id: p.op_id, entidad: p.entidad, operacion: p.operacion, payload: p.payload, intentos: p.intentos }));
+		return items.map((p) => ({
+			id: p.op_id,
+			entidad: p.entidad,
+			operacion: p.operacion,
+			payload: p.payload,
+			intentos: p.intentos
+		}));
 	}
 
 	async marcar(op_id: string, estado: 'aplicada' | 'rechazada', error?: string): Promise<void> {

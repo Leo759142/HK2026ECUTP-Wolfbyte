@@ -1,18 +1,30 @@
 import { dao } from '../datos/dao';
-import type { RepositorioAlerta, RepositorioEmergencia, RepositorioRecursoCritico } from '../dominio/repositorios';
+import type {
+	RepositorioAlerta,
+	RepositorioEmergencia,
+	RepositorioRecursoCritico
+} from '../dominio/repositorios';
 import type { Alerta, Emergencia, RecursoCritico, UUID } from '../dominio/tipos/tipos';
 
 /** RF13 reportar necesidad con ubicación aproximada (RF19). */
 export class AlertaRepoLocal implements RepositorioAlerta {
 	private entidad = 'alertas' as const;
-	async listar(filtro?: { zona_id?: string }, opts?: { limite?: number; offset?: number }): Promise<Alerta[]> {
-		const paginado = await dao.listarLocalPaginado<Alerta>(this.entidad, opts);
+	async listar(
+		filtro?: { zona_id?: string },
+		opts?: { limite?: number; offset?: number }
+	): Promise<Alerta[]> {
+		const paginado = await dao.listarLocalPaginado<Alerta>(this.entidad, opts ?? {});
 		return paginado.items.filter((a) => !filtro?.zona_id || a.zona_id === filtro.zona_id);
 	}
 	async guardar(alerta: Alerta, opId = crypto.randomUUID()): Promise<Alerta> {
 		await dao.transaccion(async () => {
 			await dao.aplicarLocal(this.entidad, alerta as unknown as Record<string, unknown>);
-			await dao.encolar({ op_id: opId, entidad: this.entidad, operacion: 'crear', payload: alerta });
+			await dao.encolar({
+				op_id: opId,
+				entidad: this.entidad,
+				operacion: 'crear',
+				payload: alerta
+			});
 		});
 		return alerta;
 	}
@@ -24,7 +36,12 @@ export class EmergenciaRepoLocal implements RepositorioEmergencia {
 	async activar(emergencia: Emergencia, opId = crypto.randomUUID()): Promise<Emergencia> {
 		await dao.transaccion(async () => {
 			await dao.aplicarLocal(this.entidad, emergencia as unknown as Record<string, unknown>);
-			await dao.encolar({ op_id: opId, entidad: this.entidad, operacion: 'crear', payload: emergencia });
+			await dao.encolar({
+				op_id: opId,
+				entidad: this.entidad,
+				operacion: 'crear',
+				payload: emergencia
+			});
 		});
 		return emergencia;
 	}
@@ -37,14 +54,26 @@ export class EmergenciaRepoLocal implements RepositorioEmergencia {
 /** RF15 recursos críticos compartibles. */
 export class RecursoCriticoRepoLocal implements RepositorioRecursoCritico {
 	private entidad = 'recursos_criticos' as const;
-	async listar(filtro?: { zona_id?: string; emergencia_id?: string }, opts?: { limite?: number; offset?: number }): Promise<RecursoCritico[]> {
-		const paginado = await dao.listarLocalPaginado<RecursoCritico>(this.entidad, opts);
-		return paginado.items.filter((r) => (!filtro?.zona_id || r.zona_id === filtro.zona_id) && (!filtro?.emergencia_id || r.emergencia_id === filtro.emergencia_id));
+	async listar(
+		filtro?: { zona_id?: string; emergencia_id?: string },
+		opts?: { limite?: number; offset?: number }
+	): Promise<RecursoCritico[]> {
+		const paginado = await dao.listarLocalPaginado<RecursoCritico>(this.entidad, opts ?? {});
+		return paginado.items.filter(
+			(r) =>
+				(!filtro?.zona_id || r.zona_id === filtro.zona_id) &&
+				(!filtro?.emergencia_id || r.emergencia_id === filtro.emergencia_id)
+		);
 	}
 	async guardar(recurso: RecursoCritico, opId = crypto.randomUUID()): Promise<RecursoCritico> {
 		await dao.transaccion(async () => {
 			await dao.aplicarLocal(this.entidad, recurso as unknown as Record<string, unknown>);
-			await dao.encolar({ op_id: opId, entidad: this.entidad, operacion: 'crear', payload: recurso });
+			await dao.encolar({
+				op_id: opId,
+				entidad: this.entidad,
+				operacion: 'crear',
+				payload: recurso
+			});
 		});
 		return recurso;
 	}

@@ -27,8 +27,14 @@ export class Grupo implements GrupoFila {
 	private _modo_emergencia: boolean;
 
 	constructor(props: GrupoProps) {
-		asegurar(props.nombre.trim().length >= 3 && props.nombre.trim().length <= 60, ERRORES_COMUNES.VALIDACION('El nombre del grupo debe tener entre 3 y 60 caracteres.'));
-		asegurar((props.reglas ?? '').length <= 1000, ERRORES_COMUNES.VALIDACION('Las reglas no pueden exceder 1000 caracteres.'));
+		asegurar(
+			props.nombre.trim().length >= 3 && props.nombre.trim().length <= 60,
+			ERRORES_COMUNES.VALIDACION('El nombre del grupo debe tener entre 3 y 60 caracteres.')
+		);
+		asegurar(
+			(props.reglas ?? '').length <= 1000,
+			ERRORES_COMUNES.VALIDACION('Las reglas no pueden exceder 1000 caracteres.')
+		);
 		this.id = props.id;
 		this.zona_id = props.zona_id;
 		this.padre_id = props.padre_id ?? null;
@@ -52,4 +58,3 @@ export class Grupo implements GrupoFila {
 		this._modo_emergencia = activado;
 	}
 }
-

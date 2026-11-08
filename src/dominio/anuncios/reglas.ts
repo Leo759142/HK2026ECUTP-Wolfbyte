@@ -28,10 +28,19 @@ export class Anuncio implements AnuncioFila {
 	readonly creado_en: string;
 
 	constructor(props: AnuncioProps) {
-		asegurar(props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80, ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.'));
-		asegurar(props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 300, ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.'));
+		asegurar(
+			props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80,
+			ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.')
+		);
+		asegurar(
+			props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 300,
+			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.')
+		);
 		const estado = props.estado ?? 'pendiente';
-		asegurar(estado !== 'aprobado' || !!props.aprobado_por, ERRORES_COMUNES.VALIDACION('Un anuncio aprobado requiere aprobador.'));
+		asegurar(
+			estado !== 'aprobado' || !!props.aprobado_por,
+			ERRORES_COMUNES.VALIDACION('Un anuncio aprobado requiere aprobador.')
+		);
 		this.id = props.id;
 		this.anunciante_id = props.anunciante_id;
 		this.zona_id = props.zona_id;
@@ -46,7 +55,11 @@ export class Anuncio implements AnuncioFila {
 }
 
 export class ReglasAnuncio {
-	static evaluarVisibilidad(anuncio: Pick<AnuncioFila, 'estado' | 'inicio' | 'fin' | 'zona_id'>, modoEmergenciaActivo: boolean, ahora: Date = new Date()): boolean {
+	static evaluarVisibilidad(
+		anuncio: Pick<AnuncioFila, 'estado' | 'inicio' | 'fin' | 'zona_id'>,
+		modoEmergenciaActivo: boolean,
+		ahora: Date = new Date()
+	): boolean {
 		if (modoEmergenciaActivo) return false;
 		if (anuncio.estado !== 'aprobado') return false;
 		const t = ahora.toISOString();
@@ -55,4 +68,3 @@ export class ReglasAnuncio {
 		return true;
 	}
 }
-

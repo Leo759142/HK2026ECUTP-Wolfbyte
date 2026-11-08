@@ -26,10 +26,8 @@ export const ERRORES_COMUNES = {
 		),
 	NO_ENCONTRADO: (entidad: string) =>
 		new ErrorDeDominio('NO_ENCONTRADO', `${entidad} no existe o no está disponible.`),
-	VALIDACION: (detalle: string) =>
-		new ErrorDeDominio('VALIDACION', detalle),
-	CONFLICTO: (detalle: string) =>
-		new ErrorDeDominio('CONFLICTO', detalle)
+	VALIDACION: (detalle: string) => new ErrorDeDominio('VALIDACION', detalle),
+	CONFLICTO: (detalle: string) => new ErrorDeDominio('CONFLICTO', detalle)
 };
 
 export function asegurar(condicion: unknown, error: ErrorDeDominio): asserts condicion {

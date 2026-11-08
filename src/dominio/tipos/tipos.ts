@@ -226,6 +226,7 @@ export interface Servicio extends CoordenadaAprox {
 	categoria: CategoriaServicio;
 	titulo: string;
 	descripcion: string;
+	foto?: string | null;
 	es_emprendimiento: 0 | 1;
 	activo: 0 | 1;
 	oculto: 0 | 1;

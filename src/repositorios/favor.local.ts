@@ -6,9 +6,16 @@ import { ServicioCierreFavor } from '../dominio/favores/cierre';
 /** RF09 publicar favor, RF10 ofrecerse (parcial). */
 export class FavorRepoLocal implements RepositorioFavor {
 	private entidad = 'favores' as const;
-	async listar(filtro?: { zona_id?: string; estado?: string }, opts?: { limite?: number; offset?: number }): Promise<Favor[]> {
-		const paginado = await dao.listarLocalPaginado<Favor>(this.entidad, opts);
-		return paginado.items.filter((f) => (!filtro?.zona_id || f.zona_id === filtro.zona_id) && (!filtro?.estado || f.estado === filtro.estado));
+	async listar(
+		filtro?: { zona_id?: string; estado?: string },
+		opts?: { limite?: number; offset?: number }
+	): Promise<Favor[]> {
+		const paginado = await dao.listarLocalPaginado<Favor>(this.entidad, opts ?? {});
+		return paginado.items.filter(
+			(f) =>
+				(!filtro?.zona_id || f.zona_id === filtro.zona_id) &&
+				(!filtro?.estado || f.estado === filtro.estado)
+		);
 	}
 	async guardar(favor: Favor, opId = crypto.randomUUID()): Promise<Favor> {
 		await dao.transaccion(async () => {
@@ -20,21 +27,59 @@ export class FavorRepoLocal implements RepositorioFavor {
 	async obtener(id: UUID): Promise<Favor | null> {
 		return dao.obtenerLocal<Favor>(this.entidad, id);
 	}
+
+	async actualizar(
+		id: UUID,
+		cambios: Partial<Pick<Favor, 'ayudante_id' | 'estado' | 'cerrado_en'>>
+	): Promise<Favor> {
+		const actual = await this.obtener(id);
+		if (!actual) throw new Error('El favor ya no está disponible.');
+		const siguiente = { ...actual, ...cambios };
+		await dao.transaccion(async () => {
+			await dao.aplicarLocal(this.entidad, siguiente as unknown as Record<string, unknown>);
+			await dao.encolar({
+				op_id: crypto.randomUUID(),
+				entidad: this.entidad,
+				operacion: 'actualizar',
+				payload: siguiente
+			});
+		});
+		return siguiente;
+	}
 }
 
 /** RF11 cierre mutuo "Se cumplió" (CU08/HU08): confirmaciones append-only; cierra al tener solicitante+ayudante. */
 export class FavorConfirmacionRepoLocal implements RepositorioFavorConfirmacion {
 	private entidad = 'favor_confirmaciones' as const;
-	async confirmar(confirmacion: FavorConfirmacion, opId = crypto.randomUUID()): Promise<FavorConfirmacion> {
+	async confirmar(
+		confirmacion: FavorConfirmacion,
+		opId = crypto.randomUUID()
+	): Promise<FavorConfirmacion> {
 		const row = { ...confirmacion, id: opId };
 		await dao.transaccion(async () => {
 			await dao.aplicarLocal(this.entidad, row as unknown as Record<string, unknown>);
-			await dao.encolar({ op_id: opId, entidad: `favores/${confirmacion.favor_id}/confirmaciones`, operacion: 'crear', payload: confirmacion });
+			await dao.encolar({
+				op_id: opId,
+				entidad: `favores/${confirmacion.favor_id}/confirmaciones`,
+				operacion: 'crear',
+				payload: confirmacion
+			});
 			const favor = await dao.obtenerLocal<Favor>('favores', confirmacion.favor_id);
 			if (favor?.ayudante_id && favor.creador_id) {
 				const confs = await this.listarPorFavor(confirmacion.favor_id);
-				if (ServicioCierreFavor.evaluarCierreMutuo(confirmacion.favor_id, favor.creador_id, favor.ayudante_id, confs)) {
-					await dao.aplicarLocal('favores', { ...favor, estado: 'cerrado', cerrado_en: new Date().toISOString() } as unknown as Record<string, unknown>);
+				if (
+					ServicioCierreFavor.evaluarCierreMutuo(
+						confirmacion.favor_id,
+						favor.creador_id,
+						favor.ayudante_id,
+						confs
+					)
+				) {
+					await dao.aplicarLocal('favores', {
+						...favor,
+						estado: 'cerrado',
+						cerrado_en: new Date().toISOString()
+					} as unknown as Record<string, unknown>);
 				}
 			}
 		});

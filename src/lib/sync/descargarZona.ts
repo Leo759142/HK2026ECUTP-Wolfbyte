@@ -16,7 +16,11 @@ export async function descargarZona(
 	let descargadas = 0;
 
 	for (const tabla of TABLAS_ZONA) {
-		const pagina = await bd.descargarZonaTabla(tabla, { zona_id: zonaId, cursor: siguiente, limite });
+		const pagina = await bd.descargarZonaTabla(tabla, {
+			zona_id: zonaId,
+			cursor: siguiente,
+			limite
+		});
 		siguiente = pagina.siguiente;
 		descargadas += pagina.total;
 		if (!siguiente) break;

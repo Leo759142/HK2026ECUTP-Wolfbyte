@@ -9,6 +9,7 @@ export interface ServicioProps {
 	categoria: CategoriaServicio;
 	titulo: string;
 	descripcion: string;
+	foto?: string | null;
 	es_emprendimiento?: 0 | 1 | boolean;
 	lat_aprox: number;
 	lng_aprox: number;
@@ -26,6 +27,7 @@ export class Servicio implements ServicioFila {
 	readonly categoria: CategoriaServicio;
 	readonly titulo: string;
 	readonly descripcion: string;
+	readonly foto: string | null;
 	readonly es_emprendimiento: 0 | 1;
 	readonly lat_aprox: number;
 	readonly lng_aprox: number;
@@ -36,8 +38,14 @@ export class Servicio implements ServicioFila {
 	readonly horario: string | null;
 
 	constructor(props: ServicioProps) {
-		asegurar(props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80, ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.'));
-		asegurar(props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 500, ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 500 caracteres.'));
+		asegurar(
+			props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80,
+			ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.')
+		);
+		asegurar(
+			props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 500,
+			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 500 caracteres.')
+		);
 		validarCoordenadas(props.lat_aprox, props.lng_aprox);
 		this.id = props.id;
 		this.usuario_id = props.usuario_id;
@@ -45,6 +53,7 @@ export class Servicio implements ServicioFila {
 		this.categoria = props.categoria;
 		this.titulo = props.titulo.trim();
 		this.descripcion = props.descripcion.trim();
+		this.foto = props.foto ?? null;
 		this.es_emprendimiento = props.es_emprendimiento ? 1 : 0;
 		this.lat_aprox = props.lat_aprox;
 		this.lng_aprox = props.lng_aprox;
@@ -64,4 +73,3 @@ export class Servicio implements ServicioFila {
 		return `Recomendado por ${conteoVistosBuenos} vecinos de tu zona`;
 	}
 }
-

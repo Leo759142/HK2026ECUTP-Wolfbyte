@@ -17,9 +17,12 @@ export class ServicioCierreFavor {
 		listaConfirmaciones: Array<ConfirmacionCierre | FavorConfirmacion>
 	): boolean {
 		const delFavor = listaConfirmaciones.filter((c) => c.favor_id === favorId);
-		const haSolicitante = delFavor.some((c) => c.usuario_id === solicitanteId && c.rol_en_favor === 'solicitante');
-		const haAyudante = delFavor.some((c) => c.usuario_id === ayudanteId && c.rol_en_favor === 'ayudante');
+		const haSolicitante = delFavor.some(
+			(c) => c.usuario_id === solicitanteId && c.rol_en_favor === 'solicitante'
+		);
+		const haAyudante = delFavor.some(
+			(c) => c.usuario_id === ayudanteId && c.rol_en_favor === 'ayudante'
+		);
 		return haSolicitante && haAyudante;
 	}
 }
-

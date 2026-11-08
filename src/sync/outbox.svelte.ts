@@ -8,9 +8,13 @@ export const operacionesOutbox = writable<OperacionOutbox[]>([]);
 export const sincronizando = writable(false);
 
 /** Pendientes de enviar, incluidas las que esperan un reintento programado. */
-export const pendientesEnvio = derived(operacionesOutbox, (ops) => ops.filter((o) => esPendiente(o.estado)));
+export const pendientesEnvio = derived(operacionesOutbox, (ops) =>
+	ops.filter((o) => esPendiente(o.estado))
+);
 /** Rechazadas o en conflicto: "Requiere atención". */
-export const requierenAtencion = derived(operacionesOutbox, (ops) => ops.filter((o) => requiereAtencion(o.estado)));
+export const requierenAtencion = derived(operacionesOutbox, (ops) =>
+	ops.filter((o) => requiereAtencion(o.estado))
+);
 
 const anunciador = new AnunciadorAccesible();
 let iniciado = false;
@@ -25,15 +29,23 @@ export async function programarSiguienteReintento(ahora = Date.now()): Promise<n
 	if (timerReintento) clearTimeout(timerReintento);
 	timerReintento = null;
 	const proximo = await outboxDAO.proximoReintento();
-	if (proximo === null || typeof window === 'undefined') return proximo === null ? null : Math.max(0, proximo - ahora);
+	if (proximo === null || typeof window === 'undefined')
+		return proximo === null ? null : Math.max(0, proximo - ahora);
 	const espera = Math.max(0, proximo - ahora) + 50;
 	timerReintento = setTimeout(() => void sincronizarAhora(), espera);
 	return espera;
 }
 
-export async function encolarAccion(entidad: string, payload: unknown, operacion: 'crear' | 'actualizar' = 'crear') {
+export async function encolarAccion(
+	entidad: string,
+	payload: unknown,
+	operacion: 'crear' | 'actualizar' = 'crear'
+) {
 	const op = await outboxDAO.encolar({ op_id: crypto.randomUUID(), entidad, operacion, payload });
-	anunciador.vocalizar('Publicación guardada localmente. Se enviará al recuperar cobertura.', 'polite');
+	anunciador.vocalizar(
+		'Publicación guardada localmente. Se enviará al recuperar cobertura.',
+		'polite'
+	);
 	await refrescarOutbox();
 	if (typeof navigator !== 'undefined' && navigator.onLine) void sincronizarAhora();
 	return op.op_id;
@@ -65,7 +77,8 @@ export class OutboxComunitario {
 			id: o.op_id,
 			accion: o.entidad,
 			payload: typeof o.payload === 'string' ? o.payload : JSON.stringify(o.payload),
-			estadoOffline: (o.estado === 'aplicada' ? 'Enviada' : 'Pendiente de enviar') as 'Pendiente de enviar' | 'Enviada',
+			estadoOffline: (o.estado === 'aplicada' ? 'Enviada' : 'Pendiente de enviar') as
+				'Pendiente de enviar' | 'Enviada',
 			creadoEn: Date.parse(o.creado_en)
 		}));
 	}

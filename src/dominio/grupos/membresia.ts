@@ -1,4 +1,9 @@
-import type { EstadoMembresia, Membresia as MembresiaFila, RolMembresia, UUID } from '../tipos/tipos';
+import type {
+	EstadoMembresia,
+	Membresia as MembresiaFila,
+	RolMembresia,
+	UUID
+} from '../tipos/tipos';
 import { ERRORES_COMUNES, asegurar } from '../tipos/errores';
 
 export type { EstadoMembresia, RolMembresia } from '../tipos/tipos';
@@ -59,4 +64,3 @@ export class Membresia implements MembresiaFila {
 		this._rol = nuevoRol;
 	}
 }
-

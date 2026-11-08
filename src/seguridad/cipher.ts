@@ -16,7 +16,9 @@ function b64ToBytes(b64: string): Uint8Array {
 
 async function deriveKey(secret: string): Promise<CryptoKey> {
 	const enc = new TextEncoder();
-	const base = await crypto.subtle.importKey('raw', enc.encode(secret), 'PBKDF2', false, ['deriveKey']);
+	const base = await crypto.subtle.importKey('raw', enc.encode(secret), 'PBKDF2', false, [
+		'deriveKey'
+	]);
 	return crypto.subtle.deriveKey(
 		{ name: 'PBKDF2', salt: enc.encode(SALT), iterations: 100_000, hash: 'SHA-256' },
 		base,
@@ -46,7 +48,10 @@ export async function cifrarTexto(plano: string, secret = secretPorDefecto()): P
 	return `v1:${bytesToB64(iv)}:${bytesToB64(new Uint8Array(ct))}`;
 }
 
-export async function descifrarTexto(empaquetado: string, secret = secretPorDefecto()): Promise<string> {
+export async function descifrarTexto(
+	empaquetado: string,
+	secret = secretPorDefecto()
+): Promise<string> {
 	if (empaquetado.startsWith('plain:')) return empaquetado.slice(6);
 	if (!empaquetado.startsWith('v1:') || !globalThis.crypto?.subtle) return empaquetado;
 	const [, ivB64, ctB64] = empaquetado.split(':');

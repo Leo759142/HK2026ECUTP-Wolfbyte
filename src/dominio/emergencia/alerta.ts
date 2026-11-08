@@ -32,7 +32,10 @@ export class Alerta implements AlertaFila {
 	private _actualizado_en: string;
 
 	constructor(props: AlertaProps) {
-		asegurar(props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 300, ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.'));
+		asegurar(
+			props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 300,
+			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.')
+		);
 		validarCoordenadas(props.lat_aprox, props.lng_aprox);
 		this.id = props.id;
 		this.emergencia_id = props.emergencia_id ?? null;
@@ -73,4 +76,3 @@ export class Alerta implements AlertaFila {
 		this._actualizado_en = new Date().toISOString();
 	}
 }
-

@@ -1,4 +1,9 @@
-import type { RecomendacionEvento, TipoRecomendacionEvento, UUID, VistoBuenoVigente } from '../tipos/tipos';
+import type {
+	RecomendacionEvento,
+	TipoRecomendacionEvento,
+	UUID,
+	VistoBuenoVigente
+} from '../tipos/tipos';
 import { ERRORES_COMUNES, asegurar } from '../tipos/errores';
 
 export interface VistoBuenoProps {
@@ -23,7 +28,10 @@ export class VistoBueno implements VistoBuenoVigente {
 
 	constructor(props: VistoBuenoProps) {
 		const comentario = props.comentario?.trim() ?? null;
-		asegurar(!comentario || comentario.length <= 140, ERRORES_COMUNES.VALIDACION('El comentario no puede exceder 140 caracteres.'));
+		asegurar(
+			!comentario || comentario.length <= 140,
+			ERRORES_COMUNES.VALIDACION('El comentario no puede exceder 140 caracteres.')
+		);
 		this.servicio_id = props.servicio_id;
 		this.usuario_id = props.usuario_id;
 		this.tipo = props.tipo ?? 'visto_bueno';
@@ -33,7 +41,11 @@ export class VistoBueno implements VistoBuenoVigente {
 		this.creado_en = props.creado_en ?? new Date().toISOString();
 	}
 
-	static vigente(eventos: RecomendacionEvento[], servicioId: UUID, usuarioId: UUID): VistoBuenoVigente | null {
+	static vigente(
+		eventos: RecomendacionEvento[],
+		servicioId: UUID,
+		usuarioId: UUID
+	): VistoBuenoVigente | null {
 		const ultimo = eventos
 			.filter((e) => e.servicio_id === servicioId && e.usuario_id === usuarioId)
 			.sort((a, b) => b.creado_en.localeCompare(a.creado_en) || b.id.localeCompare(a.id))[0];
@@ -47,4 +59,3 @@ export class VistoBueno implements VistoBuenoVigente {
 		};
 	}
 }
-

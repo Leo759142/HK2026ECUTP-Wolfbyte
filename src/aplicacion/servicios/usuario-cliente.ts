@@ -6,6 +6,6 @@
 let _id: string | null = null;
 
 export function obtenerUsuarioCliente(): string {
-  if (!_id) _id = crypto.randomUUID();
-  return _id;
+	if (!_id) _id = crypto.randomUUID();
+	return _id;
 }

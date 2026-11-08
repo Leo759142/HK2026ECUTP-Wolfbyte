@@ -22,4 +22,3 @@ export class ProtocoloEmergencia {
 		return recursos.filter((r) => r.estaDisponible());
 	}
 }
-

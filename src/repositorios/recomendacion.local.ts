@@ -5,16 +5,27 @@ import type { RecomendacionEvento, UUID } from '../dominio/tipos/tipos';
 /** RF07 visto bueno, RF08 etiqueta derivada por eventos append-only. No editar/borrar eventos. */
 export class RecomendacionRepoLocal implements RepositorioRecomendacion {
 	private entidad = 'recomendaciones_eventos' as const;
-	async registrarEvento(evento: RecomendacionEvento, opId = crypto.randomUUID()): Promise<RecomendacionEvento> {
+	async registrarEvento(
+		evento: RecomendacionEvento,
+		opId = crypto.randomUUID()
+	): Promise<RecomendacionEvento> {
 		const row = { ...evento, id: opId };
 		await dao.transaccion(async () => {
 			await dao.aplicarLocal(this.entidad, row as unknown as Record<string, unknown>);
-			await dao.encolar({ op_id: opId, entidad: `servicios/${evento.servicio_id}/recomendaciones`, operacion: 'crear', payload: evento });
+			await dao.encolar({
+				op_id: opId,
+				entidad: `servicios/${evento.servicio_id}/recomendaciones`,
+				operacion: 'crear',
+				payload: evento
+			});
 		});
 		return row;
 	}
-	async listarPorServicio(servicioId: UUID, opts?: { limite?: number; offset?: number }): Promise<RecomendacionEvento[]> {
-		const paginado = await dao.listarLocalPaginado<RecomendacionEvento>(this.entidad, opts);
+	async listarPorServicio(
+		servicioId: UUID,
+		opts?: { limite?: number; offset?: number }
+	): Promise<RecomendacionEvento[]> {
+		const paginado = await dao.listarLocalPaginado<RecomendacionEvento>(this.entidad, opts ?? {});
 		return paginado.items.filter((r) => r.servicio_id === servicioId);
 	}
 }

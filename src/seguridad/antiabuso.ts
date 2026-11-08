@@ -22,7 +22,11 @@ export class ControlAntiAbuso {
 		return { ...registro, conteoMensajesMinuto: registro.conteoMensajesMinuto + 1 };
 	}
 
-	static generarEnlaceInvitacionWhatsApp(grupoId: string, nombreGrupo: string, base = 'https://mi-barrio.pe'): string {
+	static generarEnlaceInvitacionWhatsApp(
+		grupoId: string,
+		nombreGrupo: string,
+		base = 'https://mi-barrio.pe'
+	): string {
 		const enlaceInvitacion = `${base}?grupo=${encodeURIComponent(grupoId)}`;
 		const texto = `¡Hola! Te invito a unirte al grupo vecinal de nuestra manzana: *${nombreGrupo}*. Regístrate ingresando aquí: ${enlaceInvitacion}`;
 		return `https://wa.me/?text=${encodeURIComponent(texto)}`;

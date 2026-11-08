@@ -1,4 +1,9 @@
-import type { ModoRecurso, RecursoCritico as RecursoFila, TipoRecursoCritico, UUID } from '../tipos/tipos';
+import type {
+	ModoRecurso,
+	RecursoCritico as RecursoFila,
+	TipoRecursoCritico,
+	UUID
+} from '../tipos/tipos';
 import { ERRORES_COMUNES, asegurar } from '../tipos/errores';
 import { validarCoordenadas } from '../tipos/geohash';
 
@@ -32,7 +37,10 @@ export class RecursoCritico implements RecursoFila {
 	readonly creado_en: string;
 
 	constructor(props: RecursoCriticoProps) {
-		asegurar(props.detalle.trim().length > 0 && props.detalle.trim().length <= 200, ERRORES_COMUNES.VALIDACION('El detalle debe tener hasta 200 caracteres.'));
+		asegurar(
+			props.detalle.trim().length > 0 && props.detalle.trim().length <= 200,
+			ERRORES_COMUNES.VALIDACION('El detalle debe tener hasta 200 caracteres.')
+		);
 		validarCoordenadas(props.lat_aprox, props.lng_aprox);
 		this.id = props.id;
 		this.emergencia_id = props.emergencia_id ?? null;
@@ -60,4 +68,3 @@ export class RecursoCritico implements RecursoFila {
 		this._disponible = estado ? 1 : 0;
 	}
 }
-

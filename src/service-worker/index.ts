@@ -13,12 +13,18 @@ sw.addEventListener('install', (event) => {
 
 sw.addEventListener('activate', (event) => {
 	event.waitUntil(
-		caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+		caches
+			.keys()
+			.then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
 	);
 	sw.clients.claim();
 });
 
-const offline = () => new Response('Offline', { status: 503, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+const offline = () =>
+	new Response('Offline', {
+		status: 503,
+		headers: { 'content-type': 'text/plain; charset=utf-8' }
+	});
 
 sw.addEventListener('fetch', (event) => {
 	if (event.request.method !== 'GET') return;

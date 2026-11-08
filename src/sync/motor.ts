@@ -14,7 +14,11 @@ export function esperaReintento(intentos: number): number {
 
 const sinConexion = () => typeof navigator !== 'undefined' && navigator.onLine === false;
 
-async function fetchConIdempotencia(path: string, payload: unknown, opId: string): Promise<Response | null> {
+async function fetchConIdempotencia(
+	path: string,
+	payload: unknown,
+	opId: string
+): Promise<Response | null> {
 	return fetch(path, {
 		method: 'POST',
 		headers: { 'content-type': 'application/json; charset=utf-8', 'Idempotency-Key': opId },
@@ -29,7 +33,8 @@ async function contarPendientes(): Promise<number> {
 let _syncing = false;
 export async function vaciarColaOutbox(): Promise<ResultadoSync> {
 	const run = async (): Promise<ResultadoSync> => {
-		if (_syncing || sinConexion()) return { enviadas: 0, pendientes: await contarPendientes(), conflicto: false };
+		if (_syncing || sinConexion())
+			return { enviadas: 0, pendientes: await contarPendientes(), conflicto: false };
 		_syncing = true;
 		let enviadas = 0;
 		let conflicto = false;
@@ -45,9 +50,17 @@ export async function vaciarColaOutbox(): Promise<ResultadoSync> {
 					await outboxDAO.marcar(op.op_id, 'conflicto', await res.text().catch(() => 'conflicto'));
 					conflicto = true;
 				} else if (res && res.status >= 400 && res.status < 500) {
-					await outboxDAO.marcar(op.op_id, 'rechazada', await res.text().catch(() => String(res.status)));
+					await outboxDAO.marcar(
+						op.op_id,
+						'rechazada',
+						await res.text().catch(() => String(res.status))
+					);
 				} else {
-					await outboxDAO.programarReintento(op.op_id, esperaReintento(op.intentos), res ? `HTTP ${res.status}` : 'sin red');
+					await outboxDAO.programarReintento(
+						op.op_id,
+						esperaReintento(op.intentos),
+						res ? `HTTP ${res.status}` : 'sin red'
+					);
 					break;
 				}
 			}
@@ -56,7 +69,10 @@ export async function vaciarColaOutbox(): Promise<ResultadoSync> {
 		}
 		return { enviadas, pendientes: await contarPendientes(), conflicto };
 	};
-	const nav = typeof navigator !== 'undefined' ? (navigator as Navigator & { locks?: LockManager }) : undefined;
+	const nav =
+		typeof navigator !== 'undefined'
+			? (navigator as Navigator & { locks?: LockManager })
+			: undefined;
 	if (nav?.locks) return nav.locks.request('outbox-sync', run);
 	return run();
 }

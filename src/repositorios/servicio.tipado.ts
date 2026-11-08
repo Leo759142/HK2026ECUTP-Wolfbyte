@@ -11,18 +11,34 @@ import { Servicio as ServicioDominio } from '../dominio/proximidad/servicios';
 export class ServicioRepoTipado implements RepositorioServicio {
 	private entidad = 'servicios' as const;
 
-	async listar(filtro?: { zona_id?: string; categoria?: string }, opts?: { limite?: number; offset?: number }): Promise<Servicio[]> {
-		const paginado = await dao.listarLocalPaginado<Servicio>(this.entidad, opts);
+	async listar(
+		filtro?: { zona_id?: string; categoria?: string },
+		opts?: { limite?: number; offset?: number }
+	): Promise<Servicio[]> {
+		const paginado = await dao.listarLocalPaginado<Servicio>(this.entidad, opts ?? {});
 		return paginado.items
-			.filter((s) => (!filtro?.zona_id || s.zona_id === filtro.zona_id) && (!filtro?.categoria || s.categoria === filtro.categoria))
-			.map((s) => new ServicioDominio(s as unknown as ConstructorParameters<typeof ServicioDominio>[0]));
+			.filter(
+				(s) =>
+					(!filtro?.zona_id || s.zona_id === filtro.zona_id) &&
+					(!filtro?.categoria || s.categoria === filtro.categoria)
+			)
+			.map(
+				(s) => new ServicioDominio(s as unknown as ConstructorParameters<typeof ServicioDominio>[0])
+			);
 	}
 
 	async guardar(servicio: Servicio, opId = crypto.randomUUID()): Promise<Servicio> {
-		const entidadValidada = new ServicioDominio(servicio as unknown as ConstructorParameters<typeof ServicioDominio>[0]);
+		const entidadValidada = new ServicioDominio(
+			servicio as unknown as ConstructorParameters<typeof ServicioDominio>[0]
+		);
 		await dao.transaccion(async () => {
 			await dao.aplicarLocal(this.entidad, entidadValidada as unknown as Record<string, unknown>);
-			await dao.encolar({ op_id: opId, entidad: this.entidad, operacion: 'crear', payload: entidadValidada });
+			await dao.encolar({
+				op_id: opId,
+				entidad: this.entidad,
+				operacion: 'crear',
+				payload: entidadValidada
+			});
 		});
 		return entidadValidada;
 	}

@@ -30,7 +30,13 @@ export interface IdempotencyRecord {
 
 export interface IdempotencyStore {
 	obtener(opId: string): Promise<IdempotencyRecord | null>;
-	guardar(opId: string, entidad: string, operacion: string, resultado: unknown, statusCode: number): Promise<void>;
+	guardar(
+		opId: string,
+		entidad: string,
+		operacion: string,
+		resultado: unknown,
+		statusCode: number
+	): Promise<void>;
 	existe(opId: string): Promise<boolean>;
 }
 
@@ -42,7 +48,13 @@ export class IdempotencyStoreMemoria implements IdempotencyStore {
 		return this.store.get(opId) ?? null;
 	}
 
-	async guardar(opId: string, entidad: string, operacion: string, resultado: unknown, statusCode: number): Promise<void> {
+	async guardar(
+		opId: string,
+		entidad: string,
+		operacion: string,
+		resultado: unknown,
+		statusCode: number
+	): Promise<void> {
 		this.store.set(opId, {
 			op_id: opId,
 			entidad,
@@ -86,13 +98,32 @@ export class IdempotencyStoreArchivo implements IdempotencyStore {
 			/* ignore */
 		}
 	}
-	async obtener(opId: string) { return this.load().get(opId) ?? null; }
-	async guardar(opId: string, entidad: string, operacion: string, resultado: unknown, statusCode: number) {
-		this.load().set(opId, { op_id: opId, entidad, operacion, resultado, status_code: statusCode, creado_en: new Date().toISOString() });
+	async obtener(opId: string) {
+		return this.load().get(opId) ?? null;
+	}
+	async guardar(
+		opId: string,
+		entidad: string,
+		operacion: string,
+		resultado: unknown,
+		statusCode: number
+	) {
+		this.load().set(opId, {
+			op_id: opId,
+			entidad,
+			operacion,
+			resultado,
+			status_code: statusCode,
+			creado_en: new Date().toISOString()
+		});
 		this.persist();
 	}
-	async existe(opId: string) { return this.load().has(opId); }
+	async existe(opId: string) {
+		return this.load().has(opId);
+	}
 }
 
 const usarArchivo = process.env.IDEMPOTENCY_STORE === 'file';
-export const idempotencyStore = usarArchivo ? new IdempotencyStoreArchivo() : new IdempotencyStoreMemoria();
+export const idempotencyStore = usarArchivo
+	? new IdempotencyStoreArchivo()
+	: new IdempotencyStoreMemoria();

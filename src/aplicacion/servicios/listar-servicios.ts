@@ -3,8 +3,8 @@ import type { Servicio } from '../../dominio/tipos/tipos';
 
 /** Filtros opcionales para listar servicios (RF06). */
 export interface ListarServiciosFiltro {
-  zona_id?: string;
-  categoria?: string;
+	zona_id?: string;
+	categoria?: string;
 }
 
 /**
@@ -12,9 +12,9 @@ export interface ListarServiciosFiltro {
  * se puede cambiar a un adaptador HTTP sin tocar la UI).
  */
 export class ListarServicios {
-  constructor(private repo: RepositorioServicio) {}
+	constructor(private repo: RepositorioServicio) {}
 
-  async ejecutar(filtro?: ListarServiciosFiltro): Promise<Servicio[]> {
-    return this.repo.listar(filtro);
-  }
+	async ejecutar(filtro?: ListarServiciosFiltro): Promise<Servicio[]> {
+		return this.repo.listar(filtro);
+	}
 }

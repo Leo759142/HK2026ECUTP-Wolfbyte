@@ -60,7 +60,12 @@ export class OutboxDAO {
 		}
 	}
 
-	async encolar(op: { op_id: string; entidad: string; operacion: OperacionSync; payload: unknown }): Promise<OperacionOutbox> {
+	async encolar(op: {
+		op_id: string;
+		entidad: string;
+		operacion: OperacionSync;
+		payload: unknown;
+	}): Promise<OperacionOutbox> {
 		await this.migrarLegacy();
 		const now = new Date().toISOString();
 		const item: OperacionOutbox = {
@@ -83,7 +88,9 @@ export class OutboxDAO {
 	async listarTodas(): Promise<OperacionOutbox[]> {
 		await this.migrarLegacy();
 		const keys = await this.kv.keys(PREFIX);
-		const items = (await Promise.all(keys.map((k) => this.kv.get<OperacionOutbox>(k)))).filter(Boolean) as OperacionOutbox[];
+		const items = (await Promise.all(keys.map((k) => this.kv.get<OperacionOutbox>(k)))).filter(
+			Boolean
+		) as OperacionOutbox[];
 		return items.sort((a, b) => a.creado_en.localeCompare(b.creado_en));
 	}
 
@@ -107,10 +114,14 @@ export class OutboxDAO {
 		await this.kv.del(key(op_id));
 	}
 
-	async pendientesPaginado(opts: { limite?: number; offset?: number } = {}): Promise<{ items: OperacionOutbox[]; total: number }> {
+	async pendientesPaginado(
+		opts: { limite?: number; offset?: number } = {}
+	): Promise<{ items: OperacionOutbox[]; total: number }> {
 		await this.migrarLegacy();
 		const keys = await this.kv.keys(PREFIX);
-		const all = (await Promise.all(keys.map((k) => this.kv.get<OperacionOutbox>(k)))).filter(Boolean) as OperacionOutbox[];
+		const all = (await Promise.all(keys.map((k) => this.kv.get<OperacionOutbox>(k)))).filter(
+			Boolean
+		) as OperacionOutbox[];
 		const filtered = all
 			.filter((p) => p.estado === 'pendiente' || p.estado === 'enviando')
 			.filter((p) => !p.next_attempt_at || p.next_attempt_at <= Date.now())

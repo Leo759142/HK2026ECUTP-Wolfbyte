@@ -10,7 +10,7 @@ export interface AlmacenKV {
 class MemoriaKV implements AlmacenKV {
 	private data = new Map<string, unknown>();
 	async get<T>(key: string) {
-		return (this.data.has(key) ? (this.data.get(key) as T) : null);
+		return this.data.has(key) ? (this.data.get(key) as T) : null;
 	}
 	async set<T>(key: string, value: T) {
 		this.data.set(key, value);
@@ -57,20 +57,27 @@ class LocalStorageKV implements AlmacenKV {
 
 class IndexedDbKV implements AlmacenKV {
 	private dbp: Promise<IDBDatabase> | null = null;
-	constructor(private name: string, private store = 'kv') {}
+	constructor(
+		private name: string,
+		private store = 'kv'
+	) {}
 	private db() {
 		if (this.dbp) return this.dbp;
 		this.dbp = new Promise((resolve, reject) => {
 			const req = indexedDB.open(this.name, 1);
 			req.onupgradeneeded = () => {
-				if (!req.result.objectStoreNames.contains(this.store)) req.result.createObjectStore(this.store);
+				if (!req.result.objectStoreNames.contains(this.store))
+					req.result.createObjectStore(this.store);
 			};
 			req.onsuccess = () => resolve(req.result);
 			req.onerror = () => reject(req.error);
 		});
 		return this.dbp;
 	}
-	private async tx<T>(mode: IDBTransactionMode, fn: (store: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+	private async tx<T>(
+		mode: IDBTransactionMode,
+		fn: (store: IDBObjectStore) => IDBRequest<T>
+	): Promise<T> {
 		const db = await this.db();
 		return new Promise((resolve, reject) => {
 			const t = db.transaction(this.store, mode);
@@ -94,7 +101,8 @@ class IndexedDbKV implements AlmacenKV {
 		return new Promise((resolve, reject) => {
 			const t = db.transaction(this.store, 'readonly');
 			const req = t.objectStore(this.store).getAllKeys();
-			req.onsuccess = () => resolve((req.result as string[]).filter((k) => String(k).startsWith(prefix)));
+			req.onsuccess = () =>
+				resolve((req.result as string[]).filter((k) => String(k).startsWith(prefix)));
 			req.onerror = () => reject(req.error);
 		});
 	}

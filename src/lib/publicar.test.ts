@@ -16,16 +16,28 @@ const base: FormPublicar = {
 describe('Paso 4 · construirPublicacion', () => {
 	it('servicio válido va a /servicios', () => {
 		const p = construirPublicacion('servicio', base);
-		expect(p).toMatchObject({ ok: true, entidad: 'servicios', body: { categoria: 'gasfiteria', titulo: 'Gasfitero de turno' } });
+		expect(p).toMatchObject({
+			ok: true,
+			entidad: 'servicios',
+			body: { categoria: 'gasfiteria', titulo: 'Gasfitero de turno' }
+		});
 	});
 
 	it('favor válido va a /favores', () => {
-		expect(construirPublicacion('favor', base)).toMatchObject({ ok: true, entidad: 'favores', body: { tipo: 'necesidad', categoria: 'otro' } });
+		expect(construirPublicacion('favor', base)).toMatchObject({
+			ok: true,
+			entidad: 'favores',
+			body: { tipo: 'necesidad', categoria: 'otro' }
+		});
 	});
 
 	it('alerta usa el título si no hay descripción', () => {
 		const p = construirPublicacion('alerta', { ...base, descripcion: '' });
-		expect(p).toMatchObject({ ok: true, entidad: 'alertas', body: { descripcion: 'Gasfitero de turno', tipo: 'zona_inundada' } });
+		expect(p).toMatchObject({
+			ok: true,
+			entidad: 'alertas',
+			body: { descripcion: 'Gasfitero de turno', tipo: 'zona_inundada' }
+		});
 	});
 
 	it('errores corregibles antes de encolar', () => {
@@ -58,7 +70,11 @@ describe('Paso 4 · sin señal se guarda en la cola', () => {
 		const opId = await encolarAccion(p.entidad, p.body);
 		const pendientes = await outboxDAO.pendientes();
 		const op = pendientes.find((o) => o.op_id === opId);
-		expect(op).toMatchObject({ entidad: 'favores', estado: 'pendiente', payload: { titulo: 'Gasfitero de turno' } });
+		expect(op).toMatchObject({
+			entidad: 'favores',
+			estado: 'pendiente',
+			payload: { titulo: 'Gasfitero de turno' }
+		});
 		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 });

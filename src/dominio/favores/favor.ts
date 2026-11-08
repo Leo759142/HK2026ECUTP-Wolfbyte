@@ -1,4 +1,10 @@
-import type { CategoriaFavor, EstadoFavor, Favor as FavorFila, TipoFavor, UUID } from '../tipos/tipos';
+import type {
+	CategoriaFavor,
+	EstadoFavor,
+	Favor as FavorFila,
+	TipoFavor,
+	UUID
+} from '../tipos/tipos';
 import { ERRORES_COMUNES, asegurar } from '../tipos/errores';
 import { validarCoordenadas } from '../tipos/geohash';
 
@@ -38,10 +44,22 @@ export class Favor implements FavorFila {
 	private _cerrado_en: string | null;
 
 	constructor(props: FavorProps) {
-		asegurar(props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80, ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.'));
-		asegurar(props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 500, ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 500 caracteres.'));
-		asegurar(!props.agradecimiento || props.agradecimiento.length <= 200, ERRORES_COMUNES.VALIDACION('El agradecimiento no puede exceder 200 caracteres.'));
-		asegurar(!props.ayudante_id || props.ayudante_id !== props.creador_id, ERRORES_COMUNES.VALIDACION('El ayudante no puede ser el creador del favor.'));
+		asegurar(
+			props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80,
+			ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.')
+		);
+		asegurar(
+			props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 500,
+			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 500 caracteres.')
+		);
+		asegurar(
+			!props.agradecimiento || props.agradecimiento.length <= 200,
+			ERRORES_COMUNES.VALIDACION('El agradecimiento no puede exceder 200 caracteres.')
+		);
+		asegurar(
+			!props.ayudante_id || props.ayudante_id !== props.creador_id,
+			ERRORES_COMUNES.VALIDACION('El ayudante no puede ser el creador del favor.')
+		);
 		validarCoordenadas(props.lat_aprox, props.lng_aprox);
 		this.id = props.id;
 		this.creador_id = props.creador_id;
@@ -77,24 +95,38 @@ export class Favor implements FavorFila {
 	}
 
 	asignarAyudante(ayudanteId: UUID): void {
-		asegurar(this._estado === 'abierto', ERRORES_COMUNES.CONFLICTO('Solo se pueden coordinar favores abiertos.'));
-		asegurar(ayudanteId !== this.creador_id, ERRORES_COMUNES.VALIDACION('El ayudante no puede ser el creador.'));
+		asegurar(
+			this._estado === 'abierto',
+			ERRORES_COMUNES.CONFLICTO('Solo se pueden coordinar favores abiertos.')
+		);
+		asegurar(
+			ayudanteId !== this.creador_id,
+			ERRORES_COMUNES.VALIDACION('El ayudante no puede ser el creador.')
+		);
 		this._ayudante_id = ayudanteId;
 		this._estado = 'en_curso';
 	}
 
 	marcarComoCompletado(agradecimiento?: string): void {
-		asegurar(this._estado === 'en_curso', ERRORES_COMUNES.CONFLICTO('Un favor solo puede cerrarse si está en curso.'));
-		asegurar(!!this._ayudante_id, ERRORES_COMUNES.CONFLICTO('El favor requiere un ayudante para cerrarse.'));
+		asegurar(
+			this._estado === 'en_curso',
+			ERRORES_COMUNES.CONFLICTO('Un favor solo puede cerrarse si está en curso.')
+		);
+		asegurar(
+			!!this._ayudante_id,
+			ERRORES_COMUNES.CONFLICTO('El favor requiere un ayudante para cerrarse.')
+		);
 		this._estado = 'cerrado';
 		this._agradecimiento = agradecimiento?.trim() || this._agradecimiento;
 		this._cerrado_en = new Date().toISOString();
 	}
 
 	cancelar(): void {
-		asegurar(this._estado === 'abierto' || this._estado === 'en_curso', ERRORES_COMUNES.CONFLICTO('El favor ya no puede cancelarse.'));
+		asegurar(
+			this._estado === 'abierto' || this._estado === 'en_curso',
+			ERRORES_COMUNES.CONFLICTO('El favor ya no puede cancelarse.')
+		);
 		this._estado = 'cancelado';
 		this._cerrado_en = new Date().toISOString();
 	}
 }
-
