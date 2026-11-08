@@ -15,7 +15,7 @@ BEGIN TRANSACTION;
 CREATE TABLE sectores (
   id             TEXT PRIMARY KEY,
   nombre         TEXT NOT NULL CHECK (length(trim(nombre)) BETWEEN 3 AND 80),
-  area_geojson   TEXT CHECK (area_geojson IS NULL OR (json_valid(area_geojson) AND json_type(area_geojson) = 'object')),
+  area_geojson   TEXT CHECK (argit ea_geojson IS NULL OR (json_valid(area_geojson) AND json_type(area_geojson) = 'object')),
   fundador_id    TEXT,
   creado_en      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
   actualizado_en TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))

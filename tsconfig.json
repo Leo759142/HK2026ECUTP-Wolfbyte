@@ -1,15 +1,34 @@
 {
-	"extends": "$app/tsconfig",
-	"compilerOptions": {
-		"strict": true,
-		"types": [
-			"$app/types",
-			"node"
-		],
-		"paths": {
-			"$lib": ["./src/lib"],
-			"$lib/*": ["./src/lib/*"]
-		}
-	},
-	"include":["src","vite.config.ts","prettier.config.js","eslint.config.js"], "exclude": ["temp", "node_modules", ".svelte-kit", "src/service-worker"]
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "strict": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "$lib": ["./src/lib"],
+      "$lib/*": ["./src/lib/*"],
+      "$dao": ["./src/dao"],
+      "$dao/*": ["./src/dao/*"],
+      "$dominio": ["./src/dominio"],
+      "$dominio/*": ["./src/dominio/*"],
+      "$datos": ["./src/datos"],
+      "$datos/*": ["./src/datos/*"],
+      "$seguridad": ["./src/seguridad"],
+      "$seguridad/*": ["./src/seguridad/*"],
+      "$sync": ["./src/sync"],
+      "$sync/*": ["./src/sync/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.svelte", "src/**/*.d.ts", "vite.config.ts"],
+  "exclude": ["node_modules", ".svelte-kit", "temp", "src/service-worker"]
 }
