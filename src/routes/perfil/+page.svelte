@@ -43,6 +43,12 @@
 		return `${usuario.firstName ?? 'Vecino'} ${usuario.lastName ?? ''}`.trim();
 	}
 
+	function nombreVisible() {
+		const primero = usuario.firstName ?? 'Vecino';
+		const inicialApellido = usuario.lastName?.trim()?.[0];
+		return inicialApellido ? `${primero} ${inicialApellido}.` : primero;
+	}
+
 	function inicial() {
 		return (usuario.firstName?.[0] ?? 'A').toUpperCase();
 	}
@@ -198,7 +204,7 @@
 				<input type="file" accept="image/*" onchange={cambiarFoto} />
 			</label>
 		</div>
-		<h1>{nombre()}</h1>
+		<h1>{nombreVisible()}</h1>
 		<p>
 			Vecino(a) de AYNI{#if usuario.manzana}
 				· Mz. {usuario.manzana}{/if}

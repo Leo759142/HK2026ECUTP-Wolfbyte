@@ -11,7 +11,7 @@
 		onboardingVisto
 	} from '../../lib/onboarding';
 
-	type Paso = 'portada' | 'tutorial' | 'telefono' | 'codigo' | 'nombre';
+	type Paso = 'portada' | 'tutorial' | 'telefono' | 'codigo' | 'nombre' | 'ubicacion' | 'zona';
 	type Modo = 'registro' | 'login';
 	let paso = $state<Paso>('portada');
 	let modo = $state<Modo>('registro');
@@ -19,6 +19,10 @@
 	let telefono = $state('');
 	let codigo = $state('');
 	let alias = $state('');
+	let apellido = $state('');
+	let ubicacion = $state('');
+	let manzana = $state('');
+	let obteniendoUbicacion = $state(false);
 	let error = $state('');
 	let onboardingCompletado = $state(false);
 
@@ -71,7 +75,11 @@
 		paso = 'codigo';
 	}
 
-	async function completarAcceso(telefonoAcceso: string, alias = 'Rosa') {
+	async function completarAcceso(
+		telefonoAcceso: string,
+		alias = 'Rosa',
+		datosPerfil: { ubicacion?: string; manzana?: string } = {}
+	) {
 		let datos: { usuarioId?: string; rol?: string } = {};
 		try {
 			const respuesta = await fetch('/api/v1/auth', {
@@ -103,10 +111,14 @@
 		const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<
 			Record<string, unknown>
 		>;
+		const partesNombre = alias.trim().split(/\s+/);
 		const nuevoUsuario = {
 			id: usuarioId,
-			firstName: alias,
+			firstName: partesNombre[0],
+			lastName: partesNombre.slice(1).join(' '),
 			phone: telefonoAcceso,
+			ubicacion: datosPerfil.ubicacion,
+			manzana: datosPerfil.manzana,
 			createdAt: Date.now()
 		};
 		const indice = usuarios.findIndex((usuario) => usuario.phone === telefonoAcceso);
@@ -160,16 +172,57 @@
 		paso = 'telefono';
 	}
 
-	async function guardarRegistro() {
+	function guardarRegistro() {
 		error = '';
-		if (alias.trim().length < 2) {
-			error = 'Escribe tu nombre para continuar.';
+		if (alias.trim().length < 2 || apellido.trim().length < 2) {
+			error = 'Escribe tu nombre y apellido para continuar.';
+			return;
+		}
+		paso = 'ubicacion';
+	}
+
+	async function guardarUbicacion() {
+		error = '';
+		if (!ubicacion.trim()) {
+			error = 'Escribe tu dirección o referencia para continuar.';
+			return;
+		}
+		paso = 'zona';
+	}
+
+	function usarUbicacionActual() {
+		error = '';
+		if (!navigator.geolocation) {
+			ubicacion = 'Ubicación aproximada';
+			return;
+		}
+		obteniendoUbicacion = true;
+		navigator.geolocation.getCurrentPosition(
+			() => {
+				ubicacion = 'Ubicación aproximada detectada';
+				obteniendoUbicacion = false;
+			},
+			() => {
+				error = 'No pudimos detectar tu ubicación. Puedes escribir una referencia.';
+				obteniendoUbicacion = false;
+			},
+			{ enableHighAccuracy: false, timeout: 8000 }
+		);
+	}
+
+	async function guardarZona() {
+		error = '';
+		if (!manzana) {
+			error = 'Elige tu manzana para terminar el registro.';
 			return;
 		}
 		try {
-			await completarAcceso(telefono, alias.trim());
+			await completarAcceso(telefono, `${alias.trim()} ${apellido.trim()}`, {
+				ubicacion: ubicacion.trim(),
+				manzana
+			});
 		} catch {
-			error = 'No se pudo crear la cuenta. Intenta nuevamente.';
+			error = 'No se pudo terminar el registro. Intenta nuevamente.';
 		}
 	}
 
@@ -271,20 +324,79 @@
 		<div class="access-spacer"></div>
 		<Btn disabled={codigo.length !== 4} onclick={verificarCodigo}>Verificar</Btn>
 	</Screen>
-{:else}
+{:else if paso === 'nombre'}
 	<Screen>
-		<Header title="Paso 3 de 4" back={false} />
-		<div class="access-progress"><span></span><span></span><span></span><i></i></div>
+		<Header title="Paso 3 de 5" back={false} />
+		<div class="access-progress"><span></span><span></span><span></span><i></i><i></i></div>
 		<h1 class="mobile-title">¿Cómo te llamas?</h1>
 		<p class="mobile-subtitle">Así tus vecinos sabrán quién recomienda, presta o pide ayuda.</p>
 		<input
 			class="code-field name-field"
 			autocomplete="given-name"
-			placeholder="Rosa"
+			placeholder="Nombre"
 			bind:value={alias}
+		/>
+		<input
+			class="code-field name-field"
+			autocomplete="family-name"
+			placeholder="Apellido"
+			bind:value={apellido}
 		/>
 		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
 		<div class="access-spacer"></div>
-		<Btn disabled={alias.trim().length < 2} onclick={guardarRegistro}>Entrar a AYNI</Btn>
+		<Btn disabled={alias.trim().length < 2 || apellido.trim().length < 2} onclick={guardarRegistro}
+			>Continuar</Btn
+		>
+	</Screen>
+{:else if paso === 'ubicacion'}
+	<Screen>
+		<Header title="Paso 4 de 5" back={false} />
+		<div class="access-progress"><span></span><span></span><span></span><span></span><i></i></div>
+		<h1 class="mobile-title">¿Dónde vives?</h1>
+		<p class="mobile-subtitle">
+			Usamos una ubicación aproximada para mostrarte ayuda cerca. Nunca publicaremos tu dirección
+			exacta.
+		</p>
+		<label class="publish-label">
+			Referencia o dirección
+			<input
+				class="publish-input"
+				autocomplete="street-address"
+				placeholder="Ej. Av. Los Jardines 123"
+				bind:value={ubicacion}
+			/>
+		</label>
+		<button
+			class="access-location"
+			type="button"
+			onclick={usarUbicacionActual}
+			disabled={obteniendoUbicacion}
+		>
+			{obteniendoUbicacion ? 'Detectando ubicación…' : '📍 Usar mi ubicación actual'}
+		</button>
+		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
+		<div class="access-spacer"></div>
+		<Btn disabled={!ubicacion.trim()} onclick={guardarUbicacion}>Continuar</Btn>
+	</Screen>
+{:else}
+	<Screen>
+		<Header title="Paso 5 de 5" back={false} />
+		<div class="access-progress">
+			<span></span><span></span><span></span><span></span><span></span>
+		</div>
+		<h1 class="mobile-title">Elige tu manzana</h1>
+		<p class="mobile-subtitle">
+			La app detecta tu sector y solo muestra esta referencia de forma pública.
+		</p>
+		<div class="zone-grid">
+			{#each ['A', 'B', 'C', 'D'] as item}
+				<button class:active={manzana === item} type="button" onclick={() => (manzana = item)}>
+					Sector 3 · Mz. {item}
+				</button>
+			{/each}
+		</div>
+		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
+		<div class="access-spacer"></div>
+		<Btn disabled={!manzana} onclick={guardarZona}>Entrar a AYNI</Btn>
 	</Screen>
 {/if}

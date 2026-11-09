@@ -2,6 +2,14 @@
 	import { onMount } from 'svelte';
 
 	let nombre = $state('Rosa');
+	type ServicioInicio = {
+		id: string;
+		titulo?: string;
+		descripcion?: string;
+		categoria?: string;
+		foto?: string | null;
+	};
+	let recomendados = $state<ServicioInicio[]>([]);
 
 	onMount(() => {
 		try {
@@ -30,26 +38,29 @@
 		['🍲', 'Comida']
 	];
 
-	const recomendados = [
-		{
-			emoji: '🔧',
-			nombre: 'Luis · Gasfitero',
-			detalle: 'A 2 cuadras · Lun–Sáb, 8am–6pm',
-			votos: '👍 12 · puntual · precio'
-		},
-		{
-			emoji: '🧵',
-			nombre: 'Carmen · Costurera',
-			detalle: 'A 3 cuadras · Lun–Sáb, 9am–7pm',
-			votos: '👍 9 · rápida · amable'
-		},
-		{
-			emoji: '📚',
-			nombre: 'Mariela · Profesora',
-			detalle: 'A 4 cuadras · Tardes, 3pm–7pm',
-			votos: '👍 7 · recomendada'
+	const iconos: Record<string, string> = {
+		gasfiteria: '🔧',
+		electricidad: '⚡',
+		carpinteria: '🪚',
+		costura: '🧵',
+		clases: '📚',
+		comida: '🍲'
+	};
+
+	const nombreCategoria = (categoria?: string) =>
+		categoria ? categoria.charAt(0).toUpperCase() + categoria.slice(1) : 'Servicio';
+
+	onMount(async () => {
+		try {
+			const respuesta = await fetch('/api/v1/servicios');
+			if (respuesta.ok) {
+				const cuerpo = (await respuesta.json()) as { items?: ServicioInicio[] };
+				recomendados = (cuerpo.items ?? []).slice(0, 3);
+			}
+		} catch {
+			recomendados = [];
 		}
-	];
+	});
 </script>
 
 <svelte:head>
@@ -100,14 +111,21 @@
 	<div class="recommendations">
 		{#each recomendados as servicio}
 			<a href="/servicios" class="service-card">
-				<div class="service-card__image" aria-hidden="true">{servicio.emoji}</div>
+				<div class="service-card__image" aria-hidden="true">
+					{#if servicio.foto}<img src={servicio.foto} alt="" />{:else}{iconos[
+							servicio.categoria ?? ''
+						] ?? '🛠️'}{/if}
+				</div>
 				<div class="service-card__content">
-					<strong>{servicio.nombre}</strong>
-					<small>📍 {servicio.detalle}</small>
-					<span>{servicio.votos}</span>
+					<strong>{servicio.titulo ?? nombreCategoria(servicio.categoria)}</strong>
+					<small>📍 En tu zona · ubicación aproximada</small>
+					<span>{nombreCategoria(servicio.categoria)} · Recomendado por vecinos</span>
 				</div>
 			</a>
 		{/each}
+		{#if recomendados.length === 0}<p class="empty">
+				Todavía no hay servicios publicados cerca.
+			</p>{/if}
 	</div>
 
 	<a href="/publicar?tipo=servicio" class="publish-prompt">

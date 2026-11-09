@@ -48,10 +48,10 @@ export class AnunciadorAccesible {
 
 		// Limpiar el contenido previo y forzar el refresco de texto para activar el disparador del software de accesibilidad
 		this.contenedorLive.textContent = '';
-		setTimeout(() => {
+		queueMicrotask(() => {
 			if (this.contenedorLive) {
 				this.contenedorLive.textContent = mensaje;
 			}
-		}, 50);
+		});
 	}
 }

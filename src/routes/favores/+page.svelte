@@ -10,41 +10,6 @@
 	const listarFavores = new ListarFavor(new FavorRepoLocal());
 	const confirmarFavor = new ConfirmarFavor(new FavorConfirmacionRepoLocal());
 	const favorRepo = new FavorRepoLocal();
-	const demos = [
-		{
-			id: 'demo-favor-1',
-			tipo: 'necesidad',
-			categoria: 'ayuda_temporal',
-			titulo: '¿Alguien presta una escalera?',
-			descripcion: 'Necesito pintar mi sala este fin de semana. La devuelvo el domingo.',
-			estado: 'abierto',
-			creador_id: 'u-rosa',
-			ayudante_id: null,
-			zona_id: 'zona-demo'
-		},
-		{
-			id: 'demo-favor-2',
-			tipo: 'oferta',
-			categoria: 'donacion',
-			titulo: 'Ropa de abrigo para niños',
-			descripcion: 'Tengo chompas en buen estado para quien las necesite.',
-			estado: 'abierto',
-			creador_id: 'u-carmen',
-			ayudante_id: null,
-			zona_id: 'zona-demo'
-		},
-		{
-			id: 'demo-favor-3',
-			tipo: 'necesidad',
-			categoria: 'movilidad',
-			titulo: 'Acompañamiento a la posta',
-			descripcion: 'Busco compañía para una cita médica mañana por la mañana.',
-			estado: 'en_curso',
-			creador_id: 'u-luis',
-			ayudante_id: 'u-rosa',
-			zona_id: 'zona-demo'
-		}
-	];
 	let items = $state<Favor[]>([]);
 	let estado = $state<'cargando' | 'ok' | 'error'>('cargando');
 	let filtro = $state<'todos' | 'necesidad' | 'oferta' | 'mios'>('todos');
@@ -56,7 +21,7 @@
 	let usuarioId = $state('demo');
 	let confirmaciones = $state<Record<string, RolEnFavor[]>>({});
 
-	let datos = $derived<any[]>(items.length ? items : demos);
+	let datos = $derived<any[]>(items);
 	let visibles = $derived(
 		datos.filter((item) => {
 			const texto = `${item.titulo} ${item.descripcion}`.toLowerCase();
@@ -70,7 +35,10 @@
 
 	async function cargar() {
 		try {
-			items = await listarFavores.ejecutar();
+			const respuesta = await fetch('/api/v1/favores');
+			items = respuesta.ok
+				? (((await respuesta.json()) as { items?: Favor[] }).items ?? [])
+				: await listarFavores.ejecutar();
 			const pares = await Promise.all(
 				items.map(
 					async (favor) =>

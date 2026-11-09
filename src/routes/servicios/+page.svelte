@@ -42,69 +42,6 @@
 		['clases', '📚', 'Clases'],
 		['comida', '🍲', 'Comida']
 	];
-	const demos: ServicioVista[] = [
-		{
-			id: 'demo-luis',
-			usuario_id: 'u2',
-			zona_id: 'z1',
-			categoria: 'gasfiteria',
-			titulo: 'Gasfitero',
-			descripcion: 'Arreglo fugas, termas y desagües.',
-			foto: null,
-			es_emprendimiento: 1,
-			activo: 1,
-			oculto: 0,
-			creado_en: '',
-			actualizado_en: '',
-			lat_aprox: -12.05,
-			lng_aprox: -77.04,
-			owner: 'Luis',
-			distancia: 2,
-			votos: 12,
-			horario: 'Lun–Sáb, 8am–6pm'
-		},
-		{
-			id: 'demo-carmen',
-			usuario_id: 'u3',
-			zona_id: 'z1',
-			categoria: 'costura',
-			titulo: 'Costurera',
-			descripcion: 'Arreglos de ropa, basta y cierres en el día.',
-			foto: null,
-			es_emprendimiento: 1,
-			activo: 1,
-			oculto: 0,
-			creado_en: '',
-			actualizado_en: '',
-			lat_aprox: -12.051,
-			lng_aprox: -77.041,
-			owner: 'Carmen',
-			distancia: 3,
-			votos: 9,
-			horario: 'Lun–Sáb, 9am–7pm'
-		},
-		{
-			id: 'demo-mariela',
-			usuario_id: 'u4',
-			zona_id: 'z1',
-			categoria: 'clases',
-			titulo: 'Profesora',
-			descripcion: 'Matemática para colegio y Excel básico.',
-			foto: null,
-			es_emprendimiento: 1,
-			activo: 1,
-			oculto: 0,
-			creado_en: '',
-			actualizado_en: '',
-			lat_aprox: -12.052,
-			lng_aprox: -77.042,
-			owner: 'Mariela',
-			distancia: 4,
-			votos: 7,
-			horario: 'Tardes, 3pm–7pm'
-		}
-	];
-
 	let items = $state<ServicioVista[]>([]);
 	let perfiles = $state<PerfilLocal[]>([]);
 	let recomendaciones = $state<Recomendacion[]>([]);
@@ -120,7 +57,7 @@
 	let error = $state('');
 	let usuarioId = $state('u4');
 
-	let datos = $derived<ServicioVista[]>(items.length ? items : demos);
+	let datos = $derived<ServicioVista[]>(items);
 	let visibles = $derived<ServicioVista[]>(
 		[...datos]
 			.map((item) => {
@@ -240,7 +177,12 @@
 			const sesion = localStorage.getItem('ayni:v1:session');
 			if (sesion) usuarioId = (JSON.parse(sesion) as { usuarioId?: string }).usuarioId ?? usuarioId;
 			perfiles = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as PerfilLocal[];
-			items = (await listarServicios.ejecutar()) as ServicioVista[];
+			const respuesta = await fetch('/api/v1/servicios');
+			if (respuesta.ok) {
+				items = ((await respuesta.json()) as { items?: ServicioVista[] }).items ?? [];
+			} else {
+				items = (await listarServicios.ejecutar()) as ServicioVista[];
+			}
 			estado = 'ok';
 		} catch {
 			estado = 'error';

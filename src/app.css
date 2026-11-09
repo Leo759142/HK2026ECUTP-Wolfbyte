@@ -570,6 +570,40 @@ details > summary::-webkit-details-marker {
 	font-weight: 800;
 }
 
+.access-location {
+	min-height: 52px;
+	border: 2px solid #e2edef;
+	border-radius: 16px;
+	background: #e2edef;
+	color: #0f4c5c;
+	font-size: 0.82rem;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.zone-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 10px;
+}
+
+.zone-grid button {
+	min-height: 72px;
+	border: 2px solid #eae3d6;
+	border-radius: 18px;
+	background: white;
+	color: #143d48;
+	font-size: 0.82rem;
+	font-weight: 900;
+	cursor: pointer;
+}
+
+.zone-grid button.active {
+	border-color: #7b2cbf;
+	background: #f1e8fa;
+	color: #5a1e8f;
+}
+
 .access-spacer {
 	flex: 1;
 }
