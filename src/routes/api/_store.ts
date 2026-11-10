@@ -14,6 +14,14 @@ export interface StoreApi {
 	recomendaciones: Fila[];
 	alertas: Fila[];
 	emergencias: Fila[];
+	usuarios: Fila[];
+	sesiones: Fila[];
+	grupos: Fila[];
+	membresias: Fila[];
+	puntoApoyo: Fila[];
+	alertasOficiales: Fila[];
+	anuncios: Fila[];
+	notificaciones: Fila[];
 }
 
 /** Ids de demo: u4 pidió el favor f2 y u2 lo está ayudando. */
@@ -101,7 +109,15 @@ export const store: StoreApi = {
 	servicios: semillaServicios(),
 	recomendaciones: [],
 	alertas: [],
-	emergencias: []
+	emergencias: [],
+	usuarios: semillaUsuarios(),
+	sesiones: [],
+	grupos: semillaGrupos(),
+	membresias: [],
+	puntoApoyo: [],
+	alertasOficiales: [],
+	anuncios: [],
+	notificaciones: []
 };
 
 /** Vuelve al estado inicial (útil en tests). */
@@ -112,4 +128,73 @@ export function reiniciarStore(): void {
 	store.recomendaciones = [];
 	store.alertas = [];
 	store.emergencias = [];
+	store.usuarios = semillaUsuarios();
+	store.sesiones = [];
+	store.grupos = semillaGrupos();
+	store.membresias = [];
+	store.puntoApoyo = [];
+	store.alertasOficiales = [];
+	store.anuncios = [];
+	store.notificaciones = [];
+}
+
+function semillaUsuarios(): Fila[] {
+	const ahora = new Date().toISOString();
+	return [
+		{
+			id: 'u-admin',
+			celular: '999000000',
+			alias: 'admin',
+			rol: 'admin',
+			activo: 1,
+			creado_en: ahora
+		},
+		{
+			id: 'u-vecino',
+			celular: '999111111',
+			alias: 'rosa',
+			rol: 'vecino',
+			activo: 1,
+			creado_en: ahora
+		},
+		{
+			id: 'u-referente',
+			celular: '999222222',
+			alias: 'delegada',
+			rol: 'referente',
+			activo: 1,
+			creado_en: ahora
+		},
+		{
+			id: 'u-coordinador',
+			celular: '999333333',
+			alias: 'lider',
+			rol: 'coordinador',
+			activo: 1,
+			creado_en: ahora
+		},
+		{
+			id: 'u-emprendedor',
+			celular: '999444444',
+			alias: 'bodeguero',
+			rol: 'emprendedor',
+			activo: 1,
+			creado_en: ahora
+		}
+	];
+}
+
+function semillaGrupos(): Fila[] {
+	const ahora = new Date().toISOString();
+	return [
+		{
+			id: 'g-zona-1',
+			nombre: 'Los Jardines - Manzana B',
+			zona_id: 'z1',
+			tipo: 'manzana',
+			creador_id: 'u-referente',
+			activo: 1,
+			creado_en: ahora
+		}
+	];
 }

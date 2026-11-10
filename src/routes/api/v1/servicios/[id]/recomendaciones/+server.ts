@@ -1,6 +1,6 @@
-import type { RequestHandler } from './$types';
+import type { RequestHandler } from './';
 import { ok, problem, requireIdempotency } from '../../../../_http';
-import { store } from '../../../../_store';
+import { listarEntidad, obtenerEntidad, aplicarEntidadLWW } from '../../../_dao-repo';
 
 const TIPOS_VALIDOS = new Set(['visto_bueno', 'retiro']);
 
@@ -19,8 +19,9 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		return problem(422, 'Campos requeridos', 'tipo, misma_zona, dispositivo_hash');
 	if (typeof body.comentario === 'string' && body.comentario.trim().length > 140)
 		return problem(422, 'Comentario inválido', 'comentario no puede superar 140 caracteres.');
-
-	const existente = store.recomendaciones.find((item) => item.id === key);
+	const servicioExiste = (await listarEntidad('servicios')).some((s) => s.id === params.id);
+	if (!servicioExiste) return problem(404, 'Servicio no encontrado', 'El servicio_id no existe.');
+	const existente = await obtenerEntidad('recomendaciones', key);
 	if (existente) return ok({ ok: true, replayed: true }, 200, { 'Idempotent-Replayed': 'true' });
 	const evento = {
 		id: key,
@@ -32,14 +33,15 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		comentario: typeof body.comentario === 'string' ? body.comentario.trim() : null,
 		creado_en: new Date().toISOString()
 	};
-	store.recomendaciones.push(evento);
+	await aplicarEntidadLWW('recomendaciones', evento);
 	return ok({ ok: true, id: key, servicio_id: params.id }, 201);
 };
 
 export const GET: RequestHandler = async ({ url }) => {
 	const servicioId = url.searchParams.get('servicio_id');
-	const items = store.recomendaciones.filter(
-		(item) => !servicioId || item.servicio_id === servicioId
-	);
+	const items = await listarEntidad('recomendaciones', (r) => {
+		if (servicioId && r.servicio_id !== servicioId) return false;
+		return true;
+	});
 	return ok({ items, total: items.length });
 };

@@ -62,14 +62,64 @@ export class AlertaRepository {
 				estado: 'activa',
 				creado_en: new Date().toISOString()
 			},
-			{
+{
 				id: 'a5',
 				zona_id: 'z5',
 				tipo: 'incendio',
-				descripcion: 'Incendio en casa',
+				desktop: 'Incendio en casa',
 				lat_aprox: -12.09,
 				lng_aprox: -77.08,
 				estado: 'resuelta',
+				creado_en: new Date().toISOString()
+			},
+			{
+				id: 'a6',
+				zona_id: 'z1',
+				tipo: 'persona_vulnerable',
+				detalle: 'Adulto mayor sin luz',
+				lat_aprox: -12.05,
+				lng_aprox: -77.04,
+				estado: 'sin_verificar',
+				creado_en: new Date().toISOString()
+			},
+			{
+				id: 'a7',
+				zona_id: 'z2',
+				tipo: 'zona_inundada',
+				detalle: 'Calle con agua',
+				lat_aprox: -12.06,
+				lng_aprox: -77.05,
+				estado: 'confirmado_vecinos',
+				creado_en: new Date().toISOString()
+			},
+			{
+				id: 'a8',
+				zona_id: 'z3',
+				tipo: 'via_bloqueada',
+				detalle: 'Calle bloqueada por caída de árbol',
+				lat_aprox: -12.07,
+				lng_aprox: -77.06,
+				estado: 'sin_verificar',
+				creado_en: new Date().toISOString()
+			},
+			{
+				id: 'a9',
+				zona_id: 'z4',
+				tipo: 'sin_servicios_basicos',
+				detalle: 'Corte de agua programado',
+				lat_aprox: -12.08,
+				lng_aprox: -77.07,
+				estado: 'atendido',
+				creado_en: new Date().toISOString()
+			},
+			{
+				id: 'a10',
+				zona_id: 'z5',
+				tipo: 'riesgo_estructural',
+				detalle: 'Casa con daños estructurales',
+				lat_aprox: -12.09,
+				lng_aprox: -77.08,
+				estado: 'sin_verificar',
 				creado_en: new Date().toISOString()
 			}
 		];

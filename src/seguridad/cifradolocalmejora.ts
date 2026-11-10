@@ -2,12 +2,6 @@ import { cifrarTexto, descifrarTexto } from './cipher';
 
 /** Compatibilidad: API síncrona legacy + API async real (WebCrypto AES-GCM cuando disponible). */
 export class CifradoLocalMejora {
-	static async empaquetar(dato: string): Promise<string> {
-		return cifrarTexto(dato);
-	}
-	static async desempaquetar(datoEmpaquetado: string): Promise<string> {
-		return descifrarTexto(datoEmpaquetado);
-	}
 	/**
 	 * Cifrado real asíncrono con WebCrypto AES-GCM. Preferir sobre los métodos síncronos legacy.
 	 */

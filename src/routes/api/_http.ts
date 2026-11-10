@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { puedeRol, type Rol } from '../../dominio/roles/rbac';
+import { puedeRol, type Rol, type Accion } from '../../dominio/roles/rbac';
 
 export function problem(status: number, title: string, detail?: string) {
 	return json(
@@ -27,7 +27,7 @@ export function requireRol(request: Request, accion: string) {
 	];
 	if (!roles.includes(raw as Rol))
 		return problem(401, 'Rol requerido', 'Incluye encabezado X-Rol válido.');
-	if (!puedeRol(raw as Rol, accion as never))
+	if (!puedeRol(raw as Rol, accion as Accion))
 		return problem(403, 'Permiso denegado', `El rol ${raw} no puede ejecutar ${accion}.`);
 	return raw as Rol;
 }

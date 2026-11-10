@@ -1,7 +1,6 @@
 import type { RequestHandler } from './$types';
-import { json } from '@sveltejs/kit';
-import { problem } from '../../_http';
-import { dao } from '../../../../datos/dao';
+import { ok, problem, requireIdempotency } from '../../_http';
+import { dao, outboxDAO } from '../../../../datos/dao';
 import { idempotencyStore } from '../../../../lib/db/idempotency';
 
 type Op = { op_id?: string; entidad?: string; operacion?: string; payload?: unknown };
@@ -29,6 +28,9 @@ async function aplicar(op: Op) {
 }
 
 export const POST: RequestHandler = async ({ request }) => {
+	const key = requireIdempotency(request);
+	if (typeof key !== 'string') return key;
+
 	const b = (await request.json().catch(() => null)) as { operaciones?: Op[] } | null;
 	if (!b || !Array.isArray(b.operaciones))
 		return problem(
@@ -46,12 +48,18 @@ export const POST: RequestHandler = async ({ request }) => {
 		const r = await aplicar(op);
 		resultados.push(r);
 	}
-	return json({ resultados });
+	return ok({ resultados, idempotencyKey: key });
 };
 
-export const GET: RequestHandler = async ({ url }) =>
-	json({
-		cursor: url.searchParams.get('cursor') ?? new Date(0).toISOString(),
-		nextCursor: new Date().toISOString(),
-		cambios: []
-	});
+export const GET: RequestHandler = async ({ url }) => {
+	const cursor = url.searchParams.get('cursor') ?? new Date(0).toISOString();
+	const limite = Math.min(Math.max(Number(url.searchParams.get('limite') ?? '50') || 50, 1), 100);
+	const { items, total } = await outboxDAO.pendientesPaginado({ limite });
+	const cambios = items
+		.filter((op) => op.creado_en > cursor)
+		.sort((a, b) => a.creado_en.localeCompare(b.creado_en))
+		.slice(0, limite);
+	const siguiente = cambios.length ? cambios[cambios.length - 1].creado_en : null;
+	const progreso = total > 0 ? Math.round((cambios.length / total) * 100) : 100;
+	return ok({ tablas: ['outbox'], siguiente, progreso, cambios });
+};

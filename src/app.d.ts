@@ -3,8 +3,9 @@
 declare global {
 	namespace App {
 		interface Locals {
-			rol?: string;
-			usuarioId?: string;
+			rol?: string | null;
+			usuarioId?: string | null;
+			loggedIn?: boolean;
 		}
 		// interface Error {}
 		// interface Locals {}

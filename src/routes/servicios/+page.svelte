@@ -2,10 +2,6 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import type { Servicio } from '../../dominio/tipos/tipos';
-	import { ListarServicios } from '../../aplicacion/servicios';
-	import { ServicioRepoLocal } from '../../repositorios/servicio.local';
-	import Header from '../../lib/ui/Header.svelte';
-	import Screen from '../../lib/ui/Screen.svelte';
 
 	type Recomendacion = {
 		id: string;
@@ -32,7 +28,7 @@
 		horario?: string;
 	};
 
-	const listarServicios = new ListarServicios(new ServicioRepoLocal());
+	
 	const categorias = [
 		['todos', '✨', 'Todos'],
 		['gasfiteria', '🔧', 'Gasfitería'],
@@ -181,7 +177,7 @@
 			if (respuesta.ok) {
 				items = ((await respuesta.json()) as { items?: ServicioVista[] }).items ?? [];
 			} else {
-				items = (await listarServicios.ejecutar()) as ServicioVista[];
+				items = [];
 			}
 			estado = 'ok';
 		} catch {

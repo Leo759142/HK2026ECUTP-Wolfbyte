@@ -1,37 +1,26 @@
-import type { RequestHandler } from './$types';
+import type { RequestHandler } from './';
 import { ok, problem, requireIdempotency } from '../../_http';
-import { store } from '../../_store';
-import {
-	elegir,
-	errorTextos,
-	esRespuesta,
-	leerCoordenadas,
-	leerObjeto,
-	validarFoto
-} from '../../_validar';
-import {
-	CATEGORIAS_FAVOR,
-	TIPOS_FAVOR,
-	type CategoriaFavor,
-	type Favor,
-	type TipoFavor
-} from '../../../../dominio/tipos/tipos';
+import { leerObjeto, errorTextos, esRespuesta, leerCoordenadas, elegir } from '../../_validar';
+import { listarEntidad, obtenerEntidad, aplicarEntidadLWW } from '../_dao-repo';
+import { CATEGORIAS_FAVOR, TIPOS_FAVOR, type CategoriaFavor, type TipoFavor } from '../../../../dominio/tipos/tipos';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 
-const CAMPOS = ['zona_id', 'tipo', 'categoria', 'titulo', 'descripcion', 'foto'] as const;
+const CAMPOS = [ 'zona_id', 'tipo', 'categoria', 'titulo', 'descripcion', 'foto' ] as const;
 const UBICACION_POR_DEFECTO = { lat_aprox: -12.046, lng_aprox: -77.043 };
 
 export const GET: RequestHandler = async ({ url }) => {
 	const zona = url.searchParams.get('zona_id');
 	const estado = url.searchParams.get('estado');
-	return ok({
-		items: store.favores.filter(
-			(f) => f.oculto === 0 && (!zona || f.zona_id === zona) && (!estado || f.estado === estado)
-		)
+	const items = await listarEntidad('favores', (f) => {
+		if (f.oculto === 1) return false;
+		if (zona && String(f.zona_id) !== zona) return false;
+		if (estado && String(f.estado) !== estado) return false;
+		return true;
 	});
+	return ok({ items, total: items.length });
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, locals }) => {
 	const key = requireIdempotency(request);
 	if (typeof key !== 'string') return key;
 	const b = await leerObjeto(request);
@@ -53,15 +42,17 @@ export const POST: RequestHandler = async ({ request }) => {
 	const coords = leerCoordenadas(b, false);
 	if (esRespuesta(coords)) return coords;
 
-	const existente = store.favores.find((f) => f.id === key);
+	const existente = await obtenerEntidad('favores', key);
 	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });
 
 	const aprox = coords ? enmascararCoordenadas(coords.lat, coords.lng) : UBICACION_POR_DEFECTO;
+	const id = crypto.randomUUID();
 	const item = {
 		...elegir(b, CAMPOS),
 		...aprox,
-		id: key,
-		creador_id: 'demo',
+		id,
+		idempotencyKey: key,
+		creador_id: locals?.usuarioId ?? 'demo',
 		ayudante_id: null,
 		estado: 'abierto',
 		oculto: 0,
@@ -69,6 +60,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		cerrado_en: null,
 		creado_en: new Date().toISOString()
 	} as unknown as Favor;
-	store.favores.push(item);
+	await aplicarEntidadLWW('favores', item);
 	return ok(item, 201);
 };

@@ -1,134 +1,117 @@
-import type { RequestEvent } from '@sveltejs/kit';
-import { ok, problem } from '../../_http';
-import { verificarPin, crearSesionPin } from '../../../../seguridad/pin';
+import type { RequestHandler } from './$types';
+import { ok, problem, requireIdempotency } from '../../_http';
+import { leerObjeto, errorTextos, esRespuesta } from '../../_validar';
+import { hashPin, verificarPin } from '../../../../seguridad/pin';
+import { listarEntidad, crearEntidad } from '../_dao-repo';
 
-// Usuario hardcodeado para pruebas (DEBORRAR DESPUÉS DE PRUEBAS)
-// El PIN "1234" está hasheado al almacenarse
-const HARDCODED_ADMIN = {
-	usuarioId: 'admin',
-	celular: '999123456',
-	pinHash: 'pbkdf2-v1:LiqobWVzYjpjb250cm9uaW9ucy0xOkJkRDJENTg=',
-	rol: 'Coordinador de emergencia'
+const TTL_MS = 24 * 60 * 60 * 1000;
+
+function cookieHeader(usuarioId, rol) {
+	const exp = Date.now() + TTL_MS;
+	const payload = encodeURIComponent(JSON.stringify({ usuarioId, rol, exp }));
+	const maxAge = Math.floor(TTL_MS / 1000);
+	return [
+		`pod_sesion=${payload}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`,
+		`pod_rol=${rol}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAge}`
+	].join(', ');
+}
+
+function borrarCookies() {
+	return [
+		'pod_sesion=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0',
+		'pod_rol=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0'
+	].join(', ');
+}
+
+export const POST: RequestHandler = async ({ request, url }) => {
+	const path = url.pathname;
+
+	// REGISTRO
+	if (path.endsWith('/registro')) {
+		const key = requireIdempotency(request);
+		if (typeof key !== 'string') return key;
+		const b = await leerObjeto(request);
+		if (esRespuesta(b)) return b;
+
+		const err = errorTextos(b, {
+			celular: { min: 9, max: 15 },
+			alias: { min: 3, max: 40 },
+			pin: { min: 4, max: 8 }
+		});
+		if (err) return problem(422, 'Datos inválidos', err);
+
+		const celular = String(b.celular).trim();
+		const alias = String(b.alias).trim();
+		const pin = String(b.pin);
+
+		const yaExiste = (await listarEntidad('usuarios', (u) => String(u.celular) === celular)).length > 0;
+		if (yaExiste) return problem(409, 'Celular ya registrado', 'Este número ya tiene cuenta.');
+
+		const pinHash = await hashPin(pin);
+		const id = crypto.randomUUID();
+		const ahora = new Date().toISOString();
+		const usuario = { id, celular, alias, rol: 'vecino', pinHash, activo: 1, creado_en: ahora, updated_at: ahora };
+		await crearEntidad('usuarios', usuario);
+
+		return ok(
+			{ usuario: { id, celular, alias, rol: 'vecino' } },
+			201,
+			{ 'Set-Cookie': cookieHeader(id, 'vecino') }
+		);
+	}
+
+	// LOGIN
+	if (path.endsWith('/sesion')) {
+		const b = await leerObjeto(request);
+		if (esRespuesta(b)) return b;
+
+		const celular = String(b.celular ?? '').trim();
+		const pin = String(b.pin ?? '');
+
+		if (!celular || !pin)
+			return problem(422, 'Credenciales requeridas', 'Ingrese celular y PIN.');
+
+		const usuario = (await listarEntidad('usuarios', (u) => String(u.celular) === celular))[0];
+		if (!usuario || !usuario.pinHash)
+			return problem(401, 'Credenciales inválidas', 'Celular o PIN incorrectos.');
+
+		const valido = await verificarPin(pin, String(usuario.pinHash));
+		if (!valido) return problem(401, 'Credenciales inválidas', 'Celular o PIN incorrectos.');
+		if (!usuario.activo) return problem(403, 'Cuenta inactiva', 'Contacte al referente de su zona.');
+
+		return ok(
+			{
+				usuario: { id: usuario.id, celular: usuario.celular, alias: usuario.alias, rol: usuario.rol }
+			},
+			200,
+			{ 'Set-Cookie': cookieHeader(String(usuario.id), String(usuario.rol)) }
+		);
+	}
+
+	return problem(404, 'Endpoint no encontrado');
 };
 
-// Login: validar celular y PIN, crear cookie sesión
-export const _login = async ({ request, cookies }: Pick<RequestEvent, 'request' | 'cookies'>) => {
-	const body = (await request.json().catch(() => null)) as {
-		celular?: string;
-		pin?: string;
-	} | null;
-
-	if (!body?.celular || !body?.pin) {
-		return problem(400, 'Celular y PIN requeridos');
-	}
-
-	const valido = await verificarPin(body.pin, HARDCODED_ADMIN.pinHash);
-	if (!valido) {
-		return problem(401, 'PIN inválido');
-	}
-
-	// Crear sesión en cookie
-	const sesion = crearSesionPin(HARDCODED_ADMIN.usuarioId);
-	const exp = Date.now() + 24 * 60 * 60 * 1000; // 24 horas
-
-	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp }), {
-		path: '/',
-		httpOnly: true,
-		sameSite: 'lax',
-		secure: import.meta.env.PROD,
-		maxAge: 24 * 60 * 60
-	});
-	cookies.set('pod_rol', HARDCODED_ADMIN.rol, {
-		path: '/',
-		httpOnly: false,
-		sameSite: 'lax',
-		secure: import.meta.env.PROD,
-		maxAge: 24 * 60 * 60
-	});
-
-	return ok({ usuarioId: HARDCODED_ADMIN.usuarioId, rol: HARDCODED_ADMIN.rol });
+export const DELETE: RequestHandler = async ({ url }) => {
+	if (!url.pathname.endsWith('/sesion')) return problem(404, 'Endpoint no encontrado');
+	return ok({ ok: true, mensaje: 'Sesión cerrada' }, 200, { 'Set-Cookie': borrarCookies() });
 };
 
-// Register: solo para el usuario hardcodeado de pruebas
-export const _register = async ({
-	request,
-	cookies
-}: Pick<RequestEvent, 'request' | 'cookies'>) => {
-	// En producción esto usaría base de datos, pero para pruebas:
-	// Validamos que no exista ya (siempre falla el check de existencia)
-	// y creamos la sesión igual.
-
-	const body = (await request.json().catch(() => null)) as {
-		celular?: string;
-		pin?: string;
-		alias?: string;
-	} | null;
-
-	if (!body?.celular || !body?.pin || !body?.alias) {
-		return problem(400, 'Celular, PIN y alias requeridos');
-	}
-
-	// Verificar si el PIN ya está registrado (el hardcodeado usa el mismo hash)
-	const existente = await verificarPin(body.pin, HARDCODED_ADMIN.pinHash);
-	if (existente) {
-		// Ya existe, hacer login en su lugar
-		return _login({ request, cookies });
-	}
-
-	// Para pruebas: crear sesión igual
-	const sesion = crearSesionPin(HARDCODED_ADMIN.usuarioId);
-	const exp = Date.now() + 24 * 60 * 60 * 1000;
-	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp }), {
-		path: '/',
-		httpOnly: true,
-		sameSite: 'lax',
-		secure: import.meta.env.PROD,
-		maxAge: 24 * 60 * 60
-	});
-	cookies.set('pod_rol', HARDCODED_ADMIN.rol, {
-		path: '/',
-		httpOnly: false,
-		sameSite: 'lax',
-		secure: import.meta.env.PROD,
-		maxAge: 24 * 60 * 60
-	});
-
-	return ok({
-		usuarioId: HARDCODED_ADMIN.usuarioId,
-		rol: HARDCODED_ADMIN.rol,
-		registrado: true,
-		mensaje: 'Usuario de prueba (borrar comentarios después)'
-	});
-};
-export const _quienSoy = async ({ cookies }: Pick<RequestEvent, 'cookies'>) => {
-	const sesion = cookies.get('pod_sesion');
-	if (!sesion) return ok({ loggedIn: false, usuarioId: null, rol: null });
-
+export const GET: RequestHandler = async ({ url, cookies }) => {
+	if (!url.pathname.endsWith('/sesion')) return problem(404, 'Endpoint no encontrado');
+	const raw = cookies.get('pod_sesion');
+	if (!raw) return ok({ loggedIn: false }, 200);
 	try {
-		const payload = JSON.parse(sesion) as { usuarioId: string; rol: string; exp: number };
-		if (payload.exp && Date.now() > payload.exp) {
-			return ok({ loggedIn: false, usuarioId: null, rol: null, sesionExpirada: true });
-		}
-		return ok({ loggedIn: true, usuarioId: payload.usuarioId, rol: payload.rol });
+		const payload = JSON.parse(decodeURIComponent(raw)) as { usuarioId: string; rol: string; exp: number };
+		if (payload.exp && Date.now() > payload.exp) return ok({ loggedIn: false }, 200);
+		const u = await obtenerEntidad('usuarios', payload.usuarioId);
+		return ok({
+			loggedIn: true,
+			usuarioId: payload.usuarioId,
+			rol: payload.rol,
+			alias: u?.alias ?? null,
+			celular: u?.celular ?? null
+		}, 200);
 	} catch {
-		return ok({ loggedIn: false, usuarioId: null, rol: null });
+		return ok({ loggedIn: false }, 200);
 	}
 };
-
-export async function GET({ cookies }: RequestEvent) {
-	return _quienSoy({ cookies });
-}
-
-export async function POST(event: RequestEvent) {
-	const body = (await event.request
-		.clone()
-		.json()
-		.catch(() => null)) as { accion?: string } | null;
-	return body?.accion === 'registro' ? _register(event) : _login(event);
-}
-
-export function DELETE({ cookies }: RequestEvent) {
-	cookies.delete('pod_sesion', { path: '/' });
-	cookies.delete('pod_rol', { path: '/' });
-	return ok({ loggedIn: false });
-}

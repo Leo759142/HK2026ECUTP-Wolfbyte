@@ -1,22 +1,15 @@
-import type { RequestHandler } from './$types';
+import type { RequestHandler } from './';
 import { ok, problem, requireIdempotency } from '../../../../_http';
-import { store } from '../../../../_store';
-import {
-	METODOS_CONFIRMACION,
-	ROLES_EN_FAVOR,
-	type FavorConfirmacion,
-	type MetodoConfirmacion,
-	type RolEnFavor
-} from '../../../../../../dominio/tipos/tipos';
+import { obtenerEntidad, listarEntidad, aplicarEntidadLWW } from '../../../_dao-repo';
 import { ServicioCierreFavor } from '../../../../../../dominio/favores/cierre';
 
 export const POST: RequestHandler = async ({ request, params }) => {
 	const key = requireIdempotency(request);
 	if (typeof key !== 'string') return key;
 
-	const previa = store.confirmaciones.find((c) => c.id === key);
+	const previa = await obtenerEntidad('confirmaciones', key);
 	if (previa) {
-		const favor = store.favores.find((item) => item.id === previa.favor_id);
+		const favor = await obtenerEntidad('favores', previa.favor_id);
 		return ok({ ok: true, replayed: true, id: key, favor_estado: favor?.estado }, 200, {
 			'Idempotent-Replayed': 'true'
 		});
@@ -26,45 +19,41 @@ export const POST: RequestHandler = async ({ request, params }) => {
 	if (!body || typeof body !== 'object' || Array.isArray(body))
 		return problem(400, 'JSON inválido', 'El cuerpo debe ser un objeto JSON.');
 
-	const favor = store.favores.find((item) => item.id === params.id && item.oculto === 0);
-	if (!favor) return problem(404, 'Favor no encontrado', `No existe el favor ${params.id}.`);
+	const favor = await obtenerEntidad('favores', params.id);
+	if (!favor || (favor as Record<string, unknown>).oculto === 1)
+		return problem(404, 'Favor no encontrado', 'No existe el favor.');
 
-	const rol = String(body.rol_en_favor ?? '');
-	const metodo = String(body.metodo ?? '');
-	const usuarioId = typeof body.usuario_id === 'string' ? body.usuario_id.trim() : '';
-	if (!ROLES_EN_FAVOR.includes(rol as RolEnFavor))
-		return problem(422, 'Rol inválido', `rol_en_favor debe ser: ${ROLES_EN_FAVOR.join(', ')}.`);
-	if (!METODOS_CONFIRMACION.includes(metodo as MetodoConfirmacion))
-		return problem(422, 'Método inválido', `metodo debe ser: ${METODOS_CONFIRMACION.join(', ')}.`);
+	const rol = String((body as Record<string, unknown>).rol_en_favor ?? '');
+	const metodo = String((body as Record<string, unknown>).metodo ?? '');
+	const usuarioId = typeof (body as Record<string, unknown>).usuario_id === 'string' ? ((body as Record<string, unknown>).usuario_id as string).trim() : '';
+	if (!['solicitante', 'ayudante'].includes(rol))
+		return problem(422, 'Rol inválido', 'rol_en_favor debe ser: solicitante, ayudante.');
+	if (!['qr', 'boton'].includes(metodo))
+		return problem(422, 'Método inválido', 'metodo debe ser: qr, boton.');
 	if (!usuarioId) return problem(422, 'usuario_id requerido', 'Indica quién confirma.');
 
 	if (favor.estado === 'cerrado')
 		return problem(409, 'Favor ya cerrado', 'Este favor ya fue confirmado por ambas partes.');
 	if (favor.estado !== 'en_curso' || !favor.ayudante_id)
-		return problem(
-			409,
-			'Favor sin ayudante',
-			'Solo se confirma un favor en curso con ayudante asignado.'
-		);
+		return problem(409, 'Favor sin ayudante', 'Solo se confirma un favor en curso con ayudante asignado.');
 
 	const esperado = rol === 'solicitante' ? favor.creador_id : favor.ayudante_id;
 	if (usuarioId !== esperado)
-		return problem(403, 'No corresponde', `El usuario ${usuarioId} no es el ${rol} de este favor.`);
+		return problem(403, 'No corresponde', `El usuario ${usuarioId} no es el ${rol} de este favor.`);;
 
-	const yaConfirmo = store.confirmaciones.some(
-		(item) =>
-			item.favor_id === favor.id && item.usuario_id === usuarioId && item.rol_en_favor === rol
+	const yaConfirmo = (await listarEntidad('confirmaciones')).some(
+		(c) => c.favor_id === favor.id && c.usuario_id === usuarioId && c.rol_en_favor === rol
 	);
 	if (!yaConfirmo) {
-		const confirmacion: FavorConfirmacion = {
+		const confirmacion = {
 			id: key,
 			favor_id: favor.id,
 			usuario_id: usuarioId,
-			rol_en_favor: rol as RolEnFavor,
-			metodo: metodo as MetodoConfirmacion,
+			rol_en_favor: rol as 'solicitante' | 'ayudante',
+			metodo: metodo as 'qr' | 'boton',
 			confirmado_en: new Date().toISOString()
 		};
-		store.confirmaciones.push(confirmacion);
+		await aplicarEntidadLWW('confirmaciones', confirmacion);
 	}
 
 	if (
@@ -72,11 +61,10 @@ export const POST: RequestHandler = async ({ request, params }) => {
 			favor.id,
 			favor.creador_id,
 			favor.ayudante_id,
-			store.confirmaciones
+			(await listarEntidad('confirmaciones')).filter((c) => c.favor_id === favor.id)
 		)
 	) {
-		favor.estado = 'cerrado';
-		favor.cerrado_en = new Date().toISOString();
+		await aplicarEntidadLWW('favores', { id: favor.id, estado: 'cerrado', cerrado_en: new Date().toISOString(), updated_at: new Date().toISOString() });
 	}
 	return ok({ ok: true, id: key, favor_estado: favor.estado }, 201);
 };

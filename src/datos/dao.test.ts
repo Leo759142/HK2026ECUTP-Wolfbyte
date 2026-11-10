@@ -30,7 +30,7 @@ describe('Cipher legacy', () => {
 		expect(CifradoLocalMejora.desempaquetarDatoSensible(packed)).toBe('1234');
 	});
 	it('roundtrip async', async () => {
-		const packed = await CifradoLocalMejora.empaquetar('secreto');
-		expect(await CifradoLocalMejora.desempaquetar(packed)).toBe('secreto');
+		const packed = await CifradoLocalMejora.empaquetarDatoSensibleAsync('secreto');
+		expect(await CifradoLocalMejora.desempaquetarDatoSensibleAsync(packed)).toBe('secreto');
 	});
 });
