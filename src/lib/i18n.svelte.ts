@@ -1,7 +1,7 @@
 /** RF23/RF24: i18n deshardcodeado para la UI (es / qu). */
 import type { Idioma } from '../dominio/tipos/tipos';
 import { IDIOMAS, translate } from '../i18n';
-import { writable, derived, get } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 
 const IDIOMA_KEY = 'pod_idioma';
 
@@ -25,6 +25,13 @@ export function t(clave: string): string {
 	return translate(get(idioma), clave);
 }
 
-export const $t = derived(idioma, (lng) => (clave: string) => translate(lng, clave));
-
 export { IDIOMAS };
+
+export {
+	personalizacion,
+	cambiarTono,
+	desactivarPersonalizacion,
+	tConTono,
+	$tConTono,
+	TONES_POR_DEFECTO
+} from './personalizacion/tono';

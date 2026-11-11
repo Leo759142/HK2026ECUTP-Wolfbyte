@@ -2,9 +2,10 @@ import type { RequestHandler } from './$types';
 import { ok, problem, requireIdempotency } from '../../_http';
 import { leerObjeto, errorTextos, esRespuesta } from '../../_validar';
 import { hashPin, verificarPin } from '../../../../seguridad/pin';
-import { listarEntidad, crearEntidad } from '../_dao-repo';
+import { listarEntidad, crearEntidad, obtenerEntidad } from '../_dao-repo';
+import { obtenerSesion } from '../../../../seguridad/sesion';
 
-const TTL_MS = 24 * 60 * 60 * 1000;
+const TTL_MS = 10 * 60 * 1000; // 10 minutos el TTL para aplicar sesión en contexto Offline-First
 
 function cookieHeader(usuarioId, rol) {
 	const exp = Date.now() + TTL_MS;
@@ -103,13 +104,15 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 	try {
 		const payload = JSON.parse(decodeURIComponent(raw)) as { usuarioId: string; rol: string; exp: number };
 		if (payload.exp && Date.now() > payload.exp) return ok({ loggedIn: false }, 200);
+		const s = await obtenerSesion(payload.usuarioId);
+		if (!s) return ok({ loggedIn: false }, 200);
 		const u = await obtenerEntidad('usuarios', payload.usuarioId);
 		return ok({
 			loggedIn: true,
-			usuarioId: payload.usuarioId,
-			rol: payload.rol,
-			alias: u?.alias ?? null,
-			celular: u?.celular ?? null
+			usuarioId: s.usuarioId,
+			rol: s.rol,
+			alias: u?.alias ?? s.alias ?? null,
+			celular: u?.celular ?? s.celular ?? null
 		}, 200);
 	} catch {
 		return ok({ loggedIn: false }, 200);

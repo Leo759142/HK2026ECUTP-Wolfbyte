@@ -1,5 +1,5 @@
 import type { RequestHandler } from './';
-import { ok, problem, requireIdempotency } from '../../../../_http';
+import { ok, problem, requireIdempotency } from '../../../_http';
 import { listarEntidad, obtenerEntidad, aplicarEntidadLWW } from '../../../_dao-repo';
 
 const TIPOS_VALIDOS = new Set(['visto_bueno', 'retiro']);

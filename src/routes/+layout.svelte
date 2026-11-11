@@ -2,9 +2,11 @@
 	import '../app.css';
 	import '../accesibilidad/tokens.css';
 	import { page } from '$app/state';
+	import { browser } from '$app/env';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { guardarSesionLocal, obtenerSesionLocal } from '../lib/onboarding';
+	import Icon from '../lib/ui/Icon.svelte';
 	import {
 		descartarOperacion,
 		iniciarOutbox,
@@ -19,12 +21,25 @@
 	let enSync = $derived($sincronizando);
 	let verAtencion = $state(false);
 	let rutaActual = $derived(page.url.pathname);
+	let anchoPantalla = $derived(browser ? window.innerWidth : 0);
+	let esMovil = $derived(anchoPantalla < 768);
+	let esDesktop = $derived(anchoPantalla >= 768);
 	const navItems = [
-		{ href: '/', icon: '🏠', label: 'Inicio' },
-		{ href: '/favores', icon: '🤝', label: 'Favores' },
-		{ href: '/mapa', icon: '🗺️', label: 'Mapa' },
-		{ href: '/perfil', icon: '👤', label: 'Yo' }
+		{ href: '/', icon: 'home', label: 'Inicio' },
+		{ href: '/favores', icon: 'favores', label: 'Favores' },
+		{ href: '/mapa', icon: 'mapa', label: 'Mapa' },
+		{ href: '/perfil', icon: 'perfil', label: 'Yo' }
 	];
+
+	onMount(() => {
+		if (!browser) return;
+		const actualizar = () => {
+			anchoPantalla = window.innerWidth;
+		};
+		window.addEventListener('resize', actualizar);
+		return () => window.removeEventListener('resize', actualizar);
+	});
+
 	onMount(async () => {
 		iniciarOutbox();
 		if (rutaActual === '/acceso') return;
@@ -68,8 +83,8 @@
 
 <a
 	class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-white focus:p-2"
-	href="#contenido">Saltar al contenido</a
->
+	href="#contenido">Saltar al contenido</a>
+
 {#if pendientes > 0 || atencion.length > 0}
 	<section class="mobile-sync-bar" aria-live="polite">
 		{#if atencion.length > 0}
@@ -106,28 +121,52 @@
 	</section>
 {/if}
 <main id="contenido" class="app-shell">{@render children()}</main>
-<nav class="bottom-nav" aria-label="Navegación de la aplicación">
-	{#each navItems.slice(0, 2) as item}
-		<a
-			class:active={rutaActual === item.href}
-			href={item.href}
-			aria-current={rutaActual === item.href ? 'page' : undefined}
-		>
-			<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
-			<span>{item.label}</span>
+
+{#if esMovil}
+	<nav class="bottom-nav" aria-label="Navegación de la aplicación">
+		{#each navItems.slice(0, 2) as item}
+			<a
+				class:active={rutaActual === item.href}
+				href={item.href}
+				aria-current={rutaActual === item.href ? 'page' : undefined}
+			>
+				<Icon name={item.icon} size={22} />
+				<span>{item.label}</span>
+			</a>
+		{/each}
+		<a class="publish-button" href="/publicar" aria-label="Publicar">
+			<Icon name="publicar" size={28} />
 		</a>
-	{/each}
-	<a class="publish-button" href="/publicar" aria-label="Publicar">
-		<span aria-hidden="true">+</span>
-	</a>
-	{#each navItems.slice(2) as item}
-		<a
-			class:active={rutaActual === item.href}
-			href={item.href}
-			aria-current={rutaActual === item.href ? 'page' : undefined}
-		>
-			<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
-			<span>{item.label}</span>
-		</a>
-	{/each}
-</nav>
+		{#each navItems.slice(2) as item}
+			<a
+				class:active={rutaActual === item.href}
+				href={item.href}
+				aria-current={rutaActual === item.href ? 'page' : undefined}
+			>
+				<Icon name={item.icon} size={22} />
+				<span>{item.label}</span>
+			</a>
+		{/each}
+	</nav>
+{:else}
+	<header class="desktop-header">
+		<div class="desktop-brand">AYNI</div>
+		<nav class="desktop-nav" aria-label="Navegación principal">
+			{#each navItems as item}
+				<a
+					href={item.href}
+					class:active={rutaActual === item.href}
+					aria-current={rutaActual === item.href ? 'page' : undefined}
+				>
+					<Icon name={item.icon} size={20} />
+					{item.label}
+				</a>
+			{/each}
+		</nav>
+		<div class="desktop-actions">
+			<button class="mobile-btn mobile-btn--outline" onclick={() => goto('/publicar')}>
+				<Icon name="publicar" size={20} /> Publicar
+			</button>
+		</div>
+	</header>
+{/if}

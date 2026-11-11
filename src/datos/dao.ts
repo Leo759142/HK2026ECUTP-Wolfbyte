@@ -92,6 +92,64 @@ export class DaoLocal {
 	async marcar(op_id: string, estado: 'aplicada' | 'rechazada', error?: string): Promise<void> {
 		await outboxDAO.marcar(op_id, estado, error ?? null);
 	}
+
+	// ---- Información y estadísticas de la base de datos local ----
+
+	/** Lista todas las entidades que existen en la base de datos con sus conteos. */
+	async listarEntidadesConConteo(): Promise<Array<{ entidad: string; total: number; ultimo_actualizado?: string }>> {
+		const todasLasClaves = await this.kv.keys('entity:');
+		const porEntidad = new Map<string, { total: number; ultima?: string }>();
+
+		for (const clave of todasLasClaves) {
+			const partes = clave.split(':');
+			if (partes.length < 3) continue;
+			const entidad = partes[1];
+
+			const actual = porEntidad.get(entidad) ?? { total: 0 };
+			actual.total += 1;
+
+			const fila = await this.kv.get<Record<string, unknown>>(clave);
+			const ts = fila?._actualizado_local ?? fila?.updated_at ?? fila?.created_at;
+			if (ts && (!actual.ultima || String(ts) > actual.ultima)) {
+				actual.ultima = String(ts);
+			}
+
+			porEntidad.set(entidad, actual);
+		}
+
+		return Array.from(porEntidad.entries()).map(([entidad, info]) => ({
+			entidad,
+			total: info.total,
+			ultimo_actualizado: info.ultima
+		})).sort((a, b) => a.entidad.localeCompare(b.entidad));
+	}
+
+	/** Información detallada del almacén KV (backend usado, tamaño aproximado). */
+	async infoAlmacen(): Promise<{
+		backend: string;
+		total_claves: number;
+		claves_por_prefijo: Record<string, number>;
+	}> {
+		const todas = await this.kv.keys('');
+		const porPrefijo = new Map<string, number>();
+
+		for (const clave of todas) {
+			const prefijo = clave.split(':')[0] ?? 'otro';
+			porPrefijo.set(prefijo, (porPrefijo.get(prefijo) ?? 0) + 1);
+		}
+
+		const nombreClase = this.kv.constructor.name;
+		let backend = 'memoria';
+		if (nombreClase.includes('IndexedDb')) backend = 'indexeddb';
+		else if (nombreClase.includes('LocalStorage')) backend = 'localstorage';
+		else if (nombreClase.includes('Memoria')) backend = 'memoria';
+
+		return {
+			backend,
+			total_claves: todas.length,
+			claves_por_prefijo: Object.fromEntries(porPrefijo)
+		};
+	}
 }
 
 export const dao = new DaoLocal();

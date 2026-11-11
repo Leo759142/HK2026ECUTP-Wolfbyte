@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import ResponsiveGrid from '../lib/ui/ResponsiveGrid.svelte';
 
 	let nombre = $state('Rosa');
 	type ServicioInicio = {
@@ -93,7 +94,7 @@
 	<div class="app-section-title">
 		<h2>Oficios del barrio</h2>
 	</div>
-	<div class="category-grid">
+	<ResponsiveGrid cols={2} gap="1rem">
 		{#each categorias as [emoji, label]}
 			<a href="/servicios" class="category-card"
 				><span aria-hidden="true">{emoji}</span><small>{label}</small></a
@@ -102,13 +103,13 @@
 		<a href="/servicios" class="category-card"
 			><span aria-hidden="true">＋</span><small>Ver todo</small></a
 		>
-	</div>
+	</ResponsiveGrid>
 
 	<div class="app-section-title">
 		<h2>Los más recomendados</h2>
 		<a href="/mapa">Ver mapa</a>
 	</div>
-	<div class="recommendations">
+	<ResponsiveGrid cols={1} gap="1rem">
 		{#each recomendados as servicio}
 			<a href="/servicios" class="service-card">
 				<div class="service-card__image" aria-hidden="true">
@@ -126,7 +127,7 @@
 		{#if recomendados.length === 0}<p class="empty">
 				Todavía no hay servicios publicados cerca.
 			</p>{/if}
-	</div>
+	</ResponsiveGrid>
 
 	<a href="/publicar?tipo=servicio" class="publish-prompt">
 		<span aria-hidden="true">🛠️</span>

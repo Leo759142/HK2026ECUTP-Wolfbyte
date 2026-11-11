@@ -1,9 +1,20 @@
 /**
- * Gestión de sesiones en memoria (puente hasta DB real).
+ * Gestión de sesiones persistentes (IndexedDB/localStorage).
+ * Sobreviven a reinicios del servidor y del cliente (fiabilidad ISO/IEC 25010).
  * - Emite token de sesión tras login válido (celular + PIN).
  * - Valida token en cada request vía cookies.
  * - Almacena rol para RBAC en hooks.server.ts.
  */
+
+import {
+	crearSesionPersistente,
+	guardarSesion,
+	obtenerSesionPersistente,
+	obtenerSesionActivaPorUsuarioId,
+	eliminarSesionPersistente,
+	listarSesionesActivasPersistentes,
+	type SesionPersistente
+} from './sesion-persistente';
 
 export type RolUsuario = 'admin' | 'vecino' | 'referente' | 'emprendedor' | 'coordinador';
 
@@ -17,8 +28,7 @@ export interface SesionData {
 	expiraEn: number;
 }
 
-const sesiones = new Map<string, SesionData>();
-const TTL_MS = 24 * 60 * 60 * 1000; // 24 horas
+const TTL_MS = 10 * 60 * 1000; // 10 minutos
 
 export function crearSesion({
 	usuarioId,
@@ -31,42 +41,21 @@ export function crearSesion({
 	alias: string;
 	rol: RolUsuario;
 }): SesionData {
-	const token = crypto.randomUUID();
-	const ahora = Date.now();
-	const sesion: SesionData = {
-		token,
-		usuarioId,
-		celular,
-		alias,
-		rol,
-		creadoEn: ahora,
-		expiraEn: ahora + TTL_MS
-	};
-	sesiones.set(token, sesion);
-	return sesion;
+	const s = crearSesionPersistente({ usuarioId, celular, alias, rol });
+	void guardarSesion(s);
+	return s as SesionData;
 }
 
-export function obtenerSesion(token: string): SesionData | null {
-	const s = sesiones.get(token);
-	if (!s) return null;
-	if (Date.now() >= s.expiraEn) {
-		sesiones.delete(token);
-		return null;
-	}
-	return s;
+export async function obtenerSesion(usuarioId: string): Promise<SesionData | null> {
+	return obtenerSesionActivaPorUsuarioId(usuarioId) as Promise<SesionData | null>;
 }
 
 export function eliminarSesion(token: string): void {
-	sesiones.delete(token);
+	void eliminarSesionPersistente(token);
 }
 
-export function listarSesionesActivas(): SesionData[] {
-	const ahora = Date.now();
-	const activas: SesionData[] = [];
-	for (const s of sesiones.values()) {
-		if (ahora < s.expiraEn) activas.push(s);
-	}
-	return activas;
+export async function listarSesionesActivas(): Promise<SesionData[]> {
+	return listarSesionesActivasPersistentes() as Promise<SesionData[]>;
 }
 
 export function rolPermite(rol: RolUsuario | undefined, accion: string): boolean {

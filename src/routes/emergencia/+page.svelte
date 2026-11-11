@@ -3,6 +3,9 @@
 	import { encolarAccion } from '../../sync/outbox.svelte';
 	import { construirPublicacion } from '../../lib/publicar';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
+	import { t } from '../../lib/i18n.svelte';
+	import { idioma } from '../../lib/i18n.svelte';
+	import { FormateadorComunitario } from '../../i18n/formatos';
 
 	type Alerta = {
 		id: string;
@@ -34,24 +37,24 @@
 	let detalles = $state('');
 	let foto = $state<string | null>(null);
 
+	// Resolver etiqueta de tipo usando i18n
 	const etiquetaTipo = (valor?: string) =>
-		tipos.find(([id]) => id === valor)?.[2] ?? valor ?? 'Situación reportada';
+		tipos.find(([id]) => id === valor)?.[2] ?? valor ?? t('alerta.situacion_indefinida');
 
-	const estadoTexto = (estado?: string) =>
-		estado === 'confirmado_vecinos' || estado === 'confirmado'
-			? 'Confirmada por vecinos'
-			: estado === 'atendido'
-				? 'Atendida'
-				: estado === 'descartado'
-					? 'Descartada'
-					: 'Pendiente de verificación';
+	// Texto de estado usando i18n
+	const estadoTexto = (estado?: string) => {
+		if (estado === 'confirmado_vecinos' || estado === 'confirmado') return t('alerta.confirmada');
+		if (estado === 'atendido') return t('alerta.atendida');
+		if (estado === 'descartado') return t('alerta.descartada');
+		return t('alerta.pendiente_verificacion');
+	};
 
 	const fechaTexto = (valor?: string) => {
-		if (!valor) return 'Reciente';
+		if (!valor) return t('alerta.fecha_reciente');
 		const fecha = new Date(valor);
 		return Number.isNaN(fecha.getTime())
-			? 'Reciente'
-			: new Intl.DateTimeFormat('es', { dateStyle: 'short', timeStyle: 'short' }).format(fecha);
+			? t('alerta.fecha_reciente')
+			: FormateadorComunitario.fechaCorta(fecha, get(idioma));
 	};
 
 	const cargar = async () => {

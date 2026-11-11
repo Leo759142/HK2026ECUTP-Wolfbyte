@@ -65,6 +65,35 @@ export const TIPOS_EMERGENCIA = [
 ] as const;
 export type TipoEmergencia = (typeof TIPOS_EMERGENCIA)[number];
 
+// Tipos que reporta el usuario (UI) - usados en la interfaz
+export const TIPOS_ALERTA = [
+	'persona_vulnerable',
+	'zona_inundada',
+	'via_bloqueada',
+	'sin_servicios_basicos',
+	'riesgo_estructural',
+	'otro'
+] as const;
+export type TipoAlerta = (typeof TIPOS_ALERTA)[number];
+
+// Mapeo explícito entre desastre (API/RB) y alerta (reporte ciudadano)
+export const MAPEO_DESASTRES_ALERTA: Record<TipoEmergencia, TipoAlerta> = {
+	'lluvias_inundacion': 'zona_inundada',
+	'sismo': 'riesgo_estructural',
+	'huaico': 'zona_inundada',
+	'incendio': 'persona_vulnerable',
+	'otro': 'otro'
+} as const;
+
+export const MAPEO_ALERTA_DESASTRES: Record<TipoAlerta, TipoEmergencia> = {
+	'persona_vulnerable': 'incendio',
+	'zona_inundada': 'lluvias_inundacion',
+	'via_bloqueada': 'otro',
+	'sin_servicios_basicos': 'otro',
+	'riesgo_estructural': 'sismo',
+	'otro': 'otro'
+} as const;
+
 export const TIPOS_PUNTO_APOYO = [
 	'comando',
 	'bomberos',

@@ -1,5 +1,5 @@
 import type { RequestHandler } from './';
-import { ok, problem, requireIdempotency } from '../../../../_http';
+import { ok, problem, requireIdempotency } from '../../../_http';
 import { obtenerEntidad, listarEntidad, aplicarEntidadLWW } from '../../../_dao-repo';
 import { ServicioCierreFavor } from '../../../../../../dominio/favores/cierre';
 

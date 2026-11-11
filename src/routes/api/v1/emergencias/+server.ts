@@ -1,7 +1,42 @@
 import type { RequestHandler } from './$types';
 import { ok, problem, requireIdempotency } from '../../_http';
 import { errorTextos, esRespuesta, leerObjeto, validarFoto } from '../../_validar';
+import { TIPOS_DESASTRES, MAPEO_DESASTRES_ALERTA } from '../../dominio/tipos/tipos';
 import { store } from '../../_store';
+
+// Helpers para manipular emergencias (usando el store disponible)
+function listarEntidad(entidad: keyof typeof store, filtro?: (e: any) => boolean): any[] {
+	return Object.values(store)[0]?.filter(filtro) || [];
+}
+
+function crearEntidad(entidad: keyof typeof store, dato: any): any {
+	// Implementación básica usando el store
+	const existing = store[entidad] || [];
+	const nuevo = { id: crypto.randomUUID(), ...dato, creado_en: new Date().toISOString(), actualizado_en: new Date().toISOString() };
+	store[entidad] = [...existing, nuevo];
+	return nuevo;
+}
+
+function aplicarEntidadLWW(entidad: keyof typeof store, dato: any): any {
+	const existing = listarEntidad(entidad, (e) => e.id === dato.id);
+	if (existing.length > 0) {
+		return crearEntidad(entidad, { ...existing[0], ...dato, actualizado_en: new Date().toISOString() });
+	}
+	return crearEntidad(entidad, dato);
+}
+
+function obtenerEntidad(entidad: keyof typeof store, id: string): any {
+	return listarEntidad(entidad, (e) => e.id === id).at(0);
+}
+
+// Tipos de emergencia mapeando dominio y UI
+function obtenerTipoValidado(tipo: string): string | undefined {
+	if (TIPOS_DESASTRES.includes(tipo as any)) return tipo;
+	if (MAPEO_DESASTRES_ALERTA[tipo]) return MAPEO_DESASTRES_ALERTA[tipo];
+	return undefined;
+}
+
+const ROLES_EMERGENCIA = ['coordinador', 'admin', 'referente'];
 
 function sesionDe(cookies: any): { usuarioId: string; rol: string } | null {
 	const raw = cookies.get('pod_sesion');
@@ -49,6 +84,10 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
 	if (errTexto) return problem(422, 'Datos inválidos', errTexto);
 	const errFoto = validarFoto(b.foto);
 	if (errFoto) return problem(422, 'Foto inválida', errFoto);
+
+	// Validar tipo usando mapeo dominio↔UI
+	const tipoValidado = obtenerTipoValidado(String(b.tipo));
+	if (!tipoValidado) return problem(422, 'Tipo de emergencia inválido', `Tipo "${b.tipo}" no es un tipo de emergencia válido`);
 
 	const existente = store.emergencias.find((e) => e.idempotencyKey === key);
 	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });

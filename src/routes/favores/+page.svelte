@@ -163,7 +163,7 @@
 	{#if aviso}<p class="notice notice--ok" role="status">{aviso}</p>{/if}
 	{#if error}<p class="notice notice--error" role="alert">{error}</p>{/if}
 	{#if estado === 'cargando'}<p class="muted" role="status">Cargando favores…</p>{/if}
-	<div class="favor-list">
+	<div class="favor-list responsive-list">
 		{#each visibles as favor (favor.id)}
 			<button class="favor-card" type="button" onclick={() => (seleccionado = favor)}>
 				<div class:favor-icon--offer={favor.tipo === 'oferta'} class="favor-icon">

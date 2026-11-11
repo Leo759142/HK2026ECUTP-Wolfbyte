@@ -17,7 +17,8 @@
 		"lint": "prettier --check src vite.config.ts tsconfig.json package.json && eslint src vite.config.ts",
 		"format": "prettier --write .",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run"
+"test": "npm run test:unit -- --run",
+		"icons": "node scripts/generate-icons.mjs"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
@@ -36,12 +37,14 @@
 		"prettier": "^3.8.3",
 		"prettier-plugin-svelte": "^4.1.0",
 		"prettier-plugin-tailwindcss": "^0.8.1",
+		"sharp": "^0.34.0",
 		"svelte": "^5.57.2",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",
 		"typescript": "^6.0.3",
 		"typescript-eslint": "^8.60.1",
 		"vite": "^8.3.0",
+		"vite-plugin-pwa": "^2.0.0",
 		"vitest": "^4.1.8"
 	}
 }

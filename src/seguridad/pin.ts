@@ -28,11 +28,11 @@ function generarSalt(): Uint8Array {
 export async function hashPin(pin: string): Promise<string> {
 	const salt = generarSalt();
 	const enc = new TextEncoder();
-	const claveBase = await crypto.subtle.importKey('raw', enc.encode(pin), 'PBKDF2', false, [
+	const claveBase = await crypto.subtle.importKey('raw', enc.encode(pin), { name: 'PBKDF2' }, false, [
 		'deriveKey'
 	]);
 	const derivada = await crypto.subtle.deriveKey(
-		{ name: 'PBKDF2', salt: enc.encode('pod-pin-v1'), iterations: ITERACIONES, hash: 'SHA-256' },
+		{ name: 'PBKDF2', salt: enc.encode('pod-pin-v1'), iterations: ITERACIONES, hash: { name: 'SHA-256' } },
 		claveBase,
 		{ name: HASH_ALG, length: 256 },
 		false,

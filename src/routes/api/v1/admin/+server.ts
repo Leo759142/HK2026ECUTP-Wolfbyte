@@ -1,5 +1,7 @@
 import type { RequestHandler } from './$types';
 import { ok, problem } from '../../_http';
+import { dao } from '../../../datos/dao';
+import { listarEntidad, obtenerEntidad, aplicarEntidadLWW, crearEntidad, eliminarEntidad, vaciarEntidad } from '../_dao-repo';
 
 function sesionDe(cookies: any): { usuarioId: string; rol: string } | null {
 	const raw = cookies.get('pod_sesion');
@@ -44,6 +46,19 @@ export const GET: RequestHandler = async ({ cookies, url }) => {
 		const sesiones = await listarEntidad('sesiones');
 		return ok({ sesiones: sesiones.map((s2) => ({ usuarioId: s2.usuarioId, rol: s2.rol, creado_en: s2.creado_en })) });
 	}
+
+	if (seccion === 'db') {
+		const entidades = await dao.listarEntidadesConConteo();
+		const almacen = await dao.infoAlmacen();
+		return ok({ entidades, almacen });
+	}
+
+	if (seccion === 'entidad') {
+		const nombre = url.searchParams.get('nombre');
+		if (!nombre) return problem(400, 'Falta parámetro nombre');
+		const filas = await listarEntidad(nombre);
+		return ok({ entidad: nombre, total: filas.length, items: filas });
+	}
 	return problem(404, 'Sección no encontrada');
 };
 
@@ -74,5 +89,20 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
 		u.rol = String(b.rol);
 		return ok({ ok: true, mensaje: `Rol cambiado a ${b.rol}.` });
 	}
-	return problem(422, 'Acción inválida', 'accion: activar_usuario | desactivar_usuario | cambiar_rol');
+
+	if (accion === 'vaciar_entidad') {
+		const nombre = String(b.entidad ?? '');
+		if (!nombre) return problem(400, 'Falta entidad');
+		await vaciarEntidad(nombre);
+		return ok({ ok: true, mensaje: `Entidad ${nombre} vaciada.` });
+	}
+
+	if (accion === 'eliminar_registro') {
+		const nombre = String(b.entidad ?? '');
+		const id = String(b.id ?? '');
+		if (!nombre || !id) return problem(400, 'Falta entidad o id');
+		await eliminarEntidad(nombre, id);
+		return ok({ ok: true, mensaje: 'Registro eliminado.' });
+	}
+	return problem(422, 'Acción inválida', 'accion: activar_usuario | desactivar_usuario | cambiar_rol | vaciar_entidad | eliminar_registro');
 };

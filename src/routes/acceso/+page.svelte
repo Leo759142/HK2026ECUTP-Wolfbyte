@@ -10,6 +10,8 @@
 		obtenerSesionLocal,
 		onboardingVisto
 	} from '../../lib/onboarding';
+	import { t } from '../../lib/i18n.svelte';
+	import { fetchConRetry } from '../../lib/fetch-con-retry';
 
 	type Paso = 'portada' | 'tutorial' | 'telefono' | 'codigo' | 'nombre' | 'ubicacion' | 'zona';
 	type Modo = 'registro' | 'login';
@@ -55,7 +57,7 @@
 	function continuarTelefono() {
 		error = '';
 		if (!/^9\d{8}$/.test(telefono)) {
-			error = 'Escribe un número celular válido de 9 dígitos.';
+			error = t('error.telefono_invalido');
 			return;
 		}
 		const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<{
@@ -64,11 +66,11 @@
 		}>;
 		const existente = usuarios.find((usuario) => usuario.phone === telefono);
 		if (modo === 'registro' && existente) {
-			error = 'Ese número ya tiene cuenta. Usa “Ya tengo cuenta” para ingresar.';
+			error = t('error.usuario_ya_existe');
 			return;
 		}
 		if (modo === 'login' && !existente) {
-			error = 'No encontramos ese número. Toca “Crear cuenta” para registrarte.';
+			error = t('error.usuario_no_encontrado');
 			return;
 		}
 		localStorage.setItem('ayni:v1:registro', JSON.stringify({ phone: telefono }));
@@ -78,15 +80,16 @@
 	async function completarAcceso(
 		telefonoAcceso: string,
 		alias = 'Rosa',
-		datosPerfil: { ubicacion?: string; manzana?: string } = {}
+		datosPerfil: { ubicacion?: string; manzana?: string } = {},
+		accion: 'registro' | 'sesion' = 'registro'
 	) {
 		let datos: { usuarioId?: string; rol?: string } = {};
 		try {
-			const respuesta = await fetch('/api/v1/auth', {
+			const respuesta = await fetchConRetry(`/api/v1/auth/${accion}`, {
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({
-					accion: 'registro',
+					accion,
 					celular: telefonoAcceso,
 					pin: codigo || '1234',
 					alias
@@ -105,7 +108,7 @@
 			rol: datos.rol ?? 'Vecino',
 			telefono: telefonoAcceso,
 			alias,
-			expiraEn: Date.now() + 24 * 60 * 60 * 1000
+			expiraEn: Date.now() + 10 * 60 * 1000
 		});
 		localStorage.setItem('ayni:v1:registro', JSON.stringify({ phone: telefonoAcceso }));
 		const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<
@@ -146,7 +149,9 @@
 			}>;
 			await completarAcceso(
 				telefono,
-				usuarios.find((usuario) => usuario.phone === telefono)?.firstName ?? 'Vecino'
+				usuarios.find((usuario) => usuario.phone === telefono)?.firstName ?? 'Vecino',
+				{},
+				'sesion'
 			);
 		} catch {
 			error = 'No se pudo iniciar sesión. Intenta nuevamente.';
@@ -156,7 +161,7 @@
 	async function entrarDemo() {
 		modo = 'login';
 		try {
-			await completarAcceso('999123456');
+			await completarAcceso('999123456', 'Rosa', {}, 'sesion');
 		} catch {
 			error = 'No se pudo iniciar sesión. Intenta nuevamente.';
 		}
@@ -213,16 +218,16 @@
 	async function guardarZona() {
 		error = '';
 		if (!manzana) {
-			error = 'Elige tu manzana para terminar el registro.';
+			error = t('error.generico');
 			return;
 		}
 		try {
 			await completarAcceso(telefono, `${alias.trim()} ${apellido.trim()}`, {
 				ubicacion: ubicacion.trim(),
 				manzana
-			});
+			}, 'registro');
 		} catch {
-			error = 'No se pudo terminar el registro. Intenta nuevamente.';
+			error = t('error.sesion_no_pudo_iniciar');
 		}
 	}
 

@@ -1,6 +1,6 @@
 import type { RequestHandler } from './';
 import { ok, problem, requireIdempotency } from '../../_http';
-import { leerObjeto, errorTextos, esRespuesta, leerCoordenadas, elegir } from '../../_validar';
+import { leerObjeto, errorTextos, esRespuesta, leerCoordenadas, elegir, validarFoto } from '../../_validar';
 import { listarEntidad, obtenerEntidad, aplicarEntidadLWW } from '../_dao-repo';
 import { CATEGORIAS_FAVOR, TIPOS_FAVOR, type CategoriaFavor, type TipoFavor } from '../../../../dominio/tipos/tipos';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
