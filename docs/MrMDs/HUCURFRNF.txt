@@ -74,6 +74,9 @@ Prioridad: **A** = imprescindible para la demo, **M** = importante si hay tiempo
 | CU12 | Publicar sin conexión y sincronizar después | Cualquiera | Acción en cola; luego confirmada | RF17, RF18 |
 | CU13 | Moderar contenido | Referente | Contenido oculto o aprobado | RF04, RF20 |
 | CU14 | Publicar un anuncio local | Anunciante | Anuncio etiquetado en la zona | RF21 |
+| CU15 | Revisar y confirmar/descartar alerta oficial | Coordinador | Alerta pasa de "propuesta" a "confirmada"/"descartada" | RF16 |
+| CU16 | Completar tutorial inicial guiado | Vecino (nuevo) | Tutorial marcado como completado, repetible desde ajustes | RF23 |
+| CU17 | Interactuar con interfaz accesible | Cualquier usuario | Objetivos táctiles ≥44 px, contraste válido, errores accionables | RF25 |
 
 ## Tabla 3: Historias de Usuario
 
@@ -93,7 +96,9 @@ Prioridad: **A** = imprescindible para la demo, **M** = importante si hay tiempo
 | HU12 | Como vecino sin saldo, quiero publicar aunque no tenga internet, para no perder mi pedido | Veo mi publicación como "Pendiente de enviar" y luego "Enviada" | CU12 |
 | HU13 | Como delegada, quiero ocultar publicaciones abusivas, para cuidar al grupo | Oculto una publicación y queda registrada con mi nombre | CU13 |
 | HU14 | Como dueño de una bodega, quiero anunciarme en mi zona, para atraer clientes cercanos | Mi anuncio sale con "Patrocinado" y desaparece en emergencia | CU14 |
-| HU15 | Como adulto mayor, quiero botones grandes y mensajes claros, para usar la app sin ayuda | Cualquier error me dice qué corregir y los botones son fáciles de tocar | CU04, CU06 |
+| HU15 | Como adulto mayor, quiero botones grandes y mensajes claros, para usar la app sin ayuda | Cualquier error me dice qué corregir y los botones son fáciles de tocar | CU04, CU06, CU17 |
+| HU16 | Como coordinador, quiero revisar alertas sugeridas por fuentes oficiales para confirmarlas o descartarlas | Veo lista de alertas en estado "propuesta"; confirmo o descarto con un toque; el cambio queda registrado con mi usuario y fecha | CU15 |
+| HU17 | Como usuario nuevo, quiero un tutorial guiado breve que pueda repetir desde ajustes | Al iniciar sesión por primera vez se muestra el tutorial; puedo saltarlo; desde Perfil > Ajustes puedo volver a ejecutarlo; el estado se persiste localmente | CU16 |
 
 ## Etiquetado funcional (sin QR)
 

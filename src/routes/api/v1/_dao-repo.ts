@@ -14,7 +14,7 @@
  * No usa localStorage. Todo persiste en IndexedDB (o MemoriaKV en SSR/tests).
  */
 
-import { dao } from '../../datos/dao';
+import { dao } from '../../../datos/dao';
 
 type Fila = Record<string, unknown>;
 

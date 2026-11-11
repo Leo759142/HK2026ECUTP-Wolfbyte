@@ -4,7 +4,10 @@
 		type = 'button' as 'button' | 'submit' | 'reset',
 		disabled = false,
 		children,
-		onclick
+		onclick,
+		ariaLabel = undefined,
+		ariaPressed = undefined,
+		fullWidth = true
 	} = $props();
 
 	const variants: Record<string, string> = {
@@ -16,6 +19,15 @@
 	};
 </script>
 
-<button class={`mobile-btn ${variants[variant] ?? variants.primario}`} {type} {disabled} {onclick}>
+<button
+	class={`mobile-btn ${variants[variant] ?? variants.primario} ${fullWidth ? 'w-full' : ''}`}
+	{type}
+	{disabled}
+	{onclick}
+	aria-label={ariaLabel ?? undefined}
+	aria-pressed={ariaPressed ?? undefined}
+	style:min-height={fullWidth ? '64px' : '48px'}
+	style:min-width={fullWidth ? 'auto' : '48px'}
+>
 	{@render children?.()}
 </button>

@@ -131,15 +131,27 @@ export const PATCH: RequestHandler = async ({ cookies, params, request }) => {
 	if (!s) return problem(401, 'No autenticado');
 	if (!ROLES_EMERGENCIA.includes(s.rol)) return problem(403, 'Permiso denegado');
 
-	const emergencia = store.emergencias.find((e) => e.id === (params as { id: string }).id);
-	if (!emergencia) return problem(404, 'Emergencia no encontrado');
+	const zonaId = b.zona_id;
+	if (!zonaId) return problem(400, 'Falta zona_id');
 
-	const b = await request.json().catch(() => null);
-	if (!b || typeof b !== 'object') return problem(400, 'JSON inválido');
-	if (b.estado === 'desactivada' || b.estado === 'atendida') {
-		await aplicarEntidadLWW('emergencias', { id: emergencia.id, zona_id: emergencia.zona_id, tipo: emergencia.tipo, titulo: emergencia.titulo, estado: String(b.estado), updated_at: new Date().toISOString() });
-		const actualizada = await obtenerEntidad('emergencias', emergencia.id);
-		return ok(actualizada);
-	}
-	return problem(422, 'Estado inválido', 'Use desactivada o atendida.');
+		const existe = store.emergencias.find((e) => e.zona_id === zonaId && e.estado === 'activa');
+		if (!existe) return problem(404, 'Emergencia activa no encontrada en esa zona');
+
+		if (b.estado === 'desactivada' || b.estado === 'atendida') {
+			await aplicarEntidadLWW('emergencias', { id: existe.id, zona_id: existe.zona_id, tipo: existe.tipo, titulo: existe.titulo, estado: String(b.estado), updated_at: new Date().toISOString() });
+			const actualizada = await obtenerEntidad('emergencias', existe.id);
+			// Registrar cambio de estado en notificaciones
+			const ahora = new Date().toISOString();
+			await crearEntidad('notificaciones', {
+				id: crypto.randomUUID(),
+				tipo: 'emergencia_estado_cambiado',
+				usuario_id: s.usuarioId,
+				mensaje: `📋 Estado de emergencia actualizado a "${b.estado}"`,
+				leído: 0,
+				creado_en: ahora,
+				updated_at: ahora
+			});
+			return ok(actualizada);
+		}
+		return problem(422, 'Estado inválido', 'Use desactivada o atendida.');
 };
