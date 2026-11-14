@@ -1,0 +1,1 @@
+{"version":3,"file":"_layout.svelte.js","names":[],"sources":["../../../../../src/routes/+layout.svelte"],"sourcesContent":["<script>\n  import '@fortawesome/fontawesome-free/css/all.min.css';\n  import '../app.css';\n  let { children } = $props();\n</script>\n\n{@render children()}\n"],"mappings":";;AAAA,SAAA,QAAA,YAAA,SAAA;CAGE,IAAI,EAAE,aAAU;CAGT,SAAQ,UAAA;;AAFT"}

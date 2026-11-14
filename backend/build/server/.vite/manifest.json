@@ -1,0 +1,825 @@
+{
+  ".svelte-kit/generated/build/env/config.js": {
+    "file": "env.js",
+    "name": "env",
+    "src": ".svelte-kit/generated/build/env/config.js",
+    "isEntry": true,
+    "imports": [
+      "_config.js"
+    ]
+  },
+  "_adapter-node-env.js": {
+    "file": "adapter-node-env.js",
+    "name": "env"
+  },
+  "_adapter-node-handler.js": {
+    "file": "adapter-node-handler.js",
+    "name": "handler",
+    "imports": [
+      "_functions.js",
+      "_adapter-node-env.js"
+    ]
+  },
+  "_api.js": {
+    "file": "chunks/api.js",
+    "name": "api",
+    "imports": [
+      "_http.js"
+    ]
+  },
+  "_config.js": {
+    "file": "chunks/config.js",
+    "name": "config"
+  },
+  "_config2.js": {
+    "file": "chunks/config2.js",
+    "name": "config"
+  },
+  "_cuentas.js": {
+    "file": "chunks/cuentas.js",
+    "name": "cuentas",
+    "imports": [
+      "_http.js",
+      "_sesion.js",
+      "_config2.js",
+      "_usuarios.js",
+      "_sectores.js",
+      "_validar.js"
+    ]
+  },
+  "_demo.js": {
+    "file": "chunks/demo.js",
+    "name": "demo",
+    "imports": [
+      "_config2.js",
+      "_http.js",
+      "_sectores.js",
+      "_favores.js",
+      "_seed-demo2.js",
+      "_validar.js"
+    ]
+  },
+  "_dto.js": {
+    "file": "chunks/dto.js",
+    "name": "dto"
+  },
+  "_emergencias.js": {
+    "file": "chunks/emergencias.js",
+    "name": "emergencias",
+    "imports": [
+      "_http.js",
+      "_config2.js",
+      "_dto.js",
+      "_validar.js"
+    ]
+  },
+  "_favores.js": {
+    "file": "chunks/favores.js",
+    "name": "favores",
+    "imports": [
+      "_dto.js"
+    ]
+  },
+  "_favores2.js": {
+    "file": "chunks/favores2.js",
+    "name": "favores",
+    "imports": [
+      "_http.js",
+      "_favores.js",
+      "_servicios.js",
+      "_usuarios.js",
+      "_dto.js",
+      "_validar.js"
+    ]
+  },
+  "_functions.js": {
+    "file": "chunks/functions.js",
+    "name": "functions",
+    "imports": [
+      "_server-errors.js"
+    ]
+  },
+  "_http.js": {
+    "file": "chunks/http.js",
+    "name": "http",
+    "imports": [
+      "_config2.js"
+    ],
+    "dynamicImports": [
+      "src/lib/server/db/seed-demo.ts"
+    ]
+  },
+  "_ids.js": {
+    "file": "chunks/ids.js",
+    "name": "ids"
+  },
+  "_internal.js": {
+    "file": "chunks/internal.js",
+    "name": "internal",
+    "imports": [
+      "_functions.js",
+      "_server-errors.js",
+      "_uneval.js"
+    ],
+    "dynamicImports": [
+      "src/hooks.server.ts"
+    ]
+  },
+  "_sectores.js": {
+    "file": "chunks/sectores.js",
+    "name": "sectores",
+    "imports": [
+      "_dto.js"
+    ]
+  },
+  "_seed-demo2.js": {
+    "file": "chunks/seed-demo2.js",
+    "name": "seed-demo",
+    "imports": [
+      "_config2.js",
+      "_ids.js"
+    ]
+  },
+  "_server-errors.js": {
+    "file": "chunks/server-errors.js",
+    "name": "server-errors"
+  },
+  "_server.js": {
+    "file": "chunks/server.js",
+    "name": "server"
+  },
+  "_server2.js": {
+    "file": "chunks/server2.js",
+    "name": "server",
+    "imports": [
+      "_uneval.js"
+    ]
+  },
+  "_servicios.js": {
+    "file": "chunks/servicios.js",
+    "name": "servicios",
+    "imports": [
+      "_dto.js"
+    ]
+  },
+  "_servicios2.js": {
+    "file": "chunks/servicios2.js",
+    "name": "servicios",
+    "imports": [
+      "_http.js",
+      "_servicios.js",
+      "_usuarios.js",
+      "_dto.js",
+      "_validar.js"
+    ]
+  },
+  "_sesion.js": {
+    "file": "chunks/sesion.js",
+    "name": "sesion",
+    "imports": [
+      "_config2.js",
+      "_ids.js"
+    ]
+  },
+  "_sync.js": {
+    "file": "chunks/sync.js",
+    "name": "sync",
+    "imports": [
+      "_http.js",
+      "_dto.js",
+      "_sesion.js",
+      "_validar.js",
+      "_cuentas.js",
+      "_servicios2.js",
+      "_favores2.js",
+      "_emergencias.js",
+      "_servicios.js",
+      "_favores.js",
+      "_usuarios.js",
+      "_sectores.js"
+    ]
+  },
+  "_uneval.js": {
+    "file": "chunks/uneval.js",
+    "name": "uneval"
+  },
+  "_usuarios.js": {
+    "file": "chunks/usuarios.js",
+    "name": "usuarios",
+    "imports": [
+      "_dto.js"
+    ]
+  },
+  "_validar.js": {
+    "file": "chunks/validar.js",
+    "name": "validar",
+    "imports": [
+      "_http.js"
+    ]
+  },
+  "node_modules/@sveltejs/adapter-node/src/env.js": {
+    "file": "adapter-env.js",
+    "name": "adapter-env",
+    "src": "node_modules/@sveltejs/adapter-node/src/env.js",
+    "isEntry": true,
+    "imports": [
+      "_adapter-node-env.js"
+    ]
+  },
+  "node_modules/@sveltejs/adapter-node/src/handler.js": {
+    "file": "handler.js",
+    "name": "handler",
+    "src": "node_modules/@sveltejs/adapter-node/src/handler.js",
+    "isEntry": true,
+    "imports": [
+      "_adapter-node-handler.js"
+    ]
+  },
+  "node_modules/@sveltejs/adapter-node/src/index.js": {
+    "file": "adapter-index.js",
+    "name": "adapter-index",
+    "src": "node_modules/@sveltejs/adapter-node/src/index.js",
+    "isEntry": true,
+    "imports": [
+      "_adapter-node-handler.js",
+      "_adapter-node-env.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js": {
+    "file": "remote-entry.js",
+    "name": "remote-entry",
+    "src": "node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
+    "isEntry": true,
+    "imports": [
+      "_internal.js",
+      "_server-errors.js",
+      "_functions.js",
+      "_server.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/error.svelte": {
+    "file": "entries/fallbacks/error.svelte.js",
+    "name": "entries/fallbacks/error.svelte",
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/error.svelte",
+    "isEntry": true,
+    "imports": [
+      "_server2.js",
+      "_server-errors.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/components/layout.svelte": {
+    "file": "entries/fallbacks/layout.svelte.js",
+    "name": "entries/fallbacks/layout.svelte",
+    "src": "node_modules/@sveltejs/kit/src/runtime/components/layout.svelte",
+    "isEntry": true,
+    "imports": [
+      "_server2.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+    "file": "index.js",
+    "name": "index",
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/index.js",
+    "isEntry": true,
+    "imports": [
+      "_server.js",
+      "_internal.js"
+    ],
+    "dynamicImports": [
+      "node_modules/@sveltejs/kit/src/runtime/server/instance.js"
+    ]
+  },
+  "node_modules/@sveltejs/kit/src/runtime/server/instance.js": {
+    "file": "chunks/instance.js",
+    "name": "instance",
+    "src": "node_modules/@sveltejs/kit/src/runtime/server/instance.js",
+    "isDynamicEntry": true,
+    "imports": [
+      "_functions.js",
+      "_internal.js",
+      "_server-errors.js",
+      "_uneval.js",
+      "_config.js",
+      "_server2.js"
+    ]
+  },
+  "src/hooks.server.ts": {
+    "file": "entries/hooks.server.js",
+    "name": "entries/hooks.server",
+    "src": "src/hooks.server.ts",
+    "isEntry": true,
+    "imports": [
+      "_config2.js",
+      "_http.js",
+      "_sesion.js"
+    ]
+  },
+  "src/lib/server/db/seed-demo.ts": {
+    "file": "chunks/seed-demo.js",
+    "name": "seed-demo",
+    "src": "src/lib/server/db/seed-demo.ts",
+    "isDynamicEntry": true,
+    "imports": [
+      "_seed-demo2.js"
+    ]
+  },
+  "src/routes/api/v1/auth/logout/+server.ts": {
+    "file": "entries/endpoints/api/v1/auth/logout/_server.ts.js",
+    "name": "entries/endpoints/api/v1/auth/logout/_server.ts",
+    "src": "src/routes/api/v1/auth/logout/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sesion.js"
+    ]
+  },
+  "src/routes/api/v1/auth/me/+server.ts": {
+    "file": "entries/endpoints/api/v1/auth/me/_server.ts.js",
+    "name": "entries/endpoints/api/v1/auth/me/_server.ts",
+    "src": "src/routes/api/v1/auth/me/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_usuarios.js"
+    ]
+  },
+  "src/routes/api/v1/auth/otp/solicitar/+server.ts": {
+    "file": "entries/endpoints/api/v1/auth/otp/solicitar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/auth/otp/solicitar/_server.ts",
+    "src": "src/routes/api/v1/auth/otp/solicitar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_config2.js",
+      "_http.js",
+      "_cuentas.js"
+    ]
+  },
+  "src/routes/api/v1/auth/otp/verificar/+server.ts": {
+    "file": "entries/endpoints/api/v1/auth/otp/verificar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/auth/otp/verificar/_server.ts",
+    "src": "src/routes/api/v1/auth/otp/verificar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sesion.js",
+      "_cuentas.js"
+    ]
+  },
+  "src/routes/api/v1/auth/registro/+server.ts": {
+    "file": "entries/endpoints/api/v1/auth/registro/_server.ts.js",
+    "name": "entries/endpoints/api/v1/auth/registro/_server.ts",
+    "src": "src/routes/api/v1/auth/registro/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sesion.js",
+      "_cuentas.js"
+    ]
+  },
+  "src/routes/api/v1/contactos/[contactoId]/+server.ts": {
+    "file": "entries/endpoints/api/v1/contactos/_contactoId_/_server.ts.js",
+    "name": "entries/endpoints/api/v1/contactos/_contactoId_/_server.ts",
+    "src": "src/routes/api/v1/contactos/[contactoId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_servicios2.js"
+    ]
+  },
+  "src/routes/api/v1/contactos/pendientes/+server.ts": {
+    "file": "entries/endpoints/api/v1/contactos/pendientes/_server.ts.js",
+    "name": "entries/endpoints/api/v1/contactos/pendientes/_server.ts",
+    "src": "src/routes/api/v1/contactos/pendientes/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_servicios.js"
+    ]
+  },
+  "src/routes/api/v1/demo/antiguedad/+server.ts": {
+    "file": "entries/endpoints/api/v1/demo/antiguedad/_server.ts.js",
+    "name": "entries/endpoints/api/v1/demo/antiguedad/_server.ts",
+    "src": "src/routes/api/v1/demo/antiguedad/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_demo.js"
+    ]
+  },
+  "src/routes/api/v1/demo/favores/[favorId]/confirmar-otro/+server.ts": {
+    "file": "entries/endpoints/api/v1/demo/favores/_favorId_/confirmar-otro/_server.ts.js",
+    "name": "entries/endpoints/api/v1/demo/favores/_favorId_/confirmar-otro/_server.ts",
+    "src": "src/routes/api/v1/demo/favores/[favorId]/confirmar-otro/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_demo.js"
+    ]
+  },
+  "src/routes/api/v1/demo/guardian/+server.ts": {
+    "file": "entries/endpoints/api/v1/demo/guardian/_server.ts.js",
+    "name": "entries/endpoints/api/v1/demo/guardian/_server.ts",
+    "src": "src/routes/api/v1/demo/guardian/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_demo.js"
+    ]
+  },
+  "src/routes/api/v1/demo/reiniciar/+server.ts": {
+    "file": "entries/endpoints/api/v1/demo/reiniciar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/demo/reiniciar/_server.ts",
+    "src": "src/routes/api/v1/demo/reiniciar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sesion.js",
+      "_demo.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/_server.ts",
+    "src": "src/routes/api/v1/emergencias/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/[emergenciaId]/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/_emergenciaId_/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/_emergenciaId_/_server.ts",
+    "src": "src/routes/api/v1/emergencias/[emergenciaId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/[emergenciaId]/acuse/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/_emergenciaId_/acuse/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/_emergenciaId_/acuse/_server.ts",
+    "src": "src/routes/api/v1/emergencias/[emergenciaId]/acuse/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/[emergenciaId]/atender/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/_emergenciaId_/atender/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/_emergenciaId_/atender/_server.ts",
+    "src": "src/routes/api/v1/emergencias/[emergenciaId]/atender/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/[emergenciaId]/confirmar/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/_emergenciaId_/confirmar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/_emergenciaId_/confirmar/_server.ts",
+    "src": "src/routes/api/v1/emergencias/[emergenciaId]/confirmar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/[emergenciaId]/descartar/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/_emergenciaId_/descartar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/_emergenciaId_/descartar/_server.ts",
+    "src": "src/routes/api/v1/emergencias/[emergenciaId]/descartar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/[emergenciaId]/pedidos/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/_emergenciaId_/pedidos/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/_emergenciaId_/pedidos/_server.ts",
+    "src": "src/routes/api/v1/emergencias/[emergenciaId]/pedidos/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/emergencias/activa/+server.ts": {
+    "file": "entries/endpoints/api/v1/emergencias/activa/_server.ts.js",
+    "name": "entries/endpoints/api/v1/emergencias/activa/_server.ts",
+    "src": "src/routes/api/v1/emergencias/activa/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/estado/+server.ts": {
+    "file": "entries/endpoints/api/v1/estado/_server.ts.js",
+    "name": "entries/endpoints/api/v1/estado/_server.ts",
+    "src": "src/routes/api/v1/estado/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_config2.js",
+      "_http.js"
+    ]
+  },
+  "src/routes/api/v1/favores/+server.ts": {
+    "file": "entries/endpoints/api/v1/favores/_server.ts.js",
+    "name": "entries/endpoints/api/v1/favores/_server.ts",
+    "src": "src/routes/api/v1/favores/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores.js",
+      "_favores2.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/favores/[favorId]/+server.ts": {
+    "file": "entries/endpoints/api/v1/favores/_favorId_/_server.ts.js",
+    "name": "entries/endpoints/api/v1/favores/_favorId_/_server.ts",
+    "src": "src/routes/api/v1/favores/[favorId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores2.js"
+    ]
+  },
+  "src/routes/api/v1/favores/[favorId]/liberar/+server.ts": {
+    "file": "entries/endpoints/api/v1/favores/_favorId_/liberar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/favores/_favorId_/liberar/_server.ts",
+    "src": "src/routes/api/v1/favores/[favorId]/liberar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores2.js"
+    ]
+  },
+  "src/routes/api/v1/favores/[favorId]/listo/+server.ts": {
+    "file": "entries/endpoints/api/v1/favores/_favorId_/listo/_server.ts.js",
+    "name": "entries/endpoints/api/v1/favores/_favorId_/listo/_server.ts",
+    "src": "src/routes/api/v1/favores/[favorId]/listo/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores2.js"
+    ]
+  },
+  "src/routes/api/v1/favores/[favorId]/reservar/+server.ts": {
+    "file": "entries/endpoints/api/v1/favores/_favorId_/reservar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/favores/_favorId_/reservar/_server.ts",
+    "src": "src/routes/api/v1/favores/[favorId]/reservar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores2.js"
+    ]
+  },
+  "src/routes/api/v1/grupos-apoyo/+server.ts": {
+    "file": "entries/endpoints/api/v1/grupos-apoyo/_server.ts.js",
+    "name": "entries/endpoints/api/v1/grupos-apoyo/_server.ts",
+    "src": "src/routes/api/v1/grupos-apoyo/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/moderacion/pendientes/+server.ts": {
+    "file": "entries/endpoints/api/v1/moderacion/pendientes/_server.ts.js",
+    "name": "entries/endpoints/api/v1/moderacion/pendientes/_server.ts",
+    "src": "src/routes/api/v1/moderacion/pendientes/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores2.js"
+    ]
+  },
+  "src/routes/api/v1/moderacion/resolver/+server.ts": {
+    "file": "entries/endpoints/api/v1/moderacion/resolver/_server.ts.js",
+    "name": "entries/endpoints/api/v1/moderacion/resolver/_server.ts",
+    "src": "src/routes/api/v1/moderacion/resolver/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores2.js"
+    ]
+  },
+  "src/routes/api/v1/notificaciones/suscripcion/+server.ts": {
+    "file": "entries/endpoints/api/v1/notificaciones/suscripcion/_server.ts.js",
+    "name": "entries/endpoints/api/v1/notificaciones/suscripcion/_server.ts",
+    "src": "src/routes/api/v1/notificaciones/suscripcion/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/pedidos/[pedidoId]/ayudar/+server.ts": {
+    "file": "entries/endpoints/api/v1/pedidos/_pedidoId_/ayudar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/pedidos/_pedidoId_/ayudar/_server.ts",
+    "src": "src/routes/api/v1/pedidos/[pedidoId]/ayudar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/pedidos/[pedidoId]/resolver/+server.ts": {
+    "file": "entries/endpoints/api/v1/pedidos/_pedidoId_/resolver/_server.ts.js",
+    "name": "entries/endpoints/api/v1/pedidos/_pedidoId_/resolver/_server.ts",
+    "src": "src/routes/api/v1/pedidos/[pedidoId]/resolver/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_emergencias.js"
+    ]
+  },
+  "src/routes/api/v1/reportes/+server.ts": {
+    "file": "entries/endpoints/api/v1/reportes/_server.ts.js",
+    "name": "entries/endpoints/api/v1/reportes/_server.ts",
+    "src": "src/routes/api/v1/reportes/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_favores2.js"
+    ]
+  },
+  "src/routes/api/v1/sectores/+server.ts": {
+    "file": "entries/endpoints/api/v1/sectores/_server.ts.js",
+    "name": "entries/endpoints/api/v1/sectores/_server.ts",
+    "src": "src/routes/api/v1/sectores/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sectores.js"
+    ]
+  },
+  "src/routes/api/v1/sectores/[sectorId]/+server.ts": {
+    "file": "entries/endpoints/api/v1/sectores/_sectorId_/_server.ts.js",
+    "name": "entries/endpoints/api/v1/sectores/_sectorId_/_server.ts",
+    "src": "src/routes/api/v1/sectores/[sectorId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sectores.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/sectores/buscar/+server.ts": {
+    "file": "entries/endpoints/api/v1/sectores/buscar/_server.ts.js",
+    "name": "entries/endpoints/api/v1/sectores/buscar/_server.ts",
+    "src": "src/routes/api/v1/sectores/buscar/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sectores.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/servicios/+server.ts": {
+    "file": "entries/endpoints/api/v1/servicios/_server.ts.js",
+    "name": "entries/endpoints/api/v1/servicios/_server.ts",
+    "src": "src/routes/api/v1/servicios/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_servicios.js",
+      "_servicios2.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/servicios/[servicioId]/+server.ts": {
+    "file": "entries/endpoints/api/v1/servicios/_servicioId_/_server.ts.js",
+    "name": "entries/endpoints/api/v1/servicios/_servicioId_/_server.ts",
+    "src": "src/routes/api/v1/servicios/[servicioId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_servicios2.js"
+    ]
+  },
+  "src/routes/api/v1/servicios/[servicioId]/contacto/+server.ts": {
+    "file": "entries/endpoints/api/v1/servicios/_servicioId_/contacto/_server.ts.js",
+    "name": "entries/endpoints/api/v1/servicios/_servicioId_/contacto/_server.ts",
+    "src": "src/routes/api/v1/servicios/[servicioId]/contacto/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_servicios2.js"
+    ]
+  },
+  "src/routes/api/v1/servicios/[servicioId]/recomendaciones/+server.ts": {
+    "file": "entries/endpoints/api/v1/servicios/_servicioId_/recomendaciones/_server.ts.js",
+    "name": "entries/endpoints/api/v1/servicios/_servicioId_/recomendaciones/_server.ts",
+    "src": "src/routes/api/v1/servicios/[servicioId]/recomendaciones/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_servicios.js",
+      "_servicios2.js"
+    ]
+  },
+  "src/routes/api/v1/sync/pull/+server.ts": {
+    "file": "entries/endpoints/api/v1/sync/pull/_server.ts.js",
+    "name": "entries/endpoints/api/v1/sync/pull/_server.ts",
+    "src": "src/routes/api/v1/sync/pull/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sync.js"
+    ]
+  },
+  "src/routes/api/v1/sync/push/+server.ts": {
+    "file": "entries/endpoints/api/v1/sync/push/_server.ts.js",
+    "name": "entries/endpoints/api/v1/sync/push/_server.ts",
+    "src": "src/routes/api/v1/sync/push/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_sesion.js",
+      "_sync.js"
+    ]
+  },
+  "src/routes/api/v1/usuarios/[usuarioId]/+server.ts": {
+    "file": "entries/endpoints/api/v1/usuarios/_usuarioId_/_server.ts.js",
+    "name": "entries/endpoints/api/v1/usuarios/_usuarioId_/_server.ts",
+    "src": "src/routes/api/v1/usuarios/[usuarioId]/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_usuarios.js",
+      "_validar.js"
+    ]
+  },
+  "src/routes/api/v1/usuarios/me/+server.ts": {
+    "file": "entries/endpoints/api/v1/usuarios/me/_server.ts.js",
+    "name": "entries/endpoints/api/v1/usuarios/me/_server.ts",
+    "src": "src/routes/api/v1/usuarios/me/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_cuentas.js"
+    ]
+  },
+  "src/routes/api/v1/usuarios/me/invitacion-guardian/+server.ts": {
+    "file": "entries/endpoints/api/v1/usuarios/me/invitacion-guardian/_server.ts.js",
+    "name": "entries/endpoints/api/v1/usuarios/me/invitacion-guardian/_server.ts",
+    "src": "src/routes/api/v1/usuarios/me/invitacion-guardian/+server.ts",
+    "isEntry": true,
+    "imports": [
+      "_api.js",
+      "_http.js",
+      "_cuentas.js"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+	"name": "ayni-frontend",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "AYNI · Hoy por ti, mañana por mí. App vecinal offline-first (SvelteKit 3 + Svelte 5).",
+	"scripts": {
+		"dev": "vite dev --host",
+		"build": "vite build",
+		"preview": "vite preview --host",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./jsconfig.json"
+	},
+	"dependencies": {
+		"@fortawesome/fontawesome-free": "^6.7.2"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-static": "^4.0.1",
+		"@sveltejs/kit": "^3.1.1",
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"autoprefixer": "^10.4.20",
+		"postcss": "^8.4.49",
+		"svelte": "^5.57.3",
+		"svelte-check": "^4.6.0",
+		"tailwindcss": "^3.4.17",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.6"
+	}
+}

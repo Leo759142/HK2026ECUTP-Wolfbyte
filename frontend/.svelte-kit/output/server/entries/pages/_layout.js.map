@@ -1,0 +1,1 @@
+{"version":3,"file":"_layout.js","names":[],"sources":["../../../../../src/routes/+layout.js"],"sourcesContent":["// SPA offline-first: todo se dibuja en el navegador con los datos guardados en el celular.\nexport const ssr = false;\nexport const prerender = false;\n"],"mappings":";AACA,IAAa,MAAM;AACnB,IAAa,YAAY"}

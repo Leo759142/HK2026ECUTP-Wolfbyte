@@ -1,0 +1,37 @@
+{
+	"name": "ayni-backend",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "API de AYNI (SvelteKit 3 + PostgreSQL). Contrato: static/api/openapi.yaml",
+	"imports": {
+		"#server/*": "./src/lib/server/*"
+	},
+	"scripts": {
+		"dev": "vite dev --port 5180 --strictPort",
+		"build": "vite build",
+		"start": "node build/index.js",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"test": "vitest --run",
+		"test:watch": "vitest",
+		"db:migrar": "node scripts/db.ts migrar",
+		"db:seed": "node scripts/db.ts seed",
+		"db:reiniciar-demo": "node scripts/db.ts reiniciar-demo"
+	},
+	"dependencies": {
+		"pg": "^8.23.1"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-node": "^6.0.1",
+		"@sveltejs/kit": "^3.1.1",
+		"@sveltejs/vite-plugin-svelte": "^7.3.1",
+		"@types/node": "^22",
+		"@types/pg": "^8.23.1",
+		"svelte": "^5.57.3",
+		"svelte-check": "^4.6.0",
+		"typescript": "^6.0.3",
+		"vite": "^8.3.6",
+		"vitest": "^4.1.8"
+	}
+}

@@ -1,0 +1,135 @@
+{
+	"/": [],
+	"/api/v1/auth/logout": [
+		"src/routes/api/v1/auth/logout/+server.ts"
+	],
+	"/api/v1/auth/me": [
+		"src/routes/api/v1/auth/me/+server.ts"
+	],
+	"/api/v1/auth/otp/solicitar": [
+		"src/routes/api/v1/auth/otp/solicitar/+server.ts"
+	],
+	"/api/v1/auth/otp/verificar": [
+		"src/routes/api/v1/auth/otp/verificar/+server.ts"
+	],
+	"/api/v1/auth/registro": [
+		"src/routes/api/v1/auth/registro/+server.ts"
+	],
+	"/api/v1/contactos/pendientes": [
+		"src/routes/api/v1/contactos/pendientes/+server.ts"
+	],
+	"/api/v1/contactos/[contactoId]": [
+		"src/routes/api/v1/contactos/[contactoId]/+server.ts"
+	],
+	"/api/v1/demo/antiguedad": [
+		"src/routes/api/v1/demo/antiguedad/+server.ts"
+	],
+	"/api/v1/demo/favores/[favorId]/confirmar-otro": [
+		"src/routes/api/v1/demo/favores/[favorId]/confirmar-otro/+server.ts"
+	],
+	"/api/v1/demo/guardian": [
+		"src/routes/api/v1/demo/guardian/+server.ts"
+	],
+	"/api/v1/demo/reiniciar": [
+		"src/routes/api/v1/demo/reiniciar/+server.ts"
+	],
+	"/api/v1/emergencias": [
+		"src/routes/api/v1/emergencias/+server.ts"
+	],
+	"/api/v1/emergencias/activa": [
+		"src/routes/api/v1/emergencias/activa/+server.ts"
+	],
+	"/api/v1/emergencias/[emergenciaId]": [
+		"src/routes/api/v1/emergencias/[emergenciaId]/+server.ts"
+	],
+	"/api/v1/emergencias/[emergenciaId]/acuse": [
+		"src/routes/api/v1/emergencias/[emergenciaId]/acuse/+server.ts"
+	],
+	"/api/v1/emergencias/[emergenciaId]/atender": [
+		"src/routes/api/v1/emergencias/[emergenciaId]/atender/+server.ts"
+	],
+	"/api/v1/emergencias/[emergenciaId]/confirmar": [
+		"src/routes/api/v1/emergencias/[emergenciaId]/confirmar/+server.ts"
+	],
+	"/api/v1/emergencias/[emergenciaId]/descartar": [
+		"src/routes/api/v1/emergencias/[emergenciaId]/descartar/+server.ts"
+	],
+	"/api/v1/emergencias/[emergenciaId]/pedidos": [
+		"src/routes/api/v1/emergencias/[emergenciaId]/pedidos/+server.ts"
+	],
+	"/api/v1/estado": [
+		"src/routes/api/v1/estado/+server.ts"
+	],
+	"/api/v1/favores": [
+		"src/routes/api/v1/favores/+server.ts"
+	],
+	"/api/v1/favores/[favorId]": [
+		"src/routes/api/v1/favores/[favorId]/+server.ts"
+	],
+	"/api/v1/favores/[favorId]/liberar": [
+		"src/routes/api/v1/favores/[favorId]/liberar/+server.ts"
+	],
+	"/api/v1/favores/[favorId]/listo": [
+		"src/routes/api/v1/favores/[favorId]/listo/+server.ts"
+	],
+	"/api/v1/favores/[favorId]/reservar": [
+		"src/routes/api/v1/favores/[favorId]/reservar/+server.ts"
+	],
+	"/api/v1/grupos-apoyo": [
+		"src/routes/api/v1/grupos-apoyo/+server.ts"
+	],
+	"/api/v1/moderacion/pendientes": [
+		"src/routes/api/v1/moderacion/pendientes/+server.ts"
+	],
+	"/api/v1/moderacion/resolver": [
+		"src/routes/api/v1/moderacion/resolver/+server.ts"
+	],
+	"/api/v1/notificaciones/suscripcion": [
+		"src/routes/api/v1/notificaciones/suscripcion/+server.ts"
+	],
+	"/api/v1/pedidos/[pedidoId]/ayudar": [
+		"src/routes/api/v1/pedidos/[pedidoId]/ayudar/+server.ts"
+	],
+	"/api/v1/pedidos/[pedidoId]/resolver": [
+		"src/routes/api/v1/pedidos/[pedidoId]/resolver/+server.ts"
+	],
+	"/api/v1/reportes": [
+		"src/routes/api/v1/reportes/+server.ts"
+	],
+	"/api/v1/sectores": [
+		"src/routes/api/v1/sectores/+server.ts"
+	],
+	"/api/v1/sectores/buscar": [
+		"src/routes/api/v1/sectores/buscar/+server.ts"
+	],
+	"/api/v1/sectores/[sectorId]": [
+		"src/routes/api/v1/sectores/[sectorId]/+server.ts"
+	],
+	"/api/v1/servicios": [
+		"src/routes/api/v1/servicios/+server.ts"
+	],
+	"/api/v1/servicios/[servicioId]": [
+		"src/routes/api/v1/servicios/[servicioId]/+server.ts"
+	],
+	"/api/v1/servicios/[servicioId]/contacto": [
+		"src/routes/api/v1/servicios/[servicioId]/contacto/+server.ts"
+	],
+	"/api/v1/servicios/[servicioId]/recomendaciones": [
+		"src/routes/api/v1/servicios/[servicioId]/recomendaciones/+server.ts"
+	],
+	"/api/v1/sync/pull": [
+		"src/routes/api/v1/sync/pull/+server.ts"
+	],
+	"/api/v1/sync/push": [
+		"src/routes/api/v1/sync/push/+server.ts"
+	],
+	"/api/v1/usuarios/me": [
+		"src/routes/api/v1/usuarios/me/+server.ts"
+	],
+	"/api/v1/usuarios/me/invitacion-guardian": [
+		"src/routes/api/v1/usuarios/me/invitacion-guardian/+server.ts"
+	],
+	"/api/v1/usuarios/[usuarioId]": [
+		"src/routes/api/v1/usuarios/[usuarioId]/+server.ts"
+	]
+}

@@ -1,0 +1,4 @@
+{
+	"extends": "$app/tsconfig",
+	"compilerOptions": { "checkJs": false, "strict": false, "types": ["$app/types"] }
+}
