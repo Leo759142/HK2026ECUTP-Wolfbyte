@@ -41,6 +41,7 @@
   import PedirAyuda from './pantallas/emergencia/PedirAyuda.svelte';
   import MiPedido from './pantallas/emergencia/MiPedido.svelte';
   import Grupos from './pantallas/emergencia/Grupos.svelte';
+  import LogoApp from './ui/LogoApp.svelte';
 
   const SCREENS = {
     portada: Portada, tutorial: Tutorial, telefono: Telefono, codigo: Codigo, nombre: Nombre, ubicacion: Ubicacion,
@@ -84,6 +85,10 @@
 </script>
 
 <div class="relative mx-auto flex min-h-dvh max-w-[430px] flex-col bg-crema shadow-[0_0_40px_rgba(15,76,92,.12)]">
+  <!-- Marca de AYNI: un solo lugar, visible en todas las pantallas. -->
+  <header class="flex items-center px-5 pt-3 text-tinta">
+    <LogoApp size={32} conNombre />
+  </header>
   <main class="flex flex-1 flex-col {conBarra ? 'pb-28' : ''}">
     {#key clave}
       <Pantalla {...app.route.params} />
