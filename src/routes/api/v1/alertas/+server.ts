@@ -1,19 +1,21 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency } from '../../_http';
-import { store } from '../../_store';
+import { ok, problem, requireIdempotency, requireRol } from '../../_http';
+import { cargarStore, persistirStore, store } from '../../_store';
 import {
 	elegir,
 	errorTextos,
 	esRespuesta,
 	leerCoordenadas,
 	leerObjeto,
-	validarFoto
+	validarFoto,
+	validarFotos
 } from '../../_validar';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 
-const CAMPOS = ['zona_id', 'tipo', 'descripcion', 'foto'] as const;
+const CAMPOS = ['zona_id', 'tipo', 'descripcion', 'foto', 'fotos'] as const;
 
 export const GET: RequestHandler = async ({ url }) => {
+	await cargarStore();
 	const zona = url.searchParams.get('zona_id');
 	return ok({
 		items: store.alertas.filter((a) => a.oculto === 0 && (!zona || a.zona_id === zona))
@@ -21,6 +23,9 @@ export const GET: RequestHandler = async ({ url }) => {
 };
 
 export const POST: RequestHandler = async ({ request }) => {
+	await cargarStore();
+	const rol = requireRol(request, 'reportar_emergencia');
+	if (typeof rol !== 'string') return rol;
 	const key = requireIdempotency(request);
 	if (typeof key !== 'string') return key;
 	const b = await leerObjeto(request);
@@ -35,6 +40,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (errTexto) return problem(422, 'Datos inválidos', errTexto);
 	const errFoto = validarFoto(b.foto);
 	if (errFoto) return problem(422, 'Foto inválida', errFoto);
+	const errFotos = validarFotos(b.fotos);
+	if (errFotos) return problem(422, 'Fotos inválidas', errFotos);
 	const coords = leerCoordenadas(b, false);
 	if (esRespuesta(coords)) return coords;
 
@@ -54,5 +61,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		actualizado_en: ahora
 	};
 	store.alertas.push(item);
+	await persistirStore();
 	return ok(item, 201);
 };

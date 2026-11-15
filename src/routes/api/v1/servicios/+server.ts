@@ -1,20 +1,22 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency } from '../../_http';
-import { store } from '../../_store';
+import { ok, problem, requireIdempotency, requireRol } from '../../_http';
+import { cargarStore, persistirStore, store } from '../../_store';
 import {
 	elegir,
 	errorTextos,
 	esRespuesta,
 	leerCoordenadas,
 	leerObjeto,
-	validarFoto
+	validarFoto,
+	validarFotos
 } from '../../_validar';
 import { CATEGORIAS_SERVICIO, type CategoriaServicio } from '../../../../dominio/tipos/tipos';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 
-const CAMPOS = ['zona_id', 'categoria', 'titulo', 'descripcion', 'foto'] as const;
+const CAMPOS = ['zona_id', 'categoria', 'titulo', 'descripcion', 'foto', 'fotos'] as const;
 
 export const GET: RequestHandler = async ({ url }) => {
+	await cargarStore();
 	const zona = url.searchParams.get('zona_id');
 	const categoria = url.searchParams.get('categoria');
 	const items = store.servicios.filter(
@@ -24,7 +26,10 @@ export const GET: RequestHandler = async ({ url }) => {
 	return ok({ items, nextCursor: null, total: items.length });
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	await cargarStore();
+	const rol = requireRol(request, 'publicar_servicio');
+	if (typeof rol !== 'string') return rol;
 	const key = requireIdempotency(request);
 	if (typeof key !== 'string') return key;
 	const b = await leerObjeto(request);
@@ -38,6 +43,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (errTexto) return problem(422, 'Datos inválidos', errTexto);
 	const errFoto = validarFoto(b.foto);
 	if (errFoto) return problem(422, 'Foto inválida', errFoto);
+	const errFotos = validarFotos(b.fotos);
+	if (errFotos) return problem(422, 'Fotos inválidas', errFotos);
 	if (!CATEGORIAS_SERVICIO.includes(String(b.categoria) as CategoriaServicio))
 		return problem(422, 'Categoría inválida');
 	const coords = leerCoordenadas(b, true);
@@ -48,11 +55,19 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });
 
 	const ahora = new Date().toISOString();
+	const usuarioId = (() => {
+		try {
+			const sesion = JSON.parse(cookies.get('pod_sesion') ?? '{}') as { usuarioId?: string };
+			return sesion.usuarioId ?? 'demo';
+		} catch {
+			return 'demo';
+		}
+	})();
 	const item = {
 		...elegir(b, CAMPOS),
 		...enmascararCoordenadas(coords.lat, coords.lng),
 		id: key,
-		usuario_id: 'demo',
+		usuario_id: usuarioId,
 		es_emprendimiento: b.es_emprendimiento ? 1 : 0,
 		activo: 1,
 		oculto: 0,
@@ -60,5 +75,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		actualizado_en: ahora
 	};
 	store.servicios.push(item);
+	await persistirStore();
 	return ok(item, 201);
 };

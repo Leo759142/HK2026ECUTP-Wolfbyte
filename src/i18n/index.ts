@@ -37,7 +37,20 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'offline.pendiente': 'Pendiente de enviar (Guardado en dispositivo)',
 		'offline.enviado': 'Enviada con éxito al vecindario',
 		'error.generico': 'Algo salió mal. El mensaje te indicará cómo corregirlo.',
-		'error.permiso': 'Tu rol actual no tiene autorización para esta acción.'
+		'error.permiso': 'Tu rol actual no tiene autorización para esta acción.',
+		'tutorial.1.titulo': 'Hoy por ti,\nmañana por mí',
+		'tutorial.1.texto': 'Encuentra gasfiteros, profes y más, recomendados por tus propios vecinos.',
+		'tutorial.2.titulo': 'Pide o presta\nsin dinero',
+		'tutorial.2.texto':
+			'Presta tu escalera, regala lo que te sobra o intercambia lo que sabes hacer.',
+		'tutorial.3.titulo': 'En emergencias,\nnos cuidamos',
+		'tutorial.3.texto': 'Si pasa algo grave, AYNI cambia a modo emergencia para coordinar ayuda.',
+		'access.crear': 'Crear cuenta',
+		'access.ingresar': 'Ya tengo cuenta',
+		'access.siguiente': 'Siguiente →',
+		'access.empezar': 'Empezar',
+		'access.continuar': 'Continuar',
+		'access.entrar': 'Entrar a AYNI'
 	},
 	en: {
 		'nav.inicio': 'Home',
@@ -71,7 +84,19 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'offline.pendiente': 'Pending to send (Saved on device)',
 		'offline.enviado': 'Successfully sent to the neighborhood',
 		'error.generico': 'Something went wrong. The message will tell you how to fix it.',
-		'error.permiso': 'Your current role is not authorized for this action.'
+		'error.permiso': 'Your current role is not authorized for this action.',
+		'tutorial.1.titulo': 'Today for you,\ntomorrow for me',
+		'tutorial.1.texto': 'Find tradespeople, teachers and more, recommended by your neighbors.',
+		'tutorial.2.titulo': 'Ask or lend\nwithout money',
+		'tutorial.2.texto': 'Lend your ladder, give away what you have or exchange what you know.',
+		'tutorial.3.titulo': 'In emergencies,\nwe care for each other',
+		'tutorial.3.texto': 'When something serious happens, AYNI coordinates community help.',
+		'access.crear': 'Create account',
+		'access.ingresar': 'I already have an account',
+		'access.siguiente': 'Next →',
+		'access.empezar': 'Start',
+		'access.continuar': 'Continue',
+		'access.entrar': 'Enter AYNI'
 	},
 	qu: {
 		hola: '¡Allinllachu',
@@ -85,7 +110,19 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'offline.pendiente': 'Ñawpaqta ruwanapaq',
 		'offline.enviado': 'Enviarqa',
 		'error.generico': 'Pantay kachkan',
-		'error.permiso': 'Permisota manam kankichu.'
+		'error.permiso': 'Permisota manam kankichu.',
+		'tutorial.1.titulo': 'Kunan qanpaq,\npaqarin ñuqapaq',
+		'tutorial.1.texto': 'Llaqtamasiykikunam qhawachisqankuna llamkayninkunata tariy.',
+		'tutorial.2.titulo': 'Mańakuy utaq quykuy\nqullqillan',
+		'tutorial.2.texto': 'Yachaykikunata rantinakuy utaq yanapay.',
+		'tutorial.3.titulo': 'Sasachakuypi,\nukhunchik qhawakusun',
+		'tutorial.3.texto': 'Hatun sasachakuy kaptin AYNI yanapakuyninta kamachin.',
+		'access.crear': 'Cuenta ruray',
+		'access.ingresar': 'Cuenta ñiyoq kani',
+		'access.siguiente': 'Qatiy →',
+		'access.empezar': 'Qallariy',
+		'access.continuar': 'Qatiy',
+		'access.entrar': 'AYNI-man yaykuy'
 	}
 };
 

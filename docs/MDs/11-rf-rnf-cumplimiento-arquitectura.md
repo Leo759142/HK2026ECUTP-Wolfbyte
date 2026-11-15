@@ -2,7 +2,9 @@
 
 > **Propósito:** ordenar qué falta para cumplir los requisitos funcionales (RF01–RF25), requisitos no funcionales (RNF), casos de uso (CU01–CU14) e historias de usuario (HU01–HU15), y definir cómo encajan DAO, Repository (puertos/adaptadores), patrones de arquitectura, workers (Service Worker + Web Worker) y cipher/crypto.
 >
-> **Alcance:** diagnóstico y plan técnico trazable al estado actual del repositorio. No modifica código.
+> **Alcance:** diagnóstico y plan técnico trazable al estado actual del repositorio. La revisión del 14/11/2026 incorpora los cambios ya implementados en código.
+
+> **Decisión de producto:** el entregable actual es **Red Vecina (AYNI)**. Las referencias a “Cuadra” describen una línea futura y no deben usarse como evidencia del estado de `src/`.
 
 ## Fuentes
 
@@ -21,18 +23,18 @@
 | Área | Evidencia en repo | Estado |
 |---|---|---|
 | Dominio/tipos | `src/dominio/tipos/tipos.ts`, `src/dominio/index.ts`, agregados en `src/dominio/{roles,grupos,proximidad,favores,emergencia,confianza,anuncios}/**` | Parcial: modelos/reglas base; falta integración end-to-end |
-| RBAC | `src/dominio/roles/rbac.ts` (permisos por rol/membresía) | Parcial: lógica de dominio; falta enforcement en `hooks.server.ts` y sesión |
-| DAO local | `src/datos/dao.ts` | Stub: usa `localStorage` (`comunidad_sync_cola_v2`), sin SQLite/IndexedDB real, sin transacciones reales |
+| RBAC | `src/dominio/roles/rbac.ts`, `src/hooks.server.ts`, `src/routes/api/_http.ts`, endpoints `src/routes/api/v1/**` | Implementado en el borde: las mutaciones derivan el rol desde sesión HttpOnly y responden 401/403; falta conectar usuarios/roles a una base persistente |
+| DAO local | `src/datos/dao.ts`, `src/datos/almacen.ts` | IndexedDB con fallback localStorage en cliente; el adapter server usa persistencia JSON atómica mientras llega SQLite/Postgres |
 | Datos local (paquete zona) | `src/lib/datos/local.ts` | Stub: retorna vacío |
 | Outbox/sync cliente | `src/sync/outbox.svelte.ts`, `src/sync/api.ts`, `src/sync/reproductor.ts`, `src/sync/soloagregar.ts` | Parcial/demo: dos mecanismos de cola (`dao` y `OutboxComunitario`), sin lock, sin estados completos, sin políticas por entidad aplicadas |
 | Service Worker | `src/service-worker/index.ts` | Básico: precache shell + cache de navegación; ignora `/api/`; sin runtime caching avanzado ni coordinación robusta con outbox |
-| Web Worker | *(no hay workers dedicados en `src/`)* | Faltante: no hay SQLite WASM worker, ni worker de compresión/hash |
-| Cipher/crypto local | `src/seguridad/cifradolocalmejora.ts` | Stub inseguro para producción: empaqueta/desempaqueta en plaintext |
+| Web Worker | `src/lib/infra/workers/image.worker.ts` | Parcial implementado: compresión WebP y eliminación de EXIF en segundo plano; falta worker de persistencia/hash |
+| Cipher/crypto local | `src/seguridad/cipher.ts`, `src/seguridad/cifradolocalmejora.ts` | Implementado con Web Crypto AES-GCM + PBKDF2; las APIs síncronas/formatos plaintext ahora fallan explícitamente |
 | Privacidad/geohash | `src/seguridad/anonimizador.ts` reexporta `src/dominio/tipos/geohash.ts` | Parcial: utilidades presentes; falta aplicar sistemáticamente en flujos y API |
-| API v1 | `rutas/api/v1/**`, `src/rutas/api/_http.ts` | Stubs contrato-primero; falta persistencia/adaptadores servidor, auth/RBAC, idempotencia real, rate limit |
+| API v1 | `src/routes/api/v1/**`, `src/routes/api/_http.ts`, `src/routes/api/_store.ts` | Validación, lista blanca, coordenadas aproximadas, idempotencia, RBAC, rate limit y persistencia JSON atómica en adapter Node; falta migración a Postgres/SQLite de producción |
 | OpenAPI | `static/api/openapi.yaml`, `/api/docs` | Parcial: contrato inicial; debe mantenerse alineado al comportamiento real |
 | UI/páginas | `src/rutas/**` | Parcial/demo: navegación y flujos base; falta conexión a repositorios/casos de uso reales, estados de error/carga/offline consistentes |
-| Auth/sesión/hooks | *(no se observó `src/hooks.server.ts` implementado en fuentes leídas)* | Faltante/crítico para RBAC, rate limit, trazabilidad y protección de rutas/API |
+| Auth/sesión/hooks | `src/routes/api/v1/auth/+server.ts`, `src/hooks.server.ts`, `src/lib/onboarding.ts` | Cookie HttpOnly, expiración, logout, headers de seguridad y rate limit activos; el usuario/auth siguen siendo demo en memoria |
 
 ## Glosario breve
 
@@ -69,15 +71,15 @@
 | RF13 | Reportar necesidad en emergencia con ubicación aproximada | S5 | Parcial | Flujo 3 pasos, tipo/urgencia, geohash/anonimización obligatoria | UI + anonimización + repos + API + outbox |
 | RF14 | Directorio de servicios/grupos de apoyo en emergencia | S5 | Pendiente | Consulta filtrada por zona/emergencia, puntos de apoyo verificados | UI emergencia + `PuntoApoyoRepository`/repos servicios + API |
 | RF15 | Tablero ayuda humanitaria y recursos críticos compartibles | S5 | Parcial | Recursos críticos CRUD/eventos, tablero por zona, compartir/enlace, estados | UI + `RecursoCriticoRepository` + API + sync |
-| RF16 | Sugerir alertas desde fuentes oficiales para confirmación | S5 | Pendiente | Ingesta server (`alertas_oficiales`), parser, estado propuesta→confirmada/descartada, UI coordinador | Server ingesta + repos + API/admin + notificaciones (futuro) |
+| RF16 | Sugerir alertas desde fuentes oficiales para confirmación | S5 | Parcial | API de ingreso/revisión, estados propuesta→confirmada/descartada y panel de coordinador implementados; falta ingesta automática de INDECI/SENAMHI/IGP/municipio | Ingesta server + repos + API/admin + notificaciones |
 | RF17 | Funcionar sin conexión: leer/publicar/colar y mostrar estado | S8 | Parcial | Persistencia local real, cola unificada, UI de estados por operación, lectura desde cache/DB local | DAO/SQLite+Dexie + repos locales + outbox + SW + UI |
 | RF18 | Sincronizar cola sin duplicar datos | S8 | Parcial | Idempotencia real cliente/servidor, reintentos/backoff, locks, políticas por entidad, resolución básica conflictos | Sync engine + `Idempotency-Key` + API/sync + DB constraints |
 | RF19 | Ocultar ubicación exacta (sector/manzana aproximada) | S9 | Parcial | Aplicar en todos los inputs/mapas/APIs; validar que no se persista exacta; UI consistente | Geohash/anonimizador + DTOs + repos + mapas/UI |
 | RF20 | Limitar publicaciones de cuentas nuevas y permitir reportar abusos | S6/S9 | Pendiente | Rate limit, cooldown/umbrales, reportes de moderación, bloqueo, auditoría | Anti-abuso + hooks/rate limit + `ReporteModeracionRepository` + UI |
 | RF21 | Mostrar anuncios locales etiquetados “Patrocinado” | S7 | Pendiente | Modelo/flujo de anuncios, aprobación, etiqueta visible, segmentación por zona | Dominio anuncios + repos + API + UI |
 | RF22 | Suspender anuncios mientras haya emergencia activa | S7/S5 | Parcial | Regla existe en dominio; falta dato real de emergencia activa por zona y enforcement en consultas/UI | Caso de uso + repos emergencias/anuncios + UI/SW cache invalidation |
-| RF23 | Tutorial inicial guiado, breve y repetible | S10 | Pendiente | Onboarding persistido localmente, repetible desde perfil/ajustes, accesible | UI + almacenamiento preferencias + i18n |
-| RF24 | Español completo y selector con quechua en flujos críticos | S10 | Parcial | `src/i18n/` existe; falta cobertura ES/QU en flujos críticos, selector, formato, fallback | i18n + UI rutas críticas + copy |
+| RF23 | Tutorial inicial guiado, breve y repetible | S10 | Cumple | El tutorial inicial y su persistencia existen en `src/routes/acceso/+page.svelte`; Ajustes permite repetirlo | UI + almacenamiento preferencias + i18n |
+| RF24 | Español completo y selector con quechua en flujos críticos | S10 | Parcial mejorado | `src/i18n/` tiene ES/EN/QU y el acceso/tutorial ya consume traducciones según el idioma guardado; faltan publicar, emergencia y estados offline/error | i18n + UI rutas críticas + copy |
 | RF25 | Botones grandes, contraste alto, errores accionables | S10 | Parcial | Auditoría a11y sistemática, tokens/foco/aria-live consistentes, validación de formularios | UI componentes + `src/accesibilidad/**` + pruebas manuales/automatizadas |
 
 ## Matriz RNF → estado, faltante y componente responsable
@@ -87,10 +89,10 @@
 | RNF-OFF | Offline-first: crear/leer/encolar sin red, estados visibles | Parcial | DB local real, repos locales, cola unificada, SW/runtime cache maduro, UX estados | DAO/Repo local + Outbox + SW + UI |
 | RNF-SYNC | Sincronización idempotente, reintentos con backoff, sin duplicados | Parcial | `op_id`/`Idempotency-Key` end-to-end, dedupe server, estados conflicto, lock | Sync engine + API + DB constraints |
 | RNF-PRIV | Privacidad: ubicación aproximada, mínimos datos, sin dirección exacta | Parcial | Aplicación transversal geohash, revisión DTO/schema, no logs con PII/coords exactas | Anonimizador + repos/API + observabilidad |
-| RNF-SEC | Seguridad: sesión, RBAC server-side, cifrado local, secretos seguros | Pendiente/Parcial | `hooks.server.ts`, auth, authz, rate limit, WebCrypto real, hardening headers/CSRF/CSP | Hooks/auth + cipher + API |
+| RNF-SEC | Seguridad: sesión, RBAC server-side, cifrado local, secretos seguros | Parcial alto | Persistir usuarios/sesiones, añadir CSP/CSRF explícitos y migración controlada de datos antiguos | Auth/hooks + cipher + API |
 | RNF-A11Y | Accesibilidad: teclado, foco, aria, contraste, mensajes claros | Parcial | Cobertura en todas las páginas/formularios, pruebas con teclado/lector, responsive táctil | UI + accesibilidad + QA |
 | RNF-MOD | Moderación y confianza: reportes, ocultamiento, etiquetas, anti-abuso | Parcial | Repos/flows de reportes, rate limit, etiquetas derivadas confiables | Dominio confianza/moderación + repos + hooks |
-| RNF-PERF | Rendimiento percibido en gama baja/red inestable | Parcial | Evitar bloqueo UI, workers para cómputo pesado, paginación, cache local | Web Workers + SW + UI/consultas |
+| RNF-PERF | Rendimiento percibido en gama baja/red inestable | Parcial | Worker de persistencia/hash, paginación, cache local y medición en dispositivo real | Web Workers + SW + UI/consultas |
 | RNF-MAINT | Mantenibilidad: separación por capas, contratos, pruebas | Parcial | Eliminar stubs, unificar outbox, tests de contrato/adaptadores, tipos consistentes | Arquitectura + CI/tests |
 
 ## Matriz CU/HU → flujo faltante
@@ -256,10 +258,10 @@ API SvelteKit / servidor
 
 ### 7) Cipher / crypto
 
-**Estado actual:** `src/seguridad/cifradolocalmejora.ts` es passthrough (plaintext).
+**Estado actual:** `src/seguridad/cipher.ts` usa Web Crypto AES-GCM con IV aleatorio y PBKDF2; `cifradolocalmejora.ts` expone la API asíncrona segura.
 
 **Falta:**
-- Implementar cifrado real con Web Crypto API (AES-GCM) para secretos locales: PIN (o material derivado), tokens de sesión local si se guardan, datos sensibles cacheados.
+- Aplicar el cifrado a todos los secretos locales que aún se guarden fuera de esta capa.
 - Gestión de clave: derivación (PBKDF2/Argon2 en servidor según diseño) o clave no extraíble almacenada/derivada con precaución; definir amenaza modelo (dispositivo compartido vs. solo at-rest).
 - Nunca almacenar PIN en claro. Preferir verificación con hash seguro en servidor para auth remota; PIN local solo como conveniencia con protección apropiada.
 - Migración: detectar datos antiguos/plaintext y reempaquetar o invalidar sesión local.
@@ -267,7 +269,9 @@ API SvelteKit / servidor
 
 ### 8) Seguridad y hooks
 
-**Falta crítica:** implementar `src/hooks.server.ts` (o equivalente) con:
+**Estado actual:** las mutaciones API principales validan `X-Rol` con `requireRol`, aceptan aliases de membresía y devuelven 401/403; el outbox propaga el rol de la sesión local.
+
+**Falta crítica:** completar `src/hooks.server.ts` con:
 - Contexto de request (`requestId`), logging estructurado sin PII.
 - Sesión opaca (cookie HttpOnly/Secure/SameSite) y carga de actor/rol/membresías.
 - RBAC/autorización en rutas protegidas, `load`, actions y endpoints API.
@@ -275,6 +279,8 @@ API SvelteKit / servidor
 - Validación de `Idempotency-Key` en mutaciones.
 - Cabeceras de seguridad/CSP coherentes con la app (ver `docs/MDs/07-hooks-y-seguridad.md`).
 - `handleError` sanitizado.
+
+Ya están activos el control de sesión para derivar `X-Rol`, el rate limit básico de escrituras y cabeceras anti-clickjacking/nosniff/referrer.
 
 ### 9) Privacidad y anonimización
 
@@ -288,7 +294,7 @@ API SvelteKit / servidor
 - Completar ES en toda la app; QU en flujos críticos (RF24): inicio, publicar, emergencia, estados offline/error.
 - Selector de idioma persistido y accesible.
 - Botones ≥44–48 px táctiles, foco visible, contraste suficiente, labels, `aria-live` para estados de sync/emergencia, errores junto al campo con instrucción de corrección.
-- Tutorial guiado repetible (RF23).
+- Exponer una acción visible para repetir el tutorial desde `/perfil/ajustes` (RF23).
 
 ## Backlog priorizado
 
@@ -310,11 +316,11 @@ API SvelteKit / servidor
 |---|---|---|---|---|
 | P1-1 | Service Worker maduro + manifest/iconos | P0-1 | RNF-OFF | Instalable; shell offline; actualización controlada |
 | P1-2 | SQLite WASM/OPFS Web Worker | P0-1 | RNF-PERF, RNF-OFF | Operaciones DB no bloquean UI; fallback Dexie |
-| P1-3 | Cipher WebCrypto real + migración | P0-3 | RNF-SEC | Datos sensibles no en plaintext; sesión local segura |
+| P1-3 | Cipher WebCrypto real + migración | P0-3 | RNF-SEC | **Parcial:** AES-GCM ya está activo; falta migrar/inutilizar datos antiguos y cubrir todos los secretos |
 | P1-4 | Grupos/zonas/membresías + aprobación referente | P0-3 | RF02, RF04, CU01, CU02, CU13 | Solicitud→aprobación; moderación registrada |
 | P1-5 | Emergencia completa (activar, alertas, tablero, apoyo) | P0-2,P0-3,P0-5 | RF12–RF15, CU09–CU11 | Coordinador activa; anuncios se pausan; coords aproximadas |
 | P1-6 | Anti-abuso + reportes moderación | P0-3 | RF20 | Rate limit, reporte, ocultamiento, bloqueo básico |
-| P1-7 | i18n ES/QU flujos críticos + tutorial repetible | P0-6 | RF23, RF24 | Selector funcional; onboarding repetible |
+| P1-7 | i18n ES/QU flujos críticos + tutorial repetible | P0-6 | RF23, RF24 | Selector funcional; onboarding repetible; acceso/tutorial localizado |
 
 ### P2 — Hoja de ruta
 
@@ -335,7 +341,7 @@ API SvelteKit / servidor
 | `localStorage`/almacenamiento iOS puede purgarse | Pérdida de cola/datos locales | Migrar a SQLite/IndexedDB gestionado, avisar límites, servidor como verdad |
 | Reloj del cliente incorrecto | Orden LWW/confusión temporal | Servidor asigna timestamps autoritativos para estados críticos; cliente guarda `created_at` local solo auxiliar |
 | API actual son stubs | La UI puede “parecer” completa sin persistencia real | Priorizar repos/adaptadores y tests de contrato; feature flags/demo clara |
-| `cifradolocalmejora.ts` en plaintext | Exposición de secretos locales | Reemplazar por WebCrypto antes de guardar PIN/tokens reales; migrar datos |
+| Datos legacy `plain:`/`pending-v1:` | Lectura de secretos sin cifrado | El runtime ahora los rechaza; falta migración explícita o invalidación controlada |
 | Dos colas/sync parciales (`dao` y `OutboxComunitario`) | Duplicación/confusión de estados | Unificar en P0-1 |
 | Esquemas SQLite/Postgres pueden divergir | Bugs de integración | Contrato OpenAPI + tipos compartidos + migraciones revisadas |
 

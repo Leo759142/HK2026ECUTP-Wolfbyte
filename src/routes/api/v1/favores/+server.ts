@@ -1,13 +1,14 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency } from '../../_http';
-import { store } from '../../_store';
+import { ok, problem, requireIdempotency, requireRol } from '../../_http';
+import { cargarStore, persistirStore, store } from '../../_store';
 import {
 	elegir,
 	errorTextos,
 	esRespuesta,
 	leerCoordenadas,
 	leerObjeto,
-	validarFoto
+	validarFoto,
+	validarFotos
 } from '../../_validar';
 import {
 	CATEGORIAS_FAVOR,
@@ -18,10 +19,11 @@ import {
 } from '../../../../dominio/tipos/tipos';
 import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 
-const CAMPOS = ['zona_id', 'tipo', 'categoria', 'titulo', 'descripcion', 'foto'] as const;
+const CAMPOS = ['zona_id', 'tipo', 'categoria', 'titulo', 'descripcion', 'foto', 'fotos'] as const;
 const UBICACION_POR_DEFECTO = { lat_aprox: -12.046, lng_aprox: -77.043 };
 
 export const GET: RequestHandler = async ({ url }) => {
+	await cargarStore();
 	const zona = url.searchParams.get('zona_id');
 	const estado = url.searchParams.get('estado');
 	return ok({
@@ -31,7 +33,10 @@ export const GET: RequestHandler = async ({ url }) => {
 	});
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	await cargarStore();
+	const rol = requireRol(request, 'publicar_offline');
+	if (typeof rol !== 'string') return rol;
 	const key = requireIdempotency(request);
 	if (typeof key !== 'string') return key;
 	const b = await leerObjeto(request);
@@ -45,6 +50,8 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (errTexto) return problem(422, 'Datos inválidos', errTexto);
 	const errFoto = validarFoto(b.foto);
 	if (errFoto) return problem(422, 'Foto inválida', errFoto);
+	const errFotos = validarFotos(b.fotos);
+	if (errFotos) return problem(422, 'Fotos inválidas', errFotos);
 	if (
 		!TIPOS_FAVOR.includes(String(b.tipo) as TipoFavor) ||
 		!CATEGORIAS_FAVOR.includes(String(b.categoria) as CategoriaFavor)
@@ -57,11 +64,19 @@ export const POST: RequestHandler = async ({ request }) => {
 	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });
 
 	const aprox = coords ? enmascararCoordenadas(coords.lat, coords.lng) : UBICACION_POR_DEFECTO;
+	const usuarioId = (() => {
+		try {
+			const sesion = JSON.parse(cookies.get('pod_sesion') ?? '{}') as { usuarioId?: string };
+			return sesion.usuarioId ?? 'demo';
+		} catch {
+			return 'demo';
+		}
+	})();
 	const item = {
 		...elegir(b, CAMPOS),
 		...aprox,
 		id: key,
-		creador_id: 'demo',
+		creador_id: usuarioId,
 		ayudante_id: null,
 		estado: 'abierto',
 		oculto: 0,
@@ -70,5 +85,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		creado_en: new Date().toISOString()
 	} as unknown as Favor;
 	store.favores.push(item);
+	await persistirStore();
 	return ok(item, 201);
 };

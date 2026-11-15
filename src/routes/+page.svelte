@@ -8,6 +8,7 @@
 		descripcion?: string;
 		categoria?: string;
 		foto?: string | null;
+		fotos?: string[];
 	};
 	let recomendados = $state<ServicioInicio[]>([]);
 
@@ -112,7 +113,7 @@
 		{#each recomendados as servicio}
 			<a href="/servicios" class="service-card">
 				<div class="service-card__image" aria-hidden="true">
-					{#if servicio.foto}<img src={servicio.foto} alt="" />{:else}{iconos[
+					{#if servicio.foto || servicio.fotos?.length}<img src={servicio.foto ?? servicio.fotos?.[0]} alt="" />{:else}{iconos[
 							servicio.categoria ?? ''
 						] ?? '🛠️'}{/if}
 				</div>

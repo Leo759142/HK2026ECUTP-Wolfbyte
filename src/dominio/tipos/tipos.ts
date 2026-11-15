@@ -281,6 +281,8 @@ export interface Favor extends CoordenadaAprox {
 	categoria: CategoriaFavor;
 	titulo: string;
 	descripcion: string;
+	foto?: string | null;
+	fotos?: string[];
 	estado: EstadoFavor;
 	agradecimiento: string | null;
 	oculto: 0 | 1;

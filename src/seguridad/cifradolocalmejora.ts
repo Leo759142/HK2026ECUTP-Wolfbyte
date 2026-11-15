@@ -20,21 +20,14 @@ export class CifradoLocalMejora {
 	static async desempaquetarDatoSensibleAsync(datoEmpaquetado: string): Promise<string> {
 		return descifrarTexto(datoEmpaquetado);
 	}
-	/** Legacy sync: solo ofuscación base64, no cifrado real. Usar `empaquetarDatoSensibleAsync` en producción. */
+	/** La API síncrona se conserva para detectar usos inseguros en tiempo de ejecución. */
 	static empaquetarDatoSensible(dato: string): string {
-		if (globalThis.crypto?.subtle) return `pending-v1:${btoa(unescape(encodeURIComponent(dato)))}`;
-		return dato;
+		void dato;
+		throw new Error('Usa empaquetarDatoSensibleAsync: el cifrado seguro es asíncrono.');
 	}
-	/** Legacy sync: revierte ofuscación base64. Usar `desempaquetarDatoSensibleAsync` en producción. */
+	/** La API síncrona se conserva para detectar usos inseguros en tiempo de ejecución. */
 	static desempaquetarDatoSensible(datoEmpaquetado: string): string {
-		if (datoEmpaquetado.startsWith('pending-v1:')) {
-			try {
-				return decodeURIComponent(escape(atob(datoEmpaquetado.slice('pending-v1:'.length))));
-			} catch {
-				return datoEmpaquetado;
-			}
-		}
-		if (datoEmpaquetado.startsWith('plain:')) return datoEmpaquetado.slice(6);
-		return datoEmpaquetado;
+		void datoEmpaquetado;
+		throw new Error('Usa desempaquetarDatoSensibleAsync: el descifrado seguro es asíncrono.');
 	}
 }

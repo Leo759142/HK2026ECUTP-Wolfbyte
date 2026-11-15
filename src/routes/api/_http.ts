@@ -17,6 +17,15 @@ export function ok<T>(data: T, status = 200, headers: Record<string, string> = {
 
 export function requireRol(request: Request, accion: string) {
 	const raw = (request.headers.get('x-rol') ?? '').trim();
+	const alias: Record<string, Rol> = {
+		vecino: 'Vecino',
+		referente: 'Referente de manzana',
+		emprendedor: 'Emprendedor',
+		coordinador: 'Coordinador de emergencia',
+		anunciante: 'Anunciante',
+		cualquiera: 'Cualquiera'
+	};
+	const rol = alias[raw.toLowerCase()] ?? raw;
 	const roles: Rol[] = [
 		'Vecino',
 		'Referente de manzana',
@@ -25,11 +34,11 @@ export function requireRol(request: Request, accion: string) {
 		'Anunciante',
 		'Cualquiera'
 	];
-	if (!roles.includes(raw as Rol))
+	if (!roles.includes(rol as Rol))
 		return problem(401, 'Rol requerido', 'Incluye encabezado X-Rol válido.');
-	if (!puedeRol(raw as Rol, accion as never))
-		return problem(403, 'Permiso denegado', `El rol ${raw} no puede ejecutar ${accion}.`);
-	return raw as Rol;
+	if (!puedeRol(rol as Rol, accion as never))
+		return problem(403, 'Permiso denegado', `El rol ${rol} no puede ejecutar ${accion}.`);
+	return rol as Rol;
 }
 export function requireIdempotency(request: Request) {
 	const key = (

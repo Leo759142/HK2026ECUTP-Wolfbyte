@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { obtenerSesionLocal } from '../../lib/onboarding';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
 
 	type Usuario = {
@@ -19,12 +20,38 @@
 	let letraGrande = $state(false);
 	let mensaje = $state('');
 	let error = $state('');
-	let publicaciones = $state(0);
+	let publicaciones = $derived(() => {
+		const sesion = obtenerSesionLocal();
+		const usuarioId = sesion?.usuarioId;
+		if (!usuarioId) return 0;
+		const servicios = leer<Array<Record<string, unknown>>>('services', []);
+		const favores = leer<Array<Record<string, unknown>>>('favors', []);
+		const misServicios = servicios.filter(
+			(item) => item.ownerId === usuarioId || item.usuario_id === usuarioId
+		);
+		const misFavores = favores.filter(
+			(item) => item.creador_id === usuarioId || item.usuario_id === usuarioId
+		);
+		return misServicios.length + misFavores.length;
+	});
 	let favoresDados = $state(0);
 	let favoresRecibidos = $state(0);
 	let diasEnAyni = $state(0);
 	let esGuardian = $state(false);
 	let puedeSerGuardian = $state(false);
+
+	function actualizarFotoEnUsuarios(valor: string | null) {
+		const usuarios = leer<Usuario[]>('users', []);
+		const sesion = leer<{ usuarioId?: string }>('session', {});
+		const indice = usuarios.findIndex((item) => item.id === sesion.usuarioId);
+		const indiceSeguro = indice >= 0 ? indice : 0;
+		guardar(
+			'users',
+			usuarios.map((item, index) =>
+				index === indiceSeguro ? { ...item, foto: valor, updatedAt: Date.now() } : item
+			)
+		);
+	}
 
 	function leer<T>(clave: string, fallback: T): T {
 		try {
@@ -89,11 +116,7 @@
 		try {
 			foto = await comprimirImagen(archivo);
 			usuario = { ...usuario, foto };
-			const usuarios = leer<Usuario[]>('users', []);
-			const actualizados = usuarios.map((item, index) =>
-				index === 0 ? { ...item, foto, updatedAt: Date.now() } : item
-			);
-			guardar('users', actualizados);
+			actualizarFotoEnUsuarios(foto);
 			mensaje = 'Foto de perfil actualizada.';
 		} catch (cause) {
 			error = cause instanceof Error ? cause.message : 'No se pudo actualizar la foto.';
@@ -105,26 +128,14 @@
 	function quitarFoto() {
 		foto = null;
 		usuario = { ...usuario, foto: null };
-		const usuarios = leer<Usuario[]>('users', []);
-		guardar(
-			'users',
-			usuarios.map((item, index) =>
-				index === 0 ? { ...item, foto: null, updatedAt: Date.now() } : item
-			)
-		);
+		actualizarFotoEnUsuarios(null);
 		mensaje = 'Foto de perfil eliminada.';
 	}
 
 	function guardarFoto(valor: string | null) {
 		foto = valor;
 		usuario = { ...usuario, foto: valor };
-		const usuarios = leer<Usuario[]>('users', []);
-		guardar(
-			'users',
-			usuarios.map((item, index) =>
-				index === 0 ? { ...item, foto: valor, updatedAt: Date.now() } : item
-			)
-		);
+		actualizarFotoEnUsuarios(valor);
 		mensaje = valor ? 'Foto de perfil actualizada.' : 'Foto de perfil eliminada.';
 	}
 
@@ -183,7 +194,8 @@
 		document.documentElement.classList.toggle('letra-grande', letraGrande);
 	});
 
-	function cerrarSesion() {
+	async function cerrarSesion() {
+		await fetch('/api/v1/auth', { method: 'DELETE' }).catch(() => undefined);
 		localStorage.removeItem('ayni:v1:session');
 		window.location.href = '/acceso';
 	}
@@ -256,7 +268,7 @@
 			</section>
 		{/if}
 
-		<div class="profile-stat-single">
+		<div class="publicaciones-contador">
 			<strong>{publicaciones}</strong><small>Publicaciones activas</small>
 		</div>
 
@@ -276,7 +288,7 @@
 				>
 					<option value="es">Español</option>
 					<option value="en">English</option>
-					<option value="qu">Runasimi</option>
+					<option value="qu">Quechua</option>
 				</select>
 			</label>
 			<label class="setting-row">

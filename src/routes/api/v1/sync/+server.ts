@@ -1,6 +1,6 @@
 import type { RequestHandler } from './$types';
 import { json } from '@sveltejs/kit';
-import { problem } from '../../_http';
+import { problem, requireRol } from '../../_http';
 import { dao } from '../../../../datos/dao';
 import { idempotencyStore } from '../../../../lib/db/idempotency';
 
@@ -29,6 +29,8 @@ async function aplicar(op: Op) {
 }
 
 export const POST: RequestHandler = async ({ request }) => {
+	const rol = requireRol(request, 'publicar_offline');
+	if (typeof rol !== 'string') return rol;
 	const b = (await request.json().catch(() => null)) as { operaciones?: Op[] } | null;
 	if (!b || !Array.isArray(b.operaciones))
 		return problem(

@@ -40,7 +40,7 @@ export const _login = async ({ request, cookies }: Pick<RequestEvent, 'request' 
 	});
 	cookies.set('pod_rol', HARDCODED_ADMIN.rol, {
 		path: '/',
-		httpOnly: false,
+		httpOnly: true,
 		sameSite: 'lax',
 		secure: import.meta.env.PROD,
 		maxAge: 24 * 60 * 60
@@ -87,7 +87,7 @@ export const _register = async ({
 	});
 	cookies.set('pod_rol', HARDCODED_ADMIN.rol, {
 		path: '/',
-		httpOnly: false,
+		httpOnly: true,
 		sameSite: 'lax',
 		secure: import.meta.env.PROD,
 		maxAge: 24 * 60 * 60

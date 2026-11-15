@@ -53,3 +53,11 @@ export function guardarSesionLocal(sesion: SesionLocal): void {
 export function cerrarSesionLocal(): void {
 	if (typeof localStorage !== 'undefined') localStorage.removeItem(SESSION_KEY);
 }
+
+/** Encabezados mínimos para que las mutaciones respeten el RBAC del servidor. */
+export function encabezadosSesion(): Record<string, string> {
+	const sesion = obtenerSesionLocal();
+	if (!sesion) return {};
+	// Sesiones antiguas pueden no tener rol; Vecino es el rol mínimo para publicar.
+	return { 'x-rol': sesion.rol?.trim() || 'Vecino' };
+}

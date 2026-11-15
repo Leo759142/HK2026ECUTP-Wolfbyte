@@ -1,6 +1,6 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency } from '../../../../_http';
-import { store } from '../../../../_store';
+import { ok, problem, requireIdempotency, requireRol } from '../../../../_http';
+import { cargarStore, persistirStore, store } from '../../../../_store';
 import {
 	METODOS_CONFIRMACION,
 	ROLES_EN_FAVOR,
@@ -11,6 +11,9 @@ import {
 import { ServicioCierreFavor } from '../../../../../../dominio/favores/cierre';
 
 export const POST: RequestHandler = async ({ request, params }) => {
+	await cargarStore();
+	const rolAutorizado = requireRol(request, 'publicar_offline');
+	if (typeof rolAutorizado !== 'string') return rolAutorizado;
 	const key = requireIdempotency(request);
 	if (typeof key !== 'string') return key;
 
@@ -78,5 +81,6 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		favor.estado = 'cerrado';
 		favor.cerrado_en = new Date().toISOString();
 	}
+	await persistirStore();
 	return ok({ ok: true, id: key, favor_estado: favor.estado }, 201);
 };

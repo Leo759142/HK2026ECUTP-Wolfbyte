@@ -25,7 +25,8 @@ export const PERMISOS_POR_ROL_MEMBRESIA: Record<RolMembresia, readonly AccionRba
 		'ofrecer_favor',
 		'dar_visto_bueno',
 		'reportar_emergencia',
-		'publicar_offline'
+		'publicar_offline',
+		'publicar_servicio'
 	],
 	referente: [
 		'consultar_directorio',
@@ -59,6 +60,7 @@ export const PERMISOS_POR_ROL_MEMBRESIA: Record<RolMembresia, readonly AccionRba
 		'dar_visto_bueno',
 		'reportar_emergencia',
 		'publicar_offline',
+		'publicar_servicio',
 		'activar_emergencia',
 		'desactivar_emergencia',
 		'moderar_contenido',

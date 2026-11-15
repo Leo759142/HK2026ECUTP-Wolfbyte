@@ -5,6 +5,7 @@
 	import { construirPublicacion, tipoDesdeUrl, type TipoPublicacion } from '#lib/publicar';
 	import { PublicarServicio, obtenerUsuarioCliente } from '../../aplicacion/servicios';
 	import { ServicioRepoLocal } from '../../repositorios/servicio.local';
+	import { encabezadosSesion } from '../../lib/onboarding';
 	import Btn from '../../lib/ui/Btn.svelte';
 	import Header from '../../lib/ui/Header.svelte';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
@@ -50,7 +51,8 @@
 		tipo_alerta: 'otro',
 		lat_aprox: -12.046,
 		lng_aprox: -77.043,
-		foto: null as string | null
+		foto: null as string | null,
+		fotos: [] as string[]
 	});
 
 	async function enviar() {
@@ -64,17 +66,41 @@
 		guardando = true;
 		try {
 			if (tipo === 'servicio') {
-				const creado = await publicarServicio.ejecutar({
+				const servicioInput = {
 					usuario_id: obtenerUsuarioCliente(),
 					zona_id: form.zona_id,
 					categoria: form.categoria as CategoriaServicio,
 					titulo: form.titulo.trim(),
 					descripcion: form.descripcion.trim(),
 					foto: form.foto,
+					fotos: form.fotos,
 					lat_aprox: form.lat_aprox,
 					lng_aprox: form.lng_aprox
-				});
-				mensaje = `Servicio “${creado.titulo}” guardado. Se enviará cuando haya señal.`;
+				};
+				try {
+					const respuesta = await fetch('/api/v1/servicios', {
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							'Idempotency-Key': crypto.randomUUID(),
+							...encabezadosSesion()
+						},
+						body: JSON.stringify(servicioInput)
+					});
+					if (!respuesta.ok) {
+						const problema = (await respuesta.json().catch(() => ({}))) as {
+							detail?: string;
+							title?: string;
+						};
+						throw new Error(problema.detail ?? problema.title ?? 'La API rechazó el servicio.');
+					}
+					const creado = (await respuesta.json()) as { titulo?: string };
+					mensaje = `Servicio “${creado.titulo ?? servicioInput.titulo}” publicado correctamente.`;
+				} catch (cause) {
+					if (!(cause instanceof TypeError)) throw cause;
+					const creado = await publicarServicio.ejecutar(servicioInput);
+					mensaje = `Servicio “${creado.titulo}” guardado en el dispositivo. Se enviará cuando haya señal.`;
+				}
 			} else {
 				await encolarAccion(pub.entidad, pub.body);
 				mensaje =
@@ -95,6 +121,7 @@
 		form.titulo = '';
 		form.descripcion = '';
 		form.foto = null;
+		form.fotos = [];
 		mensaje = '';
 		error = '';
 	}
@@ -197,7 +224,15 @@
 			</div>
 		{/if}
 		<div class="publish-label">
-			Foto opcional<PhotoPicker value={form.foto} onchange={(value) => (form.foto = value)} />
+			Fotos opcionales
+			<PhotoPicker
+				multiple
+				values={form.fotos}
+				onvalueschange={(values) => {
+					form.fotos = values;
+					form.foto = values[0] ?? null;
+				}}
+			/>
 		</div>
 		<div class="publish-actions">
 			<button class="mobile-btn mobile-btn--outline" type="button" onclick={() => (paso = 1)}

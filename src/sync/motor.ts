@@ -1,5 +1,6 @@
 import { outboxDAO } from '../datos/dao';
 import { esPendiente } from '../datos/outbox';
+import { encabezadosSesion } from '../lib/onboarding';
 
 export interface ResultadoSync {
 	enviadas: number;
@@ -21,7 +22,11 @@ async function fetchConIdempotencia(
 ): Promise<Response | null> {
 	return fetch(path, {
 		method: 'POST',
-		headers: { 'content-type': 'application/json; charset=utf-8', 'Idempotency-Key': opId },
+		headers: {
+			'content-type': 'application/json; charset=utf-8',
+			'Idempotency-Key': opId,
+			...encabezadosSesion()
+		},
 		body: JSON.stringify(payload)
 	}).catch(() => null);
 }

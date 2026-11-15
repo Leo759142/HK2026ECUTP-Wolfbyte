@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import { encabezadosSesion } from '../../lib/onboarding';
 	import type { Servicio } from '../../dominio/tipos/tipos';
 	import { ListarServicios } from '../../aplicacion/servicios';
 	import { ServicioRepoLocal } from '../../repositorios/servicio.local';
 	import Header from '../../lib/ui/Header.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
+	import PhotoGallery from '../../lib/ui/PhotoGallery.svelte';
 
 	type Recomendacion = {
 		id: string;
@@ -24,6 +26,7 @@
 		telefono?: string;
 	};
 	type ServicioVista = Servicio & {
+		fotos?: string[];
 		owner?: string;
 		ownerId?: string;
 		telefono?: string;
@@ -99,7 +102,7 @@
 	);
 
 	function icono(id: string) {
-		return categorias.find((item) => item[0] === id)?.[1] ?? '🛠️';
+			return categorias.find((item) => item[0] === id)?.[1] ?? '🛠️';
 	}
 
 	async function cargarRecomendaciones(id?: string) {
@@ -152,7 +155,11 @@
 				`/api/v1/servicios/${encodeURIComponent(seleccionado.id)}/recomendaciones`,
 				{
 					method: 'POST',
-					headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencia },
+					headers: {
+						'Content-Type': 'application/json',
+						'Idempotency-Key': idempotencia,
+						...encabezadosSesion()
+					},
 					body: JSON.stringify({
 						tipo: 'visto_bueno',
 						misma_zona: true,
@@ -256,6 +263,7 @@
 	>
 </Screen>
 
+
 {#if seleccionado}
 	<div class="detail-overlay" role="presentation" onclick={() => (seleccionado = null)}>
 		<div
@@ -274,9 +282,13 @@
 				onclick={() => (seleccionado = null)}>×</button
 			>
 			<div class="detail-icon">
-				{#if seleccionado.foto}<img src={seleccionado.foto} alt="" />{:else}{icono(
-						seleccionado.categoria
-					)}{/if}
+				{#if seleccionado.foto || seleccionado.fotos?.length}
+					<PhotoGallery
+						foto={seleccionado.foto}
+						fotos={seleccionado.fotos}
+						alt={seleccionado.titulo}
+					/>
+				{:else}{icono(seleccionado.categoria)}{/if}
 			</div>
 			<h2>{seleccionado.owner} · {seleccionado.titulo}</h2>
 			<p>{seleccionado.descripcion}</p>

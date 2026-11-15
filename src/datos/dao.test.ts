@@ -26,8 +26,9 @@ describe('DAO/outbox unificado', () => {
 
 describe('Cipher legacy', () => {
 	it('roundtrip sync', () => {
-		const packed = CifradoLocalMejora.empaquetarDatoSensible('1234');
-		expect(CifradoLocalMejora.desempaquetarDatoSensible(packed)).toBe('1234');
+		expect(() => CifradoLocalMejora.empaquetarDatoSensible('1234')).toThrow(
+			'cifrado seguro es asíncrono'
+		);
 	});
 	it('roundtrip async', async () => {
 		const packed = await CifradoLocalMejora.empaquetar('secreto');

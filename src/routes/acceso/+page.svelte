@@ -3,6 +3,7 @@
 	import Btn from '../../lib/ui/Btn.svelte';
 	import Header from '../../lib/ui/Header.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
+	import { translate, type Idioma } from '../../i18n';
 	import { onMount } from 'svelte';
 	import {
 		guardarSesionLocal,
@@ -25,27 +26,29 @@
 	let obteniendoUbicacion = $state(false);
 	let error = $state('');
 	let onboardingCompletado = $state(false);
+	let idioma = $state<Idioma>('es');
+	const t = (key: string) => translate(idioma, key);
 
-	const tutoriales = [
+	let tutoriales = $derived([
 		{
 			emoji: '🤝',
-			titulo: 'Hoy por ti,\nmañana por mí',
-			texto: 'Encuentra gasfiteros, profes y más, recomendados por tus propios vecinos.',
+			titulo: t('tutorial.1.titulo'),
+			texto: t('tutorial.1.texto'),
 			color: 'access-step--petroleo'
 		},
 		{
 			emoji: '🔄',
-			titulo: 'Pide o presta\nsin dinero',
-			texto: 'Presta tu escalera, regala lo que te sobra o intercambia lo que sabes hacer.',
+			titulo: t('tutorial.2.titulo'),
+			texto: t('tutorial.2.texto'),
 			color: 'access-step--petroleo'
 		},
 		{
 			emoji: '🛡️',
-			titulo: 'En emergencias,\nnos cuidamos',
-			texto: 'Si pasa algo grave, AYNI cambia a modo emergencia para coordinar ayuda.',
+			titulo: t('tutorial.3.titulo'),
+			texto: t('tutorial.3.texto'),
 			color: 'access-step--rojo'
 		}
-	];
+	]);
 
 	function siguienteTutorial() {
 		if (tutorial < tutoriales.length - 1) tutorial += 1;
@@ -198,9 +201,39 @@
 		}
 		obteniendoUbicacion = true;
 		navigator.geolocation.getCurrentPosition(
-			() => {
-				ubicacion = 'Ubicación aproximada detectada';
-				obteniendoUbicacion = false;
+			async ({ coords }) => {
+				try {
+					const respuesta = await fetch(
+						`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(coords.latitude)}&lon=${encodeURIComponent(coords.longitude)}&zoom=18&addressdetails=1`,
+						{ headers: { Accept: 'application/json' } }
+					);
+					if (!respuesta.ok) throw new Error('No se pudo consultar la dirección.');
+					const datos = (await respuesta.json()) as {
+						address?: {
+							road?: string;
+							neighbourhood?: string;
+							suburb?: string;
+							city?: string;
+							town?: string;
+							village?: string;
+							state?: string;
+						};
+					};
+					const direccion = datos.address
+						? [
+								datos.address.road,
+								datos.address.neighbourhood ?? datos.address.suburb,
+								datos.address.city ?? datos.address.town ?? datos.address.village
+							]
+								.filter(Boolean)
+								.join(', ')
+						: '';
+					ubicacion = direccion || 'Ubicación aproximada detectada';
+				} catch {
+					ubicacion = `Ubicación aproximada (${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)})`;
+				} finally {
+					obteniendoUbicacion = false;
+				}
 			},
 			() => {
 				error = 'No pudimos detectar tu ubicación. Puedes escribir una referencia.';
@@ -227,6 +260,14 @@
 	}
 
 	onMount(async () => {
+		try {
+			const settings = JSON.parse(localStorage.getItem('ayni:v1:settings') ?? '{}') as {
+				lang?: Idioma;
+			};
+			if (settings.lang && ['es', 'en', 'qu'].includes(settings.lang)) idioma = settings.lang;
+		} catch {
+			idioma = 'es';
+		}
 		onboardingCompletado = await onboardingVisto();
 		if (obtenerSesionLocal()) await goto('/');
 	});
@@ -236,7 +277,7 @@
 
 {#if paso === 'portada'}
 	<Screen class="access-cover">
-		<div class="access-language">ES</div>
+		<div class="access-language">{idioma === 'es' ? 'ES' : idioma === 'en' ? 'EN' : 'QU'}</div>
 		<div class="access-cover__content">
 			<img src="/logo.jpg" alt="AYNI" />
 			<h1>Hoy por ti,<br />mañana por mí.</h1>
@@ -245,8 +286,8 @@
 			</p>
 		</div>
 		<div class="access-actions">
-			<Btn variant="acento" onclick={iniciarRegistro}>Crear cuenta</Btn>
-			<Btn variant="borde" onclick={iniciarSesion}>Ya tengo cuenta</Btn>
+			<Btn variant="acento" onclick={iniciarRegistro}>{t('access.crear')}</Btn>
+			<Btn variant="borde" onclick={iniciarSesion}>{t('access.ingresar')}</Btn>
 			<button class="access-demo" type="button" onclick={entrarDemo}
 				>Entrar como vecina de prueba (Rosa)</button
 			>
@@ -264,7 +305,7 @@
 			{#each tutoriales as _, index}<span class:active={index === tutorial}></span>{/each}
 		</div>
 		<Btn variant="blanco" onclick={siguienteTutorial}
-			>{tutorial < 2 ? 'Siguiente →' : 'Empezar'}</Btn
+			>{tutorial < 2 ? t('access.siguiente') : t('access.empezar')}</Btn
 		>
 	</div>
 {:else if paso === 'telefono'}
@@ -345,7 +386,7 @@
 		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
 		<div class="access-spacer"></div>
 		<Btn disabled={alias.trim().length < 2 || apellido.trim().length < 2} onclick={guardarRegistro}
-			>Continuar</Btn
+			>{t('access.continuar')}</Btn
 		>
 	</Screen>
 {:else if paso === 'ubicacion'}
@@ -376,7 +417,7 @@
 		</button>
 		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
 		<div class="access-spacer"></div>
-		<Btn disabled={!ubicacion.trim()} onclick={guardarUbicacion}>Continuar</Btn>
+		<Btn disabled={!ubicacion.trim()} onclick={guardarUbicacion}>{t('access.continuar')}</Btn>
 	</Screen>
 {:else}
 	<Screen>
@@ -397,6 +438,6 @@
 		</div>
 		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
 		<div class="access-spacer"></div>
-		<Btn disabled={!manzana} onclick={guardarZona}>Entrar a AYNI</Btn>
+		<Btn disabled={!manzana} onclick={guardarZona}>{t('access.entrar')}</Btn>
 	</Screen>
 {/if}

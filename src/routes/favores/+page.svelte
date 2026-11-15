@@ -6,6 +6,7 @@
 	import { obtenerSesionLocal } from '../../lib/onboarding';
 	import Header from '../../lib/ui/Header.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
+	import PhotoGallery from '../../lib/ui/PhotoGallery.svelte';
 
 	const listarFavores = new ListarFavor(new FavorRepoLocal());
 	const confirmarFavor = new ConfirmarFavor(new FavorConfirmacionRepoLocal());
@@ -20,7 +21,7 @@
 	let enviando = $state<string | null>(null);
 	let usuarioId = $state('demo');
 	let confirmaciones = $state<Record<string, RolEnFavor[]>>({});
-
+	
 	let datos = $derived<any[]>(items);
 	let visibles = $derived(
 		datos.filter((item) => {
@@ -169,6 +170,7 @@
 				<div class:favor-icon--offer={favor.tipo === 'oferta'} class="favor-icon">
 					{favor.tipo === 'oferta' ? '🎁' : '🤝'}
 				</div>
+				{#if favor.foto}<img class="favor-card__photo" src={favor.foto} alt="" />{/if}
 				<div class="favor-card__body">
 					<div class="favor-card__title">
 						<strong>{favor.titulo}</strong><span
@@ -210,6 +212,13 @@
 			<span class="favor-kind"
 				>{seleccionado.tipo === 'oferta' ? 'Oferta de ayuda' : 'Necesita ayuda'}</span
 			>
+			{#if seleccionado.foto || seleccionado.fotos?.length}
+				<PhotoGallery
+					foto={seleccionado.foto}
+					fotos={seleccionado.fotos}
+					alt={seleccionado.titulo}
+				/>
+			{/if}
 			<h2>{seleccionado.titulo}</h2>
 			<p>{seleccionado.descripcion}</p>
 			<div class="detail-tags">
@@ -279,3 +288,4 @@
 		</div>
 	</div>
 {/if}
+

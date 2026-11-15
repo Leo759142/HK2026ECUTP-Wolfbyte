@@ -19,6 +19,7 @@ export interface FormPublicar {
 	lat_aprox: number;
 	lng_aprox: number;
 	foto?: string | null;
+	fotos?: string[];
 }
 
 export type Publicacion =
@@ -57,6 +58,7 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 				tipo: form.tipo_alerta,
 				descripcion: texto,
 				foto: form.foto ?? null,
+				fotos: form.fotos ?? [],
 				...ubicacion
 			}
 		};
@@ -81,6 +83,7 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 				titulo,
 				descripcion,
 				foto: form.foto ?? null,
+				fotos: form.fotos ?? [],
 				...ubicacion
 			}
 		};
@@ -97,6 +100,7 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 			titulo,
 			descripcion,
 			foto: form.foto ?? null,
+			fotos: form.fotos ?? [],
 			...ubicacion
 		}
 	};

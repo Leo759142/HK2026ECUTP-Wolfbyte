@@ -40,7 +40,8 @@ function secretPorDefecto(): string {
 }
 
 export async function cifrarTexto(plano: string, secret = secretPorDefecto()): Promise<string> {
-	if (!globalThis.crypto?.subtle) return `plain:${plano}`;
+	if (!globalThis.crypto?.subtle)
+		throw new Error('Web Crypto API no disponible: no se puede cifrar el dato local.');
 	const key = await deriveKey(secret);
 	const iv = crypto.getRandomValues(new Uint8Array(IV_BYTES));
 	const data = new TextEncoder().encode(plano);
@@ -52,8 +53,11 @@ export async function descifrarTexto(
 	empaquetado: string,
 	secret = secretPorDefecto()
 ): Promise<string> {
-	if (empaquetado.startsWith('plain:')) return empaquetado.slice(6);
-	if (!empaquetado.startsWith('v1:') || !globalThis.crypto?.subtle) return empaquetado;
+	if (empaquetado.startsWith('plain:') || empaquetado.startsWith('pending-v1:'))
+		throw new Error('Dato local legado sin cifrado. Debe volver a guardarse de forma segura.');
+	if (!empaquetado.startsWith('v1:')) throw new Error('Formato de dato cifrado no reconocido.');
+	if (!globalThis.crypto?.subtle)
+		throw new Error('Web Crypto API no disponible: no se puede descifrar el dato local.');
 	const [, ivB64, ctB64] = empaquetado.split(':');
 	if (!ivB64 || !ctB64) return empaquetado;
 	const key = await deriveKey(secret);

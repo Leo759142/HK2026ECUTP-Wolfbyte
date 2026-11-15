@@ -4,6 +4,8 @@
  * Se pierde al reiniciar el servidor.
  */
 import type { Favor, FavorConfirmacion } from '../../dominio/tipos/tipos';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 
 export type Fila = Record<string, unknown>;
 
@@ -13,6 +15,7 @@ export interface StoreApi {
 	servicios: Fila[];
 	recomendaciones: Fila[];
 	alertas: Fila[];
+	alertasOficiales: Fila[];
 	emergencias: Fila[];
 }
 
@@ -101,8 +104,49 @@ export const store: StoreApi = {
 	servicios: semillaServicios(),
 	recomendaciones: [],
 	alertas: [],
+	alertasOficiales: [],
 	emergencias: []
 };
+
+let cargado = false;
+let escritura: Promise<void> = Promise.resolve();
+const esPrueba = process.env.NODE_ENV === 'test';
+const archivoDatos =
+	process.env.AYNI_DATA_FILE ?? join(process.cwd(), 'temp', 'ayni-api-store.json');
+
+/** Carga una vez el estado persistente del adaptador Node. En tests permanece aislado. */
+export async function cargarStore(): Promise<void> {
+	if (cargado || esPrueba) return;
+	cargado = true;
+	try {
+		const raw = JSON.parse(await readFile(archivoDatos, 'utf8')) as Partial<StoreApi>;
+		for (const clave of [
+			'favores',
+			'confirmaciones',
+			'servicios',
+			'recomendaciones',
+			'alertas',
+			'alertasOficiales',
+			'emergencias'
+		] as const) {
+			if (Array.isArray(raw[clave])) store[clave] = raw[clave] as never;
+		}
+	} catch {
+		// Primer arranque: se conservan las semillas iniciales.
+	}
+}
+
+/** Persiste con reemplazo atómico para evitar archivos truncados ante una caída. */
+export function persistirStore(): Promise<void> {
+	if (esPrueba) return Promise.resolve();
+	escritura = escritura.then(async () => {
+		await mkdir(dirname(archivoDatos), { recursive: true });
+		const temporal = `${archivoDatos}.tmp`;
+		await writeFile(temporal, JSON.stringify(store), 'utf8');
+		await rename(temporal, archivoDatos);
+	});
+	return escritura;
+}
 
 /** Vuelve al estado inicial (útil en tests). */
 export function reiniciarStore(): void {
@@ -111,5 +155,7 @@ export function reiniciarStore(): void {
 	store.servicios = semillaServicios();
 	store.recomendaciones = [];
 	store.alertas = [];
+	store.alertasOficiales = [];
 	store.emergencias = [];
+	cargado = esPrueba;
 }

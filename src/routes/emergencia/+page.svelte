@@ -33,6 +33,7 @@
 	let tipo = $state('zona_inundada');
 	let detalles = $state('');
 	let foto = $state<string | null>(null);
+	let fotos = $state<string[]>([]);
 
 	const etiquetaTipo = (valor?: string) =>
 		tipos.find(([id]) => id === valor)?.[2] ?? valor ?? 'Situación reportada';
@@ -81,6 +82,8 @@
 			lat_aprox: -12.046,
 			lng_aprox: -77.043,
 			foto
+			,
+			fotos
 		});
 		if (!pub.ok) {
 			error = pub.error;
@@ -92,6 +95,7 @@
 			reporteEnviado = true;
 			detalles = '';
 			foto = null;
+			fotos = [];
 		} catch {
 			error = 'No se pudo guardar el reporte. Intenta de nuevo.';
 		} finally {
@@ -106,9 +110,12 @@
 		tipo = 'zona_inundada';
 		detalles = '';
 		foto = null;
+		fotos = [];
 	}
 
-	onMount(cargar);
+	onMount(() => {
+		void cargar();
+	});
 </script>
 
 <svelte:head><title>Emergencia | AYNI</title></svelte:head>
@@ -121,6 +128,7 @@
 			<p>Reporta una situación y mantén informado a tu sector.</p>
 		</div>
 	</div>
+	<a class="profile-link" href="/moderacion/alertas-oficiales">📡 Revisar alertas oficiales</a>
 	<div class="emergency-actions">
 		<a class="emergency-action emergency-action--primary" href="/pedir-ayuda">
 			<strong>🆘 Necesito ayuda</strong>
@@ -183,8 +191,15 @@
 					placeholder="Cuéntanos qué ocurre y a quiénes afecta"></textarea>
 			</label>
 			<div class="publish-label">
-				Foto opcional
-				<PhotoPicker value={foto} onchange={(value) => (foto = value)} />
+				Fotos opcionales
+				<PhotoPicker
+					multiple
+					values={fotos}
+					onvalueschange={(values) => {
+						fotos = values;
+						foto = values[0] ?? null;
+					}}
+				/>
 			</div>
 			<p class="emergency-location">📍 Ubicación aproximada · Mz. de tu sector</p>
 			{#if error}<p class="notice notice--error" role="alert">{error}</p>{/if}
@@ -236,6 +251,7 @@
 			{#each items as alerta (alerta.id)}
 				<article class="emergency-card">
 					<div class="emergency-card__icon">🚨</div>
+					{#if alerta.foto}<img class="emergency-card__photo" src={alerta.foto} alt="" />{/if}
 					<div>
 						<div class="emergency-card__heading">
 							<strong>{etiquetaTipo(alerta.tipo)}</strong>

@@ -2,7 +2,7 @@
 type Handler = (event: never) => Response | Promise<Response>;
 
 export interface OpcionesLlamada {
-	method?: 'GET' | 'POST';
+	method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 	body?: unknown;
 	headers?: Record<string, string>;
 	params?: Record<string, string>;
@@ -15,7 +15,7 @@ export async function llamar(handler: Handler, ruta: string, op: OpcionesLlamada
 	const method = op.method ?? (op.body === undefined ? 'GET' : 'POST');
 	const request = new Request(url, {
 		method,
-		headers: { 'content-type': 'application/json', ...(op.headers ?? {}) },
+		headers: { 'content-type': 'application/json', 'x-rol': 'Emprendedor', ...(op.headers ?? {}) },
 		body:
 			op.body === undefined
 				? undefined

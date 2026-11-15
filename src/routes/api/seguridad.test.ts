@@ -6,6 +6,8 @@ import * as favores from './v1/favores/+server';
 import * as servicios from './v1/servicios/+server';
 import * as alertas from './v1/alertas/+server';
 import * as emergencias from './v1/emergencias/+server';
+import * as alertasOficiales from './v1/alertas-oficiales/+server';
+import { PATCH as revisarAlertaOficial } from './v1/alertas-oficiales/[id]/+server';
 import { POST as recomendar } from './v1/servicios/[id]/recomendaciones/+server';
 import { validarCoordenadas } from '../../dominio/tipos/geohash';
 
@@ -53,6 +55,7 @@ describe('Paso 3 · lista blanca', () => {
 			id: 'f1',
 			extra: 'x'
 		});
+
 		expect(r.status).toBe(201);
 		expect(r.json).toMatchObject({ estado: 'abierto', oculto: 0, creador_id: 'demo' });
 		expect(r.json.id).not.toBe('f1');
@@ -201,5 +204,50 @@ describe('Paso 3 · GET filtra ocultos', () => {
 		expect(await ids(favores.GET, '/api/v1/favores')).toEqual(['f2']);
 		expect(await ids(servicios.GET, '/api/v1/servicios')).toEqual(['s2']);
 		expect(await ids(alertas.GET, '/api/v1/alertas')).toEqual(['a-visible']);
+	});
+});
+
+describe('RF16 · alertas oficiales', () => {
+	beforeEach(() => reiniciarStore());
+
+	it('ingresa una propuesta y permite confirmarla al coordinador', async () => {
+		const creada = await post(
+			alertasOficiales.POST,
+			'/api/v1/alertas-oficiales',
+			{
+				zona_id: 'z1',
+				fuente: 'senamhi',
+				external_id: 'sen-1',
+				tipo: 'lluvias_inundacion',
+				nivel: 'naranja',
+				titulo: 'Lluvias intensas',
+				descripcion: 'Posibles desbordes en quebradas.',
+				lat_aprox: -12.046,
+				lng_aprox: -77.043
+			},
+			{ 'x-rol': 'Coordinador de emergencia' }
+		);
+		expect(creada.status).toBe(201);
+		expect(creada.json.estado).toBe('propuesta');
+
+		const revisada = await llamar(revisarAlertaOficial, '/api/v1/alertas-oficiales/test', {
+			method: 'PATCH',
+			params: { id: String(creada.json.id) },
+			body: { estado: 'confirmada' },
+			headers: { 'x-rol': 'Coordinador de emergencia' }
+		});
+		expect(revisada.status).toBe(200);
+		expect(revisada.json.estado).toBe('confirmada');
+	});
+
+	it('rechaza el ingreso de una alerta oficial sin rol coordinador', async () => {
+		const respuesta = await post(alertasOficiales.POST, '/api/v1/alertas-oficiales', {
+			zona_id: 'z1',
+			fuente: 'indeci',
+			nivel: 'rojo',
+			titulo: 'Alerta',
+			descripcion: 'Descripción'
+		});
+		expect(respuesta.status).toBe(403);
 	});
 });

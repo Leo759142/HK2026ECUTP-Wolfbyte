@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
+	import { reiniciarOnboarding } from '../../../lib/onboarding';
 
 	let idioma = $state('es');
 	let letraGrande = $state(false);
@@ -27,6 +28,10 @@
 			lang: idioma,
 			largeText: letraGrande
 		};
+	}
+	async function repetirTutorial() {
+		await reiniciarOnboarding();
+		mensaje = 'Tutorial reiniciado. Se mostrará la próxima vez que abras el acceso.';
 	}
 	onMount(() => {
 		const actual = leer<{ lang?: string; largeText?: boolean }>('settings', {});
@@ -59,7 +64,7 @@
 				}}
 			>
 				<option value="es">Español</option><option value="en">English</option><option value="qu"
-					>Runasimi</option
+					>Quechua</option
 				>
 			</select>
 		</label>
@@ -93,6 +98,13 @@
 				{#each manzanas as item}<option value={item}>Mz. {item}</option>{/each}
 			</select>
 		</label>
+	</section>
+	<section class="profile-card">
+		<h2>Ayuda</h2>
+		<p class="muted">Vuelve a ver la guía inicial de AYNI cuando la necesites.</p>
+		<button class="mobile-btn mobile-btn--outline" type="button" onclick={repetirTutorial}>
+			Repetir tutorial
+		</button>
 	</section>
 	{#if mensaje}<p class="notice notice--ok" role="status">{mensaje}</p>{/if}
 </Screen>

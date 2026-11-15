@@ -1,11 +1,12 @@
 import type { RequestHandler } from './$types';
 import { ok, problem, requireIdempotency, requireRol } from '../../_http';
-import { store } from '../../_store';
+import { cargarStore, persistirStore, store } from '../../_store';
 import { elegir, errorTextos, esRespuesta, leerObjeto, validarFoto } from '../../_validar';
 
 const CAMPOS = ['zona_id', 'tipo', 'titulo', 'foto'] as const;
 
 export const POST: RequestHandler = async ({ request }) => {
+	await cargarStore();
 	const rol = requireRol(request, 'activar_emergencia');
 	if (!(typeof rol === 'string')) return rol;
 	const key = requireIdempotency(request);
@@ -34,5 +35,6 @@ export const POST: RequestHandler = async ({ request }) => {
 		fin: null
 	};
 	store.emergencias.push(item);
+	await persistirStore();
 	return ok(item, 201);
 };

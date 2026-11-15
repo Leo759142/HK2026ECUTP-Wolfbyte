@@ -109,3 +109,14 @@ export function validarFoto(v: unknown): string | null {
 	}
 	return null;
 }
+
+export function validarFotos(v: unknown): string | null {
+	if (v === undefined || v === null) return null;
+	if (!Array.isArray(v)) return 'fotos debe ser una lista.';
+	if (v.length > 3) return 'Puedes publicar como máximo 3 fotos.';
+	for (const foto of v) {
+		const error = validarFoto(foto);
+		if (error) return error;
+	}
+	return null;
+}

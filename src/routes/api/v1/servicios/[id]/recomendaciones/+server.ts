@@ -1,10 +1,13 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency } from '../../../../_http';
-import { store } from '../../../../_store';
+import { ok, problem, requireIdempotency, requireRol } from '../../../../_http';
+import { cargarStore, persistirStore, store } from '../../../../_store';
 
 const TIPOS_VALIDOS = new Set(['visto_bueno', 'retiro']);
 
 export const POST: RequestHandler = async ({ request, params }) => {
+	await cargarStore();
+	const rol = requireRol(request, 'dar_visto_bueno');
+	if (typeof rol !== 'string') return rol;
 	const key = requireIdempotency(request);
 	if (typeof key !== 'string') return key;
 	const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
@@ -33,10 +36,12 @@ export const POST: RequestHandler = async ({ request, params }) => {
 		creado_en: new Date().toISOString()
 	};
 	store.recomendaciones.push(evento);
+	await persistirStore();
 	return ok({ ok: true, id: key, servicio_id: params.id }, 201);
 };
 
 export const GET: RequestHandler = async ({ url }) => {
+	await cargarStore();
 	const servicioId = url.searchParams.get('servicio_id');
 	const items = store.recomendaciones.filter(
 		(item) => !servicioId || item.servicio_id === servicioId

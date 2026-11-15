@@ -19,12 +19,22 @@
 	let enSync = $derived($sincronizando);
 	let verAtencion = $state(false);
 	let rutaActual = $derived(page.url.pathname);
+	let autenticado = $state(false);
+	let mostrarInterfazApp = $derived(autenticado && rutaActual !== '/acceso');
 	const navItems = [
 		{ href: '/', icon: '🏠', label: 'Inicio' },
 		{ href: '/favores', icon: '🤝', label: 'Favores' },
 		{ href: '/mapa', icon: '🗺️', label: 'Mapa' },
 		{ href: '/perfil', icon: '👤', label: 'Yo' }
 	];
+	$effect(() => {
+		if (rutaActual === '/acceso') {
+			autenticado = false;
+			return;
+		}
+		autenticado = Boolean(obtenerSesionLocal());
+	});
+
 	onMount(async () => {
 		iniciarOutbox();
 		if (rutaActual === '/acceso') return;
@@ -33,6 +43,7 @@
 			await goto('/acceso');
 			return;
 		}
+		autenticado = true;
 
 		try {
 			const respuesta = await fetch('/api/v1/auth');
@@ -70,7 +81,7 @@
 	class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:rounded focus:bg-white focus:p-2"
 	href="#contenido">Saltar al contenido</a
 >
-{#if pendientes > 0 || atencion.length > 0}
+{#if mostrarInterfazApp && (pendientes > 0 || atencion.length > 0)}
 	<section class="mobile-sync-bar" aria-live="polite">
 		{#if atencion.length > 0}
 			<button
@@ -87,7 +98,7 @@
 		{/if}
 	</section>
 {/if}
-{#if verAtencion && atencion.length > 0}
+{#if mostrarInterfazApp && verAtencion && atencion.length > 0}
 	<section class="attention-panel" aria-label="Envíos que requieren atención">
 		<ul class="grid gap-2">
 			{#each atencion as op (op.op_id)}
@@ -106,28 +117,30 @@
 	</section>
 {/if}
 <main id="contenido" class="app-shell">{@render children()}</main>
-<nav class="bottom-nav" aria-label="Navegación de la aplicación">
-	{#each navItems.slice(0, 2) as item}
-		<a
-			class:active={rutaActual === item.href}
-			href={item.href}
-			aria-current={rutaActual === item.href ? 'page' : undefined}
-		>
-			<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
-			<span>{item.label}</span>
+{#if mostrarInterfazApp}
+	<nav class="bottom-nav" aria-label="Navegación de la aplicación">
+		{#each navItems.slice(0, 2) as item}
+			<a
+				class:active={rutaActual === item.href}
+				href={item.href}
+				aria-current={rutaActual === item.href ? 'page' : undefined}
+			>
+				<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
+				<span>{item.label}</span>
+			</a>
+		{/each}
+		<a class="publish-button" href="/publicar" aria-label="Publicar">
+			<span aria-hidden="true">+</span>
 		</a>
-	{/each}
-	<a class="publish-button" href="/publicar" aria-label="Publicar">
-		<span aria-hidden="true">+</span>
-	</a>
-	{#each navItems.slice(2) as item}
-		<a
-			class:active={rutaActual === item.href}
-			href={item.href}
-			aria-current={rutaActual === item.href ? 'page' : undefined}
-		>
-			<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
-			<span>{item.label}</span>
-		</a>
-	{/each}
-</nav>
+		{#each navItems.slice(2) as item}
+			<a
+				class:active={rutaActual === item.href}
+				href={item.href}
+				aria-current={rutaActual === item.href ? 'page' : undefined}
+			>
+				<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
+				<span>{item.label}</span>
+			</a>
+		{/each}
+	</nav>
+{/if}

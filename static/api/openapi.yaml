@@ -810,12 +810,76 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/CambiosSync' }
 
+  # ------------------------------------------------------------ ALERTAS OFICIALES
+  /alertas-oficiales:
+    get:
+      tags: [Emergencia]
+      operationId: listarAlertasOficiales
+      summary: Listar propuestas y alertas oficiales revisadas
+      parameters:
+        - { name: estado, in: query, schema: { type: string, enum: [propuesta, confirmada, descartada] } }
+      responses:
+        '200':
+          description: Alertas oficiales
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total]
+                properties:
+                  items: { type: array, items: { $ref: '#/components/schemas/AlertaOficial' } }
+                  total: { type: integer, minimum: 0 }
+    post:
+      tags: [Emergencia]
+      operationId: ingresarAlertaOficial
+      summary: Ingresar una propuesta de fuente oficial para revisión del coordinador
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AlertaOficialNueva' }
+      responses:
+        '201': { description: Propuesta creada }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '422': { $ref: '#/components/responses/Invalido' }
+  /alertas-oficiales/{id}:
+    patch:
+      tags: [Emergencia]
+      operationId: revisarAlertaOficial
+      summary: Confirmar o descartar una propuesta oficial
+      security: [{ sessionCookie: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [estado]
+              properties:
+                estado: { type: string, enum: [confirmada, descartada] }
+      responses:
+        '200': { description: Alerta revisada }
+        '401': { $ref: '#/components/responses/NoAutorizado' }
+        '403': { $ref: '#/components/responses/Prohibido' }
+        '404': { $ref: '#/components/responses/NoEncontrado' }
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       description: Token opaco; en la base solo se guarda su hash (sesiones.token_hash)
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: pod_sesion
+      description: Sesión HttpOnly emitida por /api/v1/auth
   parameters:
     SectorId: { name: sectorId, in: path, required: true, schema: { type: string, format: uuid } }
     UsuarioId: { name: usuarioId, in: path, required: true, schema: { type: string, format: uuid } }
@@ -823,6 +887,7 @@ components:
     FavorId: { name: favorId, in: path, required: true, schema: { type: string, format: uuid } }
     EmergenciaId: { name: emergenciaId, in: path, required: true, schema: { type: string, format: uuid } }
     PedidoId: { name: pedidoId, in: path, required: true, schema: { type: string, format: uuid } }
+    IdempotencyKey: { name: Idempotency-Key, in: header, required: true, schema: { type: string, minLength: 8 } }
     Mios: { name: mios, in: query, description: Solo mis propias publicaciones, schema: { type: boolean, default: false } }
     Limite: { name: limite, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
     Cursor: { name: cursor, in: query, schema: { type: string } }
@@ -859,6 +924,32 @@ components:
     Necesidad: { type: string, enum: [agua, comida, salud, rescate, refugio, otro] }
     Vulnerable: { type: string, enum: [adulto, ninos, discapacidad, gestante, mascotas] }
     EstadoPedido: { type: string, enum: [abierto, en_camino, resuelto] }
+    AlertaOficialNueva:
+      type: object
+      required: [zona_id, fuente, nivel, titulo, descripcion]
+      properties:
+        zona_id: { type: string }
+        fuente: { type: string, enum: [indeci, senamhi, igp, municipio, otro] }
+        external_id: { type: string, nullable: true }
+        tipo: { type: string }
+        nivel: { type: string, enum: [informativo, amarillo, naranja, rojo] }
+        titulo: { type: string, minLength: 3, maxLength: 120 }
+        descripcion: { type: string, minLength: 1, maxLength: 500 }
+        lat_aprox: { type: number, minimum: -90, maximum: 90 }
+        lng_aprox: { type: number, minimum: -180, maximum: 180 }
+        publicado_en: { type: string, format: date-time, nullable: true }
+        vence_en: { type: string, format: date-time, nullable: true }
+    AlertaOficial:
+      allOf:
+        - $ref: '#/components/schemas/AlertaOficialNueva'
+        - type: object
+          required: [id, estado, creado_en]
+          properties:
+            id: { type: string }
+            estado: { type: string, enum: [propuesta, confirmada, descartada] }
+            creado_en: { type: string, format: date-time }
+            revisada_por: { type: string, nullable: true }
+            revisada_en: { type: string, format: date-time, nullable: true }
     RecursoApoyo: { type: string, enum: [agua, refugio, salud, comida, energia, traslado] }
 
     # ---------- acceso y usuarios
