@@ -11,7 +11,10 @@ export default defineConfig(async ({ mode }) => {
 		plugins: [
 			await sveltekit({
 				// SPA: todo el contenido se genera en el navegador (offline-first con localStorage).
-				adapter: adapter({ fallback: 'index.html' })
+				adapter: adapter({ fallback: 'index.html' }),
+				alias: {
+					$lib: 'src/lib'
+				}
 			})
 		],
 		server: { port: 5173, strictPort: true, proxy },

@@ -8,7 +8,10 @@
 		"#lib/*": "./src/lib/*.ts"
 	},
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "node scripts/dev.mjs",
+		"dev:root": "vite dev",
+		"dev:frontend": "pnpm -C frontend dev",
+		"dev:backend": "pnpm -C backend dev",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -17,7 +20,7 @@
 		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run"
+		"test": "pnpm run test:unit -- --run"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

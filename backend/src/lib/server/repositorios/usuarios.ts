@@ -4,6 +4,10 @@ import { colsVecino, DIAS_PARA_GUARDIAN, iso, num, vecino, type VecinoPublico } 
 
 const DIA = 24 * 60 * 60 * 1000;
 
+/** Código de locale opaco: acepta ISO 639-1/2/3 (es, en, qu, pt, fr…),
+ *  BCP-47 con región (es-419, pt-BR) y Glottolog (cast1238, aque1133…). */
+export type LocaleCode = string;
+
 export interface UsuarioDto {
 	id: string;
 	nombre: string;
@@ -20,7 +24,7 @@ export interface UsuarioDto {
 	verificado: boolean;
 	mostrar_nombre_completo: boolean;
 	invitacion_guardian: 'aceptada' | 'despues' | 'fundador' | null;
-	idioma: 'es' | 'en' | 'qu';
+	idioma: LocaleCode;
 	letra_grande: boolean;
 	rol_plataforma: 'usuario' | 'admin';
 	es_guardian: boolean;
@@ -67,7 +71,7 @@ export async function obtenerUsuario(db: Consulta, id: string): Promise<UsuarioD
 		verificado: Boolean(u.verificado),
 		mostrar_nombre_completo: Boolean(u.mostrar_nombre_completo),
 		invitacion_guardian: (u.invitacion_guardian as UsuarioDto['invitacion_guardian']) ?? null,
-		idioma: u.idioma as UsuarioDto['idioma'],
+		idioma: (typeof u.idioma === 'string' && u.idioma.length > 0 ? u.idioma : 'es') as LocaleCode,
 		letra_grande: Boolean(u.letra_grande),
 		rol_plataforma: u.rol_plataforma as UsuarioDto['rol_plataforma'],
 		es_guardian: Boolean(u.es_guardian),
@@ -102,7 +106,7 @@ export interface NuevoUsuario {
 	distrito: string | null;
 	direccion: string | null;
 	referencia: string | null;
-	idioma: 'es' | 'en' | 'qu';
+	idioma: LocaleCode;
 	invitacion: 'fundador' | null;
 }
 
@@ -110,7 +114,7 @@ export async function crearUsuario(db: Consulta, u: NuevoUsuario): Promise<strin
 	const [fila] = await db.query<{ id: string }>(
 		`INSERT INTO usuarios (id, nombre, apellido, telefono, sector_id, manzana, lat_aprox, lng_aprox, foto, distrito, direccion, referencia, idioma, invitacion_guardian)
 		 VALUES (coalesce($1::uuid, gen_random_uuid()), $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id`,
-		[u.id ?? null, u.nombre, u.apellido, u.telefono, u.sectorId, u.manzana, u.lat, u.lng, u.foto, u.distrito, u.direccion, u.referencia, u.idioma, u.invitacion]
+		[u.id ?? null, u.nombre, u.apellido, u.telefono, u.sectorId, u.manzana, u.lat, u.lng, u.foto, u.distrito, u.direccion, u.referencia, u.idioma ?? 'es', u.invitacion]
 	);
 	return fila.id;
 }

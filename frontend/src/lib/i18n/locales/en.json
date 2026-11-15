@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "inicio": "Home",
+    "favores": "Favors",
+    "mapa": "Map",
+    "yo": "Me",
+    "ahora": "Now",
+    "grupos": "Groups",
+    "publicar": "Post"
+  },
+  "hola": "Hi",
+  "lema": "Today for you, tomorrow for me",
+  "serviciosDescritos": "Recommended services by your neighbors, favors without money and support when you need it most.",
+  "buscar": "What do you need today?",
+  "crearCuenta": "Create account",
+  "yaTengo": "I already have an account",
+  "favores": "Chain of Favors",
+  "favoresSub": "No money? between neighbors",
+  "reportar": "Something serious? Report an emergency",
+  "misPublicaciones": "My posts",
+  "idioma": "Language & reading",
+  "enLinea": "Online",
+  "sinConexion": "Offline · Saving data. You are seeing the last saved info.",
+  "oficios": "Neighborhood trades",
+  "recomendados": "Most recommended",
+  "emergencia": {
+    "titulo": "HUMANITARIAN AID BOARD",
+    "subtitulo": "Critical resources available in your block",
+    "alerta_vacio": "There are no critical alerts reported in this sector."
+  },
+  "favor": {
+    "estado": {
+      "abierto": "Open",
+      "acordado": "Help on the way",
+      "cerrado": "Closed and confirmed"
+    },
+    "boton": {
+      "cumplido": "Confirm Exchange (\"Done\")"
+    }
+  },
+  "offline": {
+    "pendiente": "Pending to send (Saved on device)",
+    "enviado": "Sent successfully to the neighborhood"
+  },
+  "error": {
+    "generico": "Something went wrong. The message will tell you how to fix it.",
+    "permiso": "Your current role is not authorized for this action."
+  }
+}

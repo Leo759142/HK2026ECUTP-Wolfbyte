@@ -1,6 +1,7 @@
 <!-- 0.1 Portada -->
 <script>
   import { app } from '../../estado.svelte.js';
+  import { t } from '$lib/i18n';
   import { entrar, solicitarCodigo, verificarCodigo } from '../../acciones.js';
   import Btn from '../../ui/Btn.svelte';
   import H1 from '../../ui/H1.svelte';
@@ -30,11 +31,11 @@
   <div class="self-end"><LangChip /></div>
   <div class="flex flex-1 flex-col items-center justify-center gap-4">
     <img src="/logo.jpg" alt="AYNI" class="w-64 rounded-3xl" />
-    <H1>{app.t('lema')}</H1>
-    <Sub>Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.</Sub>
+    <H1>{$t('lema')}</H1>
+    <Sub>{$t('serviciosDescritos')}</Sub>
   </div>
-  <Btn onclick={() => app.go('tutorial')}>{app.t('crearCuenta')}</Btn>
-  <Btn variant="borde" onclick={() => app.go('telefono', { mode: 'login' })}>{app.t('yaTengo')}</Btn>
+  <Btn onclick={() => app.go('tutorial')}>{$t('crearCuenta')}</Btn>
+  <Btn variant="borde" onclick={() => app.go('telefono', { mode: 'login' })}>{$t('yaTengo')}</Btn>
   {#if app.servidor.demo}
     <LinkBtn onclick={entrarComoRosa} disabled={entrando}>{entrando ? 'Entrando…' : 'Entrar como vecina de prueba (Rosa)'}</LinkBtn>
   {/if}

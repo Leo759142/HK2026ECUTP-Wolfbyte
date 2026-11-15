@@ -1,6 +1,7 @@
 <!-- Shell de AYNI (migrado de App.jsx): pantalla actual según la pila de navegación, barra inferior, avisos y toast. -->
 <script>
   import { app, datos } from './estado.svelte.js';
+  import { t } from '$lib/i18n';
   import { DIAS_PARA_GUARDIAN } from './data.js';
   import { diasEnAyni } from './util.js';
   import Portada from './pantallas/acceso/Portada.svelte';
@@ -101,7 +102,7 @@
         {#if name === '+'}
           <button
             type="button"
-            aria-label={app.activeEmergency ? 'Pedir ayuda' : app.t('nav.publicar')}
+            aria-label={app.activeEmergency ? 'Pedir ayuda' : $t('nav.publicar')}
             onclick={() => app.go(app.activeEmergency ? 'pedirAyuda' : 'publicar')}
             class="-mt-6 flex h-[60px] w-[60px] items-center justify-center rounded-full text-4xl font-black text-white shadow-lg {app.activeEmergency ? 'bg-rojo' : 'bg-morado'}">+</button>
         {:else}
@@ -111,7 +112,7 @@
             aria-current={nombre === name ? 'page' : undefined}
             class="flex min-h-[56px] w-16 flex-col items-center justify-center gap-0.5 text-xs font-extrabold {nombre === name ? (app.activeEmergency ? 'text-rojo' : 'text-petroleo') : 'text-gris'}">
             <span class="text-[22px]" aria-hidden="true">{icon}</span>
-            {app.t(label)}
+            {$t(label)}
           </button>
         {/if}
       {/each}

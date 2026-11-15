@@ -1,6 +1,7 @@
 <!-- 2.3 Cadena de Favores (muro) -->
 <script>
   import { app, datos } from '../../estado.svelte.js';
+  import { t } from '$lib/i18n';
   import ConnectionStatus from '../../ui/ConnectionStatus.svelte';
   import EmptyState from '../../ui/EmptyState.svelte';
   import H1 from '../../ui/H1.svelte';
@@ -26,8 +27,8 @@
 
 <Screen class="gap-3">
   <div>
-    <H1>{app.t('favores')} 🤝</H1>
-    <Sub>{app.t('favoresSub')}</Sub>
+    <H1>{$t('favores')} 🤝</H1>
+    <Sub>{$t('favoresSub')}</Sub>
   </div>
   <ConnectionStatus />
   <div class="-mx-5 flex gap-2 overflow-x-auto px-5 pb-1" role="tablist">

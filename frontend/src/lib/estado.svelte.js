@@ -1,7 +1,6 @@
 /* Estado global de AYNI (migrado de AppContext.jsx a runes de Svelte 5):
  * sesión, navegación entre pantallas, idioma, conexión, emergencia activa y avisos. */
 import { db, load, save, subscribe } from './storage.js';
-import { translate } from './i18n.js';
 import { RESERVA_MS } from './data.js';
 
 const COLECCIONES = ['users', 'sectors', 'services', 'recommendations', 'contacts', 'favors', 'reports', 'moderation', 'emergencies', 'needs', 'groups', 'outbox'];
@@ -73,8 +72,6 @@ class App {
     clearTimeout(this.#timer);
     this.#timer = setTimeout(() => (this.toast = null), 3200);
   };
-
-  t = (key) => translate(this.settings.lang, key);
 
   setSettings = (next) => {
     const valor = typeof next === 'function' ? next(this.settings) : next;

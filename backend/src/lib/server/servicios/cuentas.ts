@@ -8,8 +8,17 @@ import * as sectores from '../repositorios/sectores.ts';
 import { DIAS_PARA_GUARDIAN } from '../dto.ts';
 import * as v from '../validar.ts';
 
-const IDIOMAS = ['es', 'en', 'qu'] as const;
+/** Patrón de locale válido: ISO 639-1/2/3, BCP-47 con región, Glottolog. */
+const LOCALE_RE = /^[a-z]{2,4}(?:[-_][A-Za-z0-9]{2,8})?$|^[a-z]{4}[0-9]{4}$/;
 const PLATAFORMAS = ['android', 'ios', 'web', 'otro'] as const;
+
+/** Valida y normaliza un código de locale a minúsculas. */
+function validarIdioma(v: unknown, campo: string): string {
+	if (typeof v !== 'string' || !LOCALE_RE.test(v.toLowerCase())) {
+		throw err.invalido(`El idioma "${String(v)}" no es un código de locale válido (ej. es, en, qu, pt-BR, cast1238).`, 'IDIOMA_INVALIDO');
+	}
+	return v.toLowerCase();
+}
 
 export async function pedirCodigo(db: Db, body: v.Cuerpo) {
 	const telefono = v.telefono(body.telefono);
@@ -51,7 +60,7 @@ export async function registrar(db: Db, registro: { sesionId: string; telefono: 
 		distrito: v.textoONull(body.distrito, 'El distrito', { max: 60 }),
 		direccion: v.textoONull(body.direccion, 'La dirección', { max: 120 }),
 		referencia: v.textoONull(body.referencia, 'La referencia', { max: 120 }),
-		idioma: (body.idioma ? v.opcion(body.idioma, 'idioma', IDIOMAS) : 'es') as 'es' | 'en' | 'qu'
+		idioma: body.idioma ? validarIdioma(body.idioma, 'idioma') : 'es'
 	};
 	if ((datos.lat === null) !== (datos.lng === null)) throw err.invalido('Envía latitud y longitud juntas.');
 	const plataforma = (body.plataforma ? v.opcion(body.plataforma, 'plataforma', PLATAFORMAS) : 'web') as Plataforma;
@@ -96,7 +105,7 @@ export async function registrar(db: Db, registro: { sesionId: string; telefono: 
 export async function actualizarPerfil(db: Consulta, s: SesionActual, body: v.Cuerpo): Promise<usuarios.UsuarioDto> {
 	const c: usuarios.CambiosUsuario = {};
 	if ('mostrar_nombre_completo' in body) c.mostrar_nombre_completo = v.booleano(body.mostrar_nombre_completo, 'mostrar_nombre_completo');
-	if ('idioma' in body) c.idioma = v.opcion(body.idioma, 'idioma', IDIOMAS);
+	if ('idioma' in body) c.idioma = validarIdioma(body.idioma, 'idioma');
 	if ('letra_grande' in body) c.letra_grande = v.booleano(body.letra_grande, 'letra_grande');
 	if ('foto' in body) c.foto = v.foto(body.foto);
 	if ('distrito' in body) c.distrito = v.textoONull(body.distrito, 'El distrito', { max: 60 });

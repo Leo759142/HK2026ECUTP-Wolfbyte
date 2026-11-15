@@ -844,7 +844,7 @@ components:
     # ---------- catálogos (idénticos a src/data.js y a los CHECK de la base)
     Telefono: { type: string, pattern: '^519[0-9]{8}$', example: '51900000001', description: "51 + 9 dígitos" }
     Manzana: { type: string, pattern: '^[A-J]$' }
-    Idioma: { type: string, enum: [es, en, qu] }
+    Idioma: { type: string, pattern: '^[a-z]{2,4}(?:[-_][A-Za-z0-9]{2,8})?$|^[a-z]{4}[0-9]{4}$', example: 'es', description: 'Código de locale (ISO 639-1/2/3, BCP-47 o Glottolog)' }
     Plataforma: { type: string, enum: [android, ios, web, otro], default: web }
     CategoriaServicio: { type: string, enum: [gasfiteria, electricidad, carpinteria, cerrajeria, mascotas, clases, costura, comida, otros] }
     ClaseServicio: { type: string, enum: [servicio, producto] }

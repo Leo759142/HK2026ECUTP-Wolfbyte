@@ -1,4 +1,15 @@
 {
-	"extends": "$app/tsconfig",
-	"compilerOptions": { "checkJs": false, "strict": false, "types": ["$app/types"] }
+	"compilerOptions": {
+		"moduleResolution": "bundler",
+		"module": "esnext",
+		"target": "esnext",
+		"checkJs": false,
+		"strict": false,
+		"baseUrl": ".",
+		"paths": {
+			"$lib": ["src/lib"],
+			"$lib/*": ["src/lib/*"]
+		}
+	},
+	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
 }

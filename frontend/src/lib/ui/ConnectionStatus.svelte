@@ -3,6 +3,7 @@
 <script>
   import { app, datos } from '../estado.svelte.js';
   import Icon from './Icon.svelte';
+  import { t } from '$lib/i18n';
 
   const mias = $derived(datos.outbox.filter((o) => o.usuarioId === app.user?.id));
   const pendientes = $derived(mias.filter((o) => o.estado === 'pendiente').length);
@@ -12,13 +13,13 @@
 {#if app.online}
   <div class="flex items-center gap-2 text-xs font-bold text-gris">
     <span class="h-2.5 w-2.5 rounded-full bg-wa" aria-hidden="true"></span>
-    {app.t('enLinea')}
+    {$t('enLinea')}
     {#if pendientes > 0}<span>· <Icon name="fa-clock" /> {pendientes} por enviar</span>{/if}
   </div>
 {:else}
   <div role="status" class="rounded-xl border border-ambar bg-ambar-claro px-3 py-2 text-sm font-bold">
     <Icon name="fa-wifi" />
-    {app.t('sinConexion')}
+    {$t('sinConexion')}
     {#if pendientes > 0}<span class="block text-xs">🕓 {pendientes} cambio(s) se enviarán al volver la señal.</span>{/if}
   </div>
 {/if}

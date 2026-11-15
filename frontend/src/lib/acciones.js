@@ -11,6 +11,8 @@ import * as A from './api/adaptadores.js';
 import { encolar } from './sync/cola.js';
 import { sincronizar } from './sync/motor.js';
 import { abrirEnlace } from './util.js';
+import { setLocale } from '$lib/i18n';
+import { browser } from '$app/environment';
 
 const ahoraIso = () => new Date().toISOString();
 
@@ -65,6 +67,15 @@ export function registrar(draft, { sectorId, sectorNuevo, manzana }) {
 export async function entrar(usuarioDto, pantalla = 'inicio') {
   guardarLocal('users', A.usuarioALocal(usuarioDto));
   app.startSession(usuarioDto.id, pantalla);
+
+  // Aplicar el idioma del perfil del servidor (hidiátrico cross-dispositivo).
+  if (browser && usuarioDto.idioma) {
+    setLocale(usuarioDto.idioma);
+    app.setSettings((s) => ({ ...s, lang: usuarioDto.idioma }));
+    localStorage.setItem('idioma', usuarioDto.idioma);
+    localStorage.setItem('ayni_settings', JSON.stringify({ ...app.settings, lang: usuarioDto.idioma }));
+  }
+
   await sincronizar({ completo: true });
 }
 

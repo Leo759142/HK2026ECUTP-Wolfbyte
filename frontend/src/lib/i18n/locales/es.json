@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "inicio": "Inicio",
+    "favores": "Favores",
+    "mapa": "Mapa",
+    "yo": "Yo",
+    "ahora": "Ahora",
+    "grupos": "Grupos",
+    "publicar": "Publicar"
+  },
+  "hola": "¡Hola",
+  "lema": "Hoy por ti, mañana por mí",
+  "serviciosDescritos": "Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.",
+  "buscar": "¿Qué necesitas hoy?",
+  "crearCuenta": "Crear cuenta",
+  "yaTengo": "Ya tengo cuenta",
+  "favores": "Cadena de Favores",
+  "favoresSub": "Sin dinero, entre vecinos",
+  "reportar": "¿Pasa algo grave? Reportar emergencia",
+  "misPublicaciones": "Mis publicaciones",
+  "idioma": "Idioma y lectura",
+  "enLinea": "En línea",
+  "sinConexion": "Sin conexión · Ahorrando datos. Ves lo último guardado.",
+  "oficios": "Oficios del barrio",
+  "recomendados": "Los más recomendados",
+  "emergencia": {
+    "titulo": "TABLERO DE AYUDA HUMANITARIA",
+    "subtitulo": "Recursos críticos disponibles en tu manzana",
+    "alerta_vacio": "No hay alertas críticas reportadas en este sector."
+  },
+  "favor": {
+    "estado": {
+      "abierto": "Abierto",
+      "acordado": "Ayuda en camino",
+      "cerrado": "Cerrado y confirmado"
+    },
+    "boton": {
+      "cumplido": "Confirmar Intercambio (\"Se cumplió\")"
+    }
+  },
+  "offline": {
+    "pendiente": "Pendiente de enviar (Guardado en dispositivo)",
+    "enviado": "Enviada con éxito al vecindario"
+  },
+  "error": {
+    "generico": "Algo salió mal. El mensaje te indicará cómo corregirlo.",
+    "permiso": "Tu rol actual no tiene autorización para esta acción."
+  }
+}

@@ -3,13 +3,14 @@
   import { onMount } from 'svelte';
   import App from '../lib/App.svelte';
   import { app } from '../lib/estado.svelte.js';
+  import { locale } from '$lib/i18n';
   import { cargarEstadoServidor } from '../lib/acciones.js';
   import { alSincronizar, iniciarMotor, sincronizar } from '../lib/sync/motor.js';
 
   // Letra grande e idioma del documento.
   $effect(() => {
     document.documentElement.classList.toggle('letra-grande', Boolean(app.settings.largeText));
-    document.documentElement.lang = app.settings.lang;
+    document.documentElement.lang = $locale;
   });
 
   onMount(() => {

@@ -57,7 +57,7 @@ CREATE TABLE usuarios (
   verificado               boolean NOT NULL DEFAULT true,
   mostrar_nombre_completo  boolean NOT NULL DEFAULT false,
   invitacion_guardian      text CHECK (invitacion_guardian IN ('aceptada','despues','fundador')),
-  idioma                   text NOT NULL DEFAULT 'es' CHECK (idioma IN ('es','en','qu')),
+  idioma                   text NOT NULL DEFAULT 'es' CHECK (idioma ~ '^[a-z]{2,4}(?:[-_][A-Za-z0-9]{2,8})?$' OR idioma ~ '^[a-z]{4}[0-9]{4}$'),
   letra_grande             boolean NOT NULL DEFAULT false,
   rol_plataforma           text NOT NULL DEFAULT 'usuario' CHECK (rol_plataforma IN ('usuario','admin')),
   creado_en                timestamptz NOT NULL DEFAULT now(),

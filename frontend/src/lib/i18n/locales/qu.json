@@ -1,0 +1,49 @@
+{
+  "nav": {
+    "inicio": "Qallana",
+    "favores": "Aynikuna",
+    "mapa": "Saywit`i",
+    "yo": "Ñuqaqa",
+    "ahora": "Kunanqa",
+    "grupos": "Qutu/hunt'akuna",
+    "publicar": "Publicay"
+  },
+  "hola": "Hay! Allillanchu!",
+  "lema": "Qampaq kunanqa, ñuqapaq paqarinqa",
+  "serviciosDescritos": "Serviciokunaqa qam vecinopura recomendasqa, qullqinnaq aynikuna imapas kikin aswan much´uptin",
+  "buscar": "Imataq maskhankichu?",
+  "crearCuenta": "Cuentata qallariy",
+  "yaTengo": "Cuentata charirqani",
+  "favores": "T`inkisqa aynikunaqa",
+  "favoresSub": "Mana qullqiyuqchu. vecino masihinapura",
+  "reportar": "Wakin musyanapaqqa? Emergenciata qhaparichiy",
+  "misPublicaciones": "Ñuqap publicacionniykuna",
+  "idioma": "Simi & ñawiriy",
+  "enLinea": "Activom",
+  "sinConexion": "Mana activom · datata waqaspam, ñawpaqtaq infoykita ñawirisunki.",
+  "oficios": "Llaqta/Ayllup lamkaykunanku",
+  "recomendados": "Ñawichispa ratanapaq",
+  "emergencia": {
+    "titulo": "Tiqsi-muyup marun yanapanapaq",
+    "subtitulo": "Yuyaykunaqa urquyka llaqtapi",
+    "alerta_vaco": "Manam kanchu alerts kay pacha."
+  },
+  "favor": {
+    "estado": {
+      "abierto": "Kichasqa",
+      "acordado": "Huk yanapay ñanpiyá",
+      "cerrado": "Wichqasqa"
+    },
+    "boton": {
+      "cumplido": "Taripasqa"
+    }
+  },
+  "offline": {
+    "pendiente": "Envianapaq",
+    "enviado": "Enviasqa"
+  },
+  "error": {
+    "generico": "Pantaymi, kay mensajeta yanaysiyki.",
+    "permiso": "Manam permisochu kankilla"
+  }
+}
