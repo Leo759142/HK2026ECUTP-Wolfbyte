@@ -139,12 +139,14 @@ export async function cargarStore(): Promise<void> {
 /** Persiste con reemplazo atómico para evitar archivos truncados ante una caída. */
 export function persistirStore(): Promise<void> {
 	if (esPrueba) return Promise.resolve();
-	escritura = escritura.then(async () => {
-		await mkdir(dirname(archivoDatos), { recursive: true });
-		const temporal = `${archivoDatos}.tmp`;
-		await writeFile(temporal, JSON.stringify(store), 'utf8');
-		await rename(temporal, archivoDatos);
-	});
+	escritura = escritura
+		.catch(() => undefined)
+		.then(async () => {
+			await mkdir(dirname(archivoDatos), { recursive: true });
+			const temporal = `${archivoDatos}.tmp`;
+			await writeFile(temporal, JSON.stringify(store), 'utf8');
+			await rename(temporal, archivoDatos);
+		});
 	return escritura;
 }
 

@@ -47,18 +47,20 @@
 
 		try {
 			const respuesta = await fetch('/api/v1/auth');
-			const estado = (await respuesta.json()) as {
-				loggedIn?: boolean;
-				usuarioId?: string;
-				rol?: string;
-			};
-			if (estado.loggedIn && estado.usuarioId) {
-				guardarSesionLocal({
-					usuarioId: estado.usuarioId,
-					rol: estado.rol,
-					expiraEn: Date.now() + 24 * 60 * 60 * 1000
-				});
-				return;
+			if (respuesta.ok) {
+				const estado = (await respuesta.json()) as {
+					loggedIn?: boolean;
+					usuarioId?: string;
+					rol?: string;
+				};
+				if (estado.loggedIn && estado.usuarioId) {
+					guardarSesionLocal({
+						usuarioId: estado.usuarioId,
+						rol: estado.rol,
+						expiraEn: Date.now() + 24 * 60 * 60 * 1000
+					});
+					return;
+				}
 			}
 		} catch {
 			// El modo local permite continuar si el servidor no está disponible.

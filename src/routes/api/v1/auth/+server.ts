@@ -31,7 +31,7 @@ export const _login = async ({ request, cookies }: Pick<RequestEvent, 'request' 
 	const sesion = crearSesionPin(HARDCODED_ADMIN.usuarioId);
 	const exp = Date.now() + 24 * 60 * 60 * 1000; // 24 horas
 
-	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp }), {
+	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp, rol: HARDCODED_ADMIN.rol }), {
 		path: '/',
 		httpOnly: true,
 		sameSite: 'lax',
@@ -78,7 +78,7 @@ export const _register = async ({
 	// Para pruebas: crear sesión igual
 	const sesion = crearSesionPin(HARDCODED_ADMIN.usuarioId);
 	const exp = Date.now() + 24 * 60 * 60 * 1000;
-	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp }), {
+	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp, rol: HARDCODED_ADMIN.rol }), {
 		path: '/',
 		httpOnly: true,
 		sameSite: 'lax',
@@ -105,11 +105,15 @@ export const _quienSoy = async ({ cookies }: Pick<RequestEvent, 'cookies'>) => {
 	if (!sesion) return ok({ loggedIn: false, usuarioId: null, rol: null });
 
 	try {
-		const payload = JSON.parse(sesion) as { usuarioId: string; rol: string; exp: number };
+		const payload = JSON.parse(sesion) as { usuarioId: string; rol?: string; exp: number };
 		if (payload.exp && Date.now() > payload.exp) {
 			return ok({ loggedIn: false, usuarioId: null, rol: null, sesionExpirada: true });
 		}
-		return ok({ loggedIn: true, usuarioId: payload.usuarioId, rol: payload.rol });
+		return ok({
+			loggedIn: true,
+			usuarioId: payload.usuarioId,
+			rol: payload.rol ?? cookies.get('pod_rol') ?? null
+		});
 	} catch {
 		return ok({ loggedIn: false, usuarioId: null, rol: null });
 	}

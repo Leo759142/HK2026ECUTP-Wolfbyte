@@ -95,10 +95,12 @@
 					alias
 				})
 			});
-			datos = (await respuesta.json().catch(() => ({}))) as {
-				usuarioId?: string;
-				rol?: string;
-			};
+			if (respuesta.ok) {
+				datos = (await respuesta.json().catch(() => ({}))) as {
+					usuarioId?: string;
+					rol?: string;
+				};
+			}
 		} catch {
 			// El registro demo también funciona sin conexión.
 		}
