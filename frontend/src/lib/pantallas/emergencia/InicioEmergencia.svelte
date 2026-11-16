@@ -33,7 +33,7 @@
       </button>
     </div>
     <h2 class="text-lg font-black">Recursos cerca</h2>
-    <div class="grid grid-cols-3 gap-2.5">
+    <div class="grid grid-cols-2 min-[500px]:grid-cols-3 gap-2.5">
       {#each RECURSOS as r (r.id)}
         {@const n = datos.groups.filter((g) => g.recurso === r.id).length}
         <button type="button" onclick={() => app.go('grupos')} class="flex min-h-[80px] flex-col items-center justify-center rounded-2xl border border-linea bg-white p-2 text-xs font-extrabold">

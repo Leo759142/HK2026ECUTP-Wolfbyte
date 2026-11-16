@@ -87,7 +87,7 @@
 
     {#if activa}
       <h2 class="text-lg font-black text-rojo-osc">🚨 Emergencia activa · {emergenciaById(activa.tipo).label}</h2>
-      <div class="grid grid-cols-3 gap-2 text-center">
+      <div class="grid grid-cols-2 min-[500px]:grid-cols-3 gap-2 text-center">
         {#each [[pedidos.length, 'pedidos de ayuda'], [pedidos.length - sinAtender, 'atendidos'], [ayudantes + aSalvo, 'vecinos a salvo o ayudando']] as [n, l] (l)}
           <div class="rounded-2xl border border-linea bg-white p-2">
             <div class="text-2xl font-black">{n}</div>

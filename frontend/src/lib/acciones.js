@@ -16,6 +16,15 @@ import { browser } from '$app/environment';
 
 const ahoraIso = () => new Date().toISOString();
 
+const PHONE_DEMO = '900000001';
+const CODE_DEMO = '1234';
+const SECTOR_DEMO_ID = 'demo-sector-1';
+const USER_DEMO_ID = 'demo-user-1';
+
+function esDemo(celular, codigo) {
+  return celular === PHONE_DEMO && codigo === CODE_DEMO;
+}
+
 function op(entidad, operacion, payload, ref, descripcion) {
   encolar({ entidad, operacion, payload, ref, descripcion, usuarioId: app.user?.id });
 }
@@ -32,6 +41,66 @@ function guardarLocal(col, item) {
   else save(col, [item, ...db.list(col)]);
 }
 
+/* ========================= MODO DEMO LOCAL (sin backend) ========================= */
+
+const SECTOR_DEMO = {
+  id: SECTOR_DEMO_ID,
+  name: 'Los Álamos · Sector 3',
+  manzanas: ['A', 'B', 'C', 'D', 'E', 'F'],
+  guardianIds: [USER_DEMO_ID],
+};
+
+const USUARIO_DEMO = {
+  id: USER_DEMO_ID,
+  firstName: 'Rosa',
+  lastName: 'Mendoza',
+  phone: PHONE_DEMO,
+  sectorId: SECTOR_DEMO_ID,
+  manzana: 'A',
+  lat_aprox: -12.046374,
+  lng_aprox: -77.042793,
+  isGuardian: true,
+  inviteAnswered: 'aceptada',
+  createdAt: new Date().toISOString(),
+};
+
+async function verificarCodigoDemo() {
+  return { tipo: 'registro', token: 'demo-token-registro', usuario: null };
+}
+
+async function cargarSectoresPublicosDemo() {
+  const sectorLocal = A.sectorALocal(SECTOR_DEMO);
+  guardarLocal('sectors', sectorLocal);
+  return [SECTOR_DEMO];
+}
+
+async function registrarDemo(draft, { sectorId, sectorNuevo, manzana }) {
+  const lat_aprox = draft.lat_aprox ?? draft.location?.lat;
+  const lng_aprox = draft.lng_aprox ?? draft.location?.lng;
+  
+  const usuario = {
+    ...USUARIO_DEMO,
+    firstName: draft.firstName,
+    lastName: draft.lastName ?? '',
+    manzana: manzana || 'A',
+    sectorId: sectorId || SECTOR_DEMO_ID,
+    ...(lat_aprox != null && lng_aprox != null ? { lat_aprox, lng_aprox } : {}),
+    ...(draft.address ? { direccion: draft.address } : {}),
+    geo_provider: draft.geo_provider || null,
+    geo_lastUpdate: draft.geo_lastUpdate || Date.now(),
+    idioma: app.settings.lang,
+  };
+  
+  const sector = sectorNuevo 
+    ? { id: uid(), name: sectorNuevo.name, manzanas: sectorNuevo.manzanas, guardianIds: [usuario.id] }
+    : SECTOR_DEMO;
+  
+  guardarLocal('sectors', A.sectorALocal(sector));
+  guardarLocal('users', A.usuarioALocal(usuario));
+  
+  return { usuario };
+}
+
 /* ================================================================ acceso */
 export async function cargarEstadoServidor() {
   try {
@@ -42,25 +111,54 @@ export async function cargarEstadoServidor() {
 }
 
 export async function cargarSectoresPublicos() {
-  const lista = await get('/sectores');
-  for (const s of lista) guardarLocal('sectors', A.sectorALocal(s));
-  return lista;
+  try {
+    return await cargarSectoresPublicosDemo();
+  } catch {
+    const lista = await get('/sectores');
+    for (const s of lista) guardarLocal('sectors', A.sectorALocal(s));
+    return lista;
+  }
 }
 
-export const solicitarCodigo = (celular) => post('/auth/otp/solicitar', { telefono: celular });
-export const verificarCodigo = (celular, codigo) => post('/auth/otp/verificar', { telefono: celular, codigo, plataforma: 'web' });
+export const solicitarCodigo = (celular) => {
+  if (celular === PHONE_DEMO) {
+    return Promise.resolve({ enviado: true, demo: true, codigo_demo: CODE_DEMO });
+  }
+  return post('/auth/otp/solicitar', { telefono: celular });
+};
+
+export const verificarCodigo = async (celular, codigo) => {
+  if (esDemo(celular, codigo)) {
+    return verificarCodigoDemo();
+  }
+  return post('/auth/otp/verificar', { telefono: celular, codigo, plataforma: 'web' });
+};
 
 /** Crea la cuenta (con el token de registro que dejó verificarCodigo en la cookie). */
-export function registrar(draft, { sectorId, sectorNuevo, manzana }) {
-  return post('/auth/registro', {
+export async function registrar(draft, { sectorId, sectorNuevo, manzana }) {
+  const draftPhone = draft.phone ?? draft.location?.phone;
+  if (esDemo(draftPhone, CODE_DEMO)) {
+    return registrarDemo(draft, { sectorId, sectorNuevo, manzana });
+  }
+  const lat_aprox = draft.lat_aprox ?? draft.location?.lat;
+  const lng_aprox = draft.lng_aprox ?? draft.location?.lng;
+  const payload = {
     nombre: draft.firstName,
     apellido: draft.lastName ?? '',
     manzana,
     ...(sectorNuevo ? { sector_nuevo: { id: uid(), nombre: sectorNuevo.name, manzanas: sectorNuevo.manzanas } } : { sector_id: sectorId }),
-    ...(draft.location ? { lat_aprox: draft.location.lat, lng_aprox: draft.location.lng } : {}),
+    ...(lat_aprox != null && lng_aprox != null ? { lat_aprox, lng_aprox } : {}),
     ...(draft.address ? { direccion: draft.address } : {}),
     idioma: app.settings.lang,
-  });
+  };
+  const res = await post('/auth/registro', payload);
+  if (browser && res.usuario?.idioma) {
+    setLocale(res.usuario.idioma);
+    app.setSettings((s) => ({ ...s, lang: res.usuario.idioma }));
+    localStorage.setItem('idioma', res.usuario.idioma);
+    localStorage.setItem('ayni_settings', JSON.stringify({ ...app.settings, lang: res.usuario.idioma }));
+  }
+  return res;
 }
 
 /** Deja la sesión abierta en este celular y descarga los datos del sector. */
@@ -251,11 +349,32 @@ export function moderar(g, aprobar) {
 }
 
 /* ============================================================== emergencia */
-export function reportarEmergencia({ tipo, texto, foto }) {
+export function reportarEmergencia({ tipo, texto, foto, provinciaId = null, distritoId = null, lat_aprox = null, lng_aprox = null }) {
   const u = app.user;
   const id = uid();
-  const e = db.create('emergencies', { id, sectorId: u.sectorId, reporterId: u.id, tipo, texto, foto, manzana: u.manzana, status: 'pendiente', acks: {}, endSeen: {} });
-  op('emergencias', 'crear', { id, tipo, texto, foto }, { col: 'emergencies', id }, 'Reporte de emergencia');
+  const geo = {
+    ...(provinciaId ? { provinciaId } : {}),
+    ...(distritoId ? { distritoId } : {}),
+    ...(lat_aprox != null ? { lat_aprox } : {}),
+    ...(lng_aprox != null ? { lng_aprox } : {}),
+  };
+  const e = db.create('emergencies', { id, sectorId: u.sectorId, reporterId: u.id, tipo, texto, foto, manzana: u.manzana, ...geo, status: 'pendiente', acks: {}, endSeen: {} });
+  op(
+    'emergencias',
+    'crear',
+    {
+      id,
+      tipo,
+      texto,
+      foto,
+      ...(provinciaId ? { provincia_id: provinciaId } : {}),
+      ...(distritoId ? { distrito_id: distritoId } : {}),
+      ...(lat_aprox != null ? { lat_aprox } : {}),
+      ...(lng_aprox != null ? { lng_aprox } : {}),
+    },
+    { col: 'emergencies', id },
+    'Reporte de emergencia'
+  );
   enviar();
   return e;
 }

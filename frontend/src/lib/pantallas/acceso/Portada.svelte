@@ -36,7 +36,5 @@
   </div>
   <Btn onclick={() => app.go('tutorial')}>{$t('crearCuenta')}</Btn>
   <Btn variant="borde" onclick={() => app.go('telefono', { mode: 'login' })}>{$t('yaTengo')}</Btn>
-  {#if app.servidor.demo}
-    <LinkBtn onclick={entrarComoRosa} disabled={entrando}>{entrando ? 'Entrando…' : 'Entrar como vecina de prueba (Rosa)'}</LinkBtn>
-  {/if}
+  <LinkBtn onclick={entrarComoRosa} disabled={entrando}>{entrando ? 'Entrando…' : 'Entrar como vecina de prueba (Rosa)'}</LinkBtn>
 </Screen>

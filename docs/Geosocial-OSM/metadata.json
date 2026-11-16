@@ -1,0 +1,6 @@
+{
+  "name": "GeoSocial OSM - PWA Geolocation & POI Explorer",
+  "description": "PWA de geolocalización híbrida permisiva (GPS/IP), mapa OpenStreetMap OSM con marcadores categorizados, CRUD en localStorage, cálculo Haversine y especificación formal bajo norma ISO/IEC 25010.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

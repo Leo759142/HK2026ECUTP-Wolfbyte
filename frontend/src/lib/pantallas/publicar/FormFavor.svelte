@@ -11,17 +11,35 @@
   import Pie from './Pie.svelte';
 
   let { item, onSave, onBack, editando } = $props();
-  const d = item?.detalles ?? {};
-  let tipo = $state(item?.tipo ?? 'presto');
-  let que = $state(item && item.tipo !== 'intercambio' ? item.titulo : '');
-  let duracion = $state(d.duracion ?? '1 día');
-  let condicion = $state(d.condicion ?? '');
-  let estado = $state(d.estado ?? 'Usado');
-  let cantidad = $state(d.cantidad ?? '');
-  let ofrezco = $state(d.ofrezco ?? '');
-  let busco = $state(d.busco ?? '');
-  let foto = $state(item?.foto ?? null);
-  const valido = $derived(tipo === 'intercambio' ? ofrezco.trim().length >= 3 && busco.trim().length >= 3 : que.trim().length >= 3);
+
+  let tipo = $state('presto');
+  let que = $state('');
+  let duracion = $state('1 día');
+  let condicion = $state('');
+  let estado = $state('Usado');
+  let cantidad = $state('');
+  let ofrezco = $state('');
+  let busco = $state('');
+  let foto = $state(null);
+
+  $effect(() => {
+    const d = item?.detalles ?? {};
+    tipo = item?.tipo ?? 'presto';
+    que = item && item.tipo !== 'intercambio' ? item.titulo : '';
+    duracion = d.duracion ?? '1 día';
+    condicion = d.condicion ?? '';
+    estado = d.estado ?? 'Usado';
+    cantidad = d.cantidad ?? '';
+    ofrezco = d.ofrezco ?? '';
+    busco = d.busco ?? '';
+    foto = item?.foto ?? null;
+  });
+
+  const valido = $derived(
+    tipo === 'intercambio'
+      ? ofrezco.trim().length >= 3 && busco.trim().length >= 3
+      : que.trim().length >= 3
+  );
 
   function publicar() {
     const base = { tipo, foto };

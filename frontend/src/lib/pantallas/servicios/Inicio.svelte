@@ -50,7 +50,7 @@
     </button>
 
     <h2 class="text-lg font-black">{$t('oficios')}</h2>
-    <div class="grid grid-cols-4 gap-2.5">
+    <div class="grid grid-cols-2 gap-2.5 min-[380px]:grid-cols-4">
       {#each CATEGORIAS.slice(0, 7) as c (c.id)}
         <button type="button" onclick={() => app.go('resultados', { category: c.id })} class="flex min-h-[80px] flex-col items-center justify-center gap-1 rounded-2xl border border-linea bg-white text-[11px] font-extrabold leading-tight">
           <span class="text-2xl" aria-hidden="true">{c.emoji}</span>{c.label}

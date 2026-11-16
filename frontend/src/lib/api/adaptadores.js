@@ -74,6 +74,19 @@ export function perfilADto(patch) {
   if ('district' in patch) out.distrito = patch.district;
   if ('address' in patch) out.direccion = patch.address;
   if ('reference' in patch) out.referencia = patch.reference;
+  // Coordenadas GPS/IP del usuario
+  if ('location' in patch && patch.location) {
+    const loc = patch.location;
+    if (loc.lat != null) out.lat_aprox = loc.lat;
+    if (loc.lng != null) out.lng_aprox = loc.lng;
+    if (loc.provider) out.geo_provider = loc.provider;
+    if (loc.city) out.geo_label = loc.city;
+    if (loc.country) out.geo_label = [loc.city, loc.country].filter(Boolean).join(', ');
+  }
+  if ('lat_aprox' in patch) out.lat_aprox = patch.lat_aprox;
+  if ('lng_aprox' in patch) out.lng_aprox = patch.lng_aprox;
+  if ('geo_provider' in patch) out.geo_provider = patch.geo_provider;
+  if ('geo_lastUpdate' in patch) out.geo_lastUpdate = patch.geo_lastUpdate;
   return out;
 }
 
@@ -205,6 +218,10 @@ export function emergenciaALocal(e, yoId) {
     texto: e.texto ?? '',
     foto: e.foto ?? null,
     manzana: e.manzana,
+    provinciaId: e.provincia_id ?? null,
+    distritoId: e.distrito_id ?? null,
+    lat_aprox: e.lat_aprox ?? null,
+    lng_aprox: e.lng_aprox ?? null,
     status: e.estado,
     confirmedBy: e.confirmada_por ?? null,
     confirmedAt: ms(e.confirmada_en),

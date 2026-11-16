@@ -21,7 +21,7 @@
 
 <Screen>
   <Header title="Paso 3 de 4" />
-  <Progreso paso={3} />
+  <Progreso paso={3} total={5} />
   <H1>¿Cómo te llamas?</H1>
   <Sub>Así tus vecinos sabrán quién recomienda, presta o pide ayuda.</Sub>
   <Field label="Nombre"><Input autocomplete="given-name" bind:value={firstName} placeholder="Rosa" /></Field>

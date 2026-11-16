@@ -14,16 +14,17 @@
   import Toggle from '../../ui/Toggle.svelte';
   import Pie from './Pie.svelte';
 
-  let { item, onSave, onBack, editando } = $props();
-  let clase = $state(item?.clase ?? 'servicio');
-  let categoria = $state(item?.categoria ?? 'gasfiteria');
-  let titulo = $state(item?.titulo ?? '');
-  let descripcion = $state(item?.descripcion ?? '');
-  let horario = $state(item?.horario ?? '');
-  let precio = $state(item?.precio ?? '');
-  let foto = $state(item?.foto ?? null);
-  let showFullName = $state(item?.showFullName ?? false);
-  const valido = $derived(titulo.trim().length >= 3 && descripcion.trim().length >= 10 && horario.trim().length >= 2);
+  let props = $props();
+  let { item, onSave, onBack, editando } = props;
+  let clase = $state(props.item?.clase ?? 'servicio');
+  let categoria = $state(props.item?.categoria ?? 'gasfiteria');
+  let titulo = $state(props.item?.titulo ?? '');
+  let descripcion = $state(props.item?.descripcion ?? '');
+  let horario = $state(props.item?.horario ?? '');
+  let precio = $state(props.item?.precio ?? '');
+  let foto = $state(props.item?.foto ?? null);
+  let showFullName = $state(props.item?.showFullName ?? false);
+  const valido = $derived(props.item?.titulo.trim().length >= 3 && props.item?.descripcion.trim().length >= 10 && props.item?.horario.trim().length >= 2);
 </script>
 
 <Screen class="gap-3">

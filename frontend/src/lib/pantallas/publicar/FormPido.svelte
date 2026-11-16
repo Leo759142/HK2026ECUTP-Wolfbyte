@@ -11,11 +11,19 @@
   import Pie from './Pie.svelte';
 
   let { item, onSave, onBack, editando } = $props();
-  const d = item?.detalles ?? {};
-  let clase = $state(d.clase ?? 'Favor');
-  let texto = $state(item?.titulo ?? '');
-  let cuando = $state(d.cuando ?? 'Hoy');
-  let foto = $state(item?.foto ?? null);
+
+  let clase = $state('Favor');
+  let texto = $state('');
+  let cuando = $state('Hoy');
+  let foto = $state(null);
+
+  $effect(() => {
+    const d = item?.detalles ?? {};
+    clase = d.clase ?? 'Favor';
+    texto = item?.titulo ?? '';
+    cuando = d.cuando ?? 'Hoy';
+    foto = item?.foto ?? null;
+  });
 </script>
 
 <Screen class="gap-3">

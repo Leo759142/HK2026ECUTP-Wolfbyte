@@ -1,15 +1,20 @@
 <!-- 3.2 Mapa del sector. Modo normal: servicios y favores. En emergencia: pedidos de ayuda y puntos de apoyo, con "Voy yo".
      Privacidad: el teléfono de quien pide solo lo recibe quien acepta ayudar; la dirección exacta, solo los Guardianes. -->
-<script>
+<script lang="ts">
+  import { onMount } from 'svelte';
   import { app, datos } from '../estado.svelte.js';
   import { TIPOS_FAVOR, VULNERABLES, catById, emergenciaById, necesidadById } from '../data.js';
   import { hace, nombreVisible, posicionPin } from '../util.js';
   import { ayudarPedido } from '../acciones.js';
+  import { GeoLocationService } from '../servicios/geoService';
+  import type { UserLocation } from '../types/poi';
   import Btn from '../ui/Btn.svelte';
   import Chip from '../ui/Chip.svelte';
   import EmergencyBanner from '../ui/EmergencyBanner.svelte';
   import H1 from '../ui/H1.svelte';
+  import LinkBtn from '../ui/LinkBtn.svelte';
   import Screen from '../ui/Screen.svelte';
+  import MapaOSM from '../ui/MapaOSM.svelte';
   import { serviciosVisibles } from './servicios/comun.js';
 
   let sel = $state(null);
@@ -33,6 +38,45 @@
   const seleccionado = $derived(pins.find((p) => p.id === sel));
   const ordenados = $derived([...pedidos].sort((a, b) => (a.id === sel ? -1 : b.id === sel ? 1 : a.status === 'abierto' ? -1 : 1)));
 
+  /* ---------- Vista geográfica (OSM) ---------- */
+  let vistaGeo = $state(false);
+  let userLocation: UserLocation | null = $state(null);
+  let geoPins = $derived(
+    pins.map((p) => {
+      const owner = p.manzana ? app.users.find((u) => u.manzana === p.manzana && u.id !== app.user?.id) : null;
+      const ref = owner ?? app.user;
+      const base = ref ? (ref.lat_aprox ?? userLocation?.coords?.lat ?? -12.046374) : (userLocation?.coords?.lat ?? -12.046374);
+      const baseLng = ref ? (ref.lng_aprox ?? userLocation?.coords?.lng ?? -77.042793) : (userLocation?.coords?.lng ?? -77.042793);
+      const manzanaIdx = manzanas.indexOf(p.manzana ?? 'A');
+      const offsetLat = ((manzanaIdx * 7) % 10 - 5) * 0.0015;
+      const offsetLng = ((manzanaIdx * 13) % 10 - 5) * 0.0015;
+      return {
+        id: p.id,
+        kind: p.kind,
+        lat: base + offsetLat,
+        lng: baseLng + offsetLng,
+        emoji: p.emoji,
+        label: p.id,
+      };
+    })
+  );
+
+  async function initGeo() {
+    try {
+      const cached = GeoLocationService.getCachedLocation();
+      if (cached) {
+        userLocation = cached;
+      } else {
+        const loc = await GeoLocationService.getIpLocation();
+        userLocation = loc;
+      }
+    } catch {
+      // Ignorar: se usa lat_aprox del usuario como fallback
+    }
+  }
+
+  onMount(() => initGeo());
+
   function vengoYo(n) {
     ayudarPedido(n);
     app.notify(`🙋 Avisamos a ${ownerOf(n.ownerId)?.firstName} que vas en camino`);
@@ -42,7 +86,30 @@
 
 <div class="flex flex-1 flex-col {e ? 'bg-rojo-fondo' : ''}">
   {#if e}<EmergencyBanner emergencia={e} tipo={emergenciaById(e.tipo)} />{/if}
-  <div class="relative mx-5 mt-4 h-[340px] overflow-hidden rounded-3xl bg-mapa" role="img" aria-label="Mapa del sector por manzanas">
+
+  <!-- Selector de vista: esquema por manzanas / mapa geográfico -->
+  <div class="mx-5 mt-2 flex items-center gap-2">
+    <button
+      type="button"
+      onclick={() => (vistaGeo = false)}
+      class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all {vistaGeo ? 'text-gris bg-slate-100' : 'text-petroleo bg-petroleo-claro'}"
+    >
+      🗺️ Manzanas
+    </button>
+    <button
+      type="button"
+      onclick={() => (vistaGeo = true)}
+      class="px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all {vistaGeo ? 'text-petroleo bg-petroleo-claro' : 'text-gris bg-slate-100'}"
+    >
+      🌍 Geográfico
+    </button>
+    {#if !vistaGeo && userLocation}
+      <LinkBtn class="text-[10px]" onclick={() => { userLocation = null; }}>(Ignorar ubicación)</LinkBtn>
+    {/if}
+  </div>
+
+  {#if !vistaGeo}
+    <div class="relative mx-5 mt-4 h-[min(340px,45dvh)] overflow-hidden rounded-3xl bg-mapa" role="img" aria-label="Mapa del sector por manzanas">
     <div class="absolute inset-3 grid gap-3 {cols === 3 ? 'grid-cols-3' : 'grid-cols-2'}">
       {#each manzanas as m (m)}
         <div class="flex items-start justify-start rounded-lg p-1.5 text-[11px] font-extrabold {m === app.user.manzana ? 'bg-petroleo-claro text-petroleo-osc' : 'bg-manzana text-gris'}">Mz. {m}</div>
@@ -58,6 +125,19 @@
     {/each}
     {#if e}<span class="absolute right-3 top-3 rounded-xl bg-white px-2.5 py-1.5 text-xs font-extrabold">🔒 Zona aproximada</span>{/if}
   </div>
+  {/if}
+
+  {#if vistaGeo}
+    <div class="mx-5 mt-4 h-[min(340px,45dvh)]">
+      <MapaOSM
+        {userLocation}
+        pins={geoPins}
+        selectedPinId={sel}
+        onPinClick={(id) => (sel = id)}
+        centerOnUser
+      />
+    </div>
+  {/if}
 
   <Screen class="gap-3">
     <div class="flex flex-wrap gap-3 text-xs font-extrabold">

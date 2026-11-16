@@ -45,7 +45,11 @@ export async function reportar(db: Consulta, s: SesionActual, body: v.Cuerpo): P
 		tipo: v.opcion(body.tipo, 'tipo', TIPOS),
 		texto: v.texto(body.texto, 'El texto', { max: 200, opcional: true }),
 		foto: v.foto(body.foto),
-		manzana: s.manzana
+		manzana: s.manzana,
+		provinciaId: v.textoONull(body.provincia_id, 'La provincia', { max: 6, opcional: true }),
+		distritoId: v.textoONull(body.distrito_id, 'El distrito', { max: 6, opcional: true }),
+		latAprox: v.coordenada(body.lat_aprox, 'La latitud', 90),
+		lngAprox: v.coordenada(body.lng_aprox, 'La longitud', 180)
 	});
 	const e = await repo.filaEmergencia(db, id);
 	if (!e || e.reportero_id !== s.usuarioId) throw err.conflicto('Ese id ya está en uso.', 'ID_EN_USO');

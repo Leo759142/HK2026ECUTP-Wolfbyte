@@ -13,12 +13,29 @@
   import Progreso from './Progreso.svelte';
 
   let { mode = 'registro' } = $props();
-  const draft = load('registro', {});
+  const DRAFT = load('registro', {});
+  // Números y códigos de demo hardcodeados (sin backend)
+  const PHONE_DEMO = '900000001';
+  const CODE_DEMO = '1234';
   let code = $state('');
   let error = $state('');
   let verificando = $state(false);
 
   async function verificar() {
+    // Modo demostración: verificar con código hardcodeado sin llamar al backend
+    if (DRAFT.codigoDemo && code === CODE_DEMO) {
+      verificando = true;
+      try {
+        if (mode === 'registro') app.notify('✅ Código correcto. Bienvenido a AYNI.');
+        await entrar({ id: 'demo_user', nombre: 'Demo User', telefono: PHONE_DEMO });
+        return;
+      } catch (e) {
+        error = e.message;
+      } finally {
+        verificando = false;
+      }
+    }
+    // Modo normal: llamar al backend
     verificando = true;
     try {
       const r = await verificarCodigo(draft.phone, code);
@@ -39,7 +56,7 @@
 
 <Screen>
   <Header title={mode === 'registro' ? 'Paso 2 de 4' : 'Ingresar'} />
-  {#if mode === 'registro'}<Progreso paso={2} />{/if}
+  {#if mode === 'registro'}<Progreso paso={2} total={5} />{/if}
   <H1>Escribe el código</H1>
   <Sub>Lo enviamos por SMS al +51 {draft.phone}</Sub>
   <Input

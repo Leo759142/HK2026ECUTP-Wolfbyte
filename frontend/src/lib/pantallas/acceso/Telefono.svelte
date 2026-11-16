@@ -12,19 +12,31 @@
   import Progreso from './Progreso.svelte';
 
   let { mode = 'registro' } = $props();
-  const draft = load('registro', {});
-  let phone = $state(draft.phone ?? '');
+  const DRAFT = load('registro', {});
+  // Números de prueba hardcodeados (simulan SMS, no necesitan backend)
+  const PHONE_DEMO = '900000001';
+  const CODE_DEMO = '1234';
+  let phone = $state(DRAFT.phone ?? '');
   let error = $state('');
   let enviando = $state(false);
   const valido = $derived(/^9\d{8}$/.test(phone));
+  const esDemo = $derived(phone === PHONE_DEMO);
 
   async function continuar() {
-    if (!app.online) return (error = 'Necesitas conexión para recibir el código SMS.');
     enviando = true;
     try {
-      const r = await solicitarCodigo(phone);
-      save('registro', { ...load('registro', {}), phone, codigoDemo: r.codigo_demo ?? null });
-      app.go('codigo', { mode });
+      if (esDemo) {
+        // Modo demostración: simular recibir código SMS sin llamar al backend
+        save('registro', { ...DRAFT, phone: PHONE_DEMO, codigoDemo: CODE_DEMO });
+        app.go('codigo', { mode });
+        app.notify('🧪 Modo demostración: código 1234 enviado al número 900000001');
+      } else {
+        // Modo real: pedir código al servidor
+        await solicitarCodigo(phone);
+        save('registro', { ...DRAFT, phone, codigoDemo: null });
+        app.go('codigo', { mode });
+        app.notify(`Código enviado por SMS al +51 ${phone}`);
+      }
     } catch (e) {
       error = e.message;
     } finally {
@@ -35,7 +47,7 @@
 
 <Screen>
   <Header title={mode === 'registro' ? 'Paso 1 de 4' : 'Ingresar'} />
-  {#if mode === 'registro'}<Progreso paso={1} />{/if}
+  {#if mode === 'registro'}<Progreso paso={1} total={5} />{/if}
   <H1>{mode === 'registro' ? '¿Cuál es tu número de celular?' : '¡Hola de nuevo! 👋'}</H1>
   <Sub>{mode === 'registro' ? 'Te enviaremos un código por SMS para verificar que eres tú.' : 'Escribe tu número y te enviaremos un código para entrar. No necesitas contraseña.'}</Sub>
   <div class="flex gap-2.5">

@@ -1,0 +1,14 @@
+const fs = require('fs');
+const path = 'e:\\Proyecto XYZ\\CuasiFinalPOD\\HK2026ECUTP-Wolfbyte 800\\frontend\\src\\lib\\ui\\MapaOSM.svelte';
+let content = fs.readFileSync(path, 'utf8');
+console.log('Has enableTracking:', content.indexOf('enableTracking') !== -1);
+console.log('Has watchId:', content.indexOf('watchId: number') !== -1);
+console.log('Has toggleTracking:', content.indexOf('toggleTracking') !== -1);
+console.log('Has searchQuery:', content.indexOf('searchQuery') !== -1);
+console.log('Has geocodeResults:', content.indexOf('geocodeResults') !== -1);
+console.log('Has clusterPins:', content.indexOf('clusterPins') !== -1);
+console.log('Has clusterPins call in render:', content.indexOf('clusterPins()') !== -1);
+console.log('Total lines:', content.split('\n').length);
+console.log('Has </script>:', content.indexOf('</script>') !== -1);
+console.log('Has closing div:', content.indexOf('</div>') !== -1);
+console.log('Has closing Screen:', content.indexOf('</Screen>') !== -1);

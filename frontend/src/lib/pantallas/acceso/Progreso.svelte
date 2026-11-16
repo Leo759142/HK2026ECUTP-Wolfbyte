@@ -1,9 +1,9 @@
 <script>
-  let { paso } = $props();
+  let { paso, total = 4 } = $props();
 </script>
 
-<div class="flex gap-1.5" aria-label="Paso {paso} de 4">
-  {#each [1, 2, 3, 4] as n (n)}
+<div class="flex gap-1.5" aria-label="Paso {paso} de {total}">
+  {#each Array.from({ length: total }, (_, i) => i + 1) as n (n)}
     <span class="h-1.5 flex-1 rounded-full {n <= paso ? 'bg-petroleo' : 'bg-linea'}"></span>
   {/each}
 </div>

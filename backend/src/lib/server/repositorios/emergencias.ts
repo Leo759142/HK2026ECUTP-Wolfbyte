@@ -11,6 +11,10 @@ export interface EmergenciaDto {
 	reportero_id: string;
 	reportero: VecinoPublico | null;
 	manzana: string;
+	provincia_id: string | null;
+	distrito_id: string | null;
+	lat_aprox: number | null;
+	lng_aprox: number | null;
 	estado: 'pendiente' | 'activa' | 'descartada' | 'atendida';
 	confirmada_por: string | null;
 	confirmada_en: string | null;
@@ -58,6 +62,10 @@ function aDto(f: Record<string, unknown>, requeridas: number): EmergenciaDto {
 		reportero_id: String(f.reportero_id),
 		reportero: vecino(f, 'r'),
 		manzana: String(f.manzana).trim(),
+		provincia_id: (f.provincia_id as string) ?? null,
+		distrito_id: (f.distrito_id as string) ?? null,
+		lat_aprox: f.lat_aprox == null ? null : Number(f.lat_aprox),
+		lng_aprox: f.lng_aprox == null ? null : Number(f.lng_aprox),
 		estado: f.estado as EmergenciaDto['estado'],
 		confirmada_por: (f.confirmada_por as string) ?? null,
 		confirmada_en: iso(f.confirmada_en),
@@ -116,12 +124,25 @@ export async function filaEmergencia(db: Consulta, id: string) {
 
 export async function crearEmergencia(
 	db: Consulta,
-	e: { id: string; sectorId: string; reporteroId: string; tipo: string; texto: string; foto: string | null; manzana: string }
+	e: {
+		id: string;
+		sectorId: string;
+		reporteroId: string;
+		tipo: string;
+		texto: string;
+		foto: string | null;
+		manzana: string;
+		provinciaId?: string | null;
+		distritoId?: string | null;
+		latAprox?: number | null;
+		lngAprox?: number | null;
+	}
 ): Promise<boolean> {
 	const r = await db.query(
-		`INSERT INTO emergencias (id, sector_id, reportero_id, tipo, texto, foto, manzana) VALUES ($1, $2, $3, $4, $5, $6, $7)
+		`INSERT INTO emergencias (id, sector_id, reportero_id, tipo, texto, foto, manzana, provincia_id, distrito_id, lat_aprox, lng_aprox)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		 ON CONFLICT (id) DO NOTHING RETURNING id`,
-		[e.id, e.sectorId, e.reporteroId, e.tipo, e.texto, e.foto, e.manzana]
+		[e.id, e.sectorId, e.reporteroId, e.tipo, e.texto, e.foto, e.manzana, e.provinciaId ?? null, e.distritoId ?? null, e.latAprox ?? null, e.lngAprox ?? null]
 	);
 	return r.length > 0;
 }

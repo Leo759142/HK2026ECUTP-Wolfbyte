@@ -4,6 +4,7 @@
   import { app, datos } from '../../estado.svelte.js';
   import { load, save } from '../../storage.js';
   import { cargarSectoresPublicos, entrar, registrar } from '../../acciones.js';
+  import { get } from '../../api/cliente.js';
   import Btn from '../../ui/Btn.svelte';
   import H1 from '../../ui/H1.svelte';
   import Header from '../../ui/Header.svelte';
@@ -18,12 +19,30 @@
   let manzana = $state('');
   let error = $state('');
   let enviando = $state(false);
+  let buscandoZona = $state(false);
+  let zonaSugerida = $state('');
   const sector = $derived(datos.sectors.find((s) => s.id === sectorId));
 
   onMount(async () => {
     try {
       const lista = await cargarSectoresPublicos();
       if (!sectorId && lista[0]) sectorId = lista[0].id;
+      const lat = draft.lat_aprox ?? draft.location?.lat;
+      const lng = draft.lng_aprox ?? draft.location?.lng;
+      if (lat != null && lng != null) {
+        buscandoZona = true;
+        try {
+          const sugerido = await get(`/sectores/buscar?lat=${encodeURIComponent(lat)}&lng=${encodeURIComponent(lng)}`);
+          if (sugerido?.id) {
+            sectorId = sugerido.id;
+            zonaSugerida = sugerido.nombre || '';
+          }
+        } catch {
+          // sin match o sin conexión: selección manual
+        } finally {
+          buscandoZona = false;
+        }
+      }
     } catch (e) {
       error = e.message;
     }
@@ -44,10 +63,15 @@
 </script>
 
 <Screen>
-  <Header title="Paso 4 de 4" />
-  <Progreso paso={4} />
+  <Header title="Paso 5 de 5" />
+  <Progreso paso={5} />
   <H1>📍 Elige tu zona</H1>
-  <Sub>{draft.location ? 'Estos sectores están cerca de tu ubicación.' : 'Elige el sector donde vives.'}</Sub>
+  <Sub>{draft.lat_aprox != null || draft.location ? 'Usamos tu ubicación aproximada para sugerir tu sector.' : 'Elige el sector donde vives.'}</Sub>
+  {#if buscandoZona}
+    <p class="text-sm font-bold text-petroleo">Buscando tu sector más cercano…</p>
+  {:else if zonaSugerida}
+    <div class="rounded-2xl bg-petroleo-claro p-3 text-sm font-bold text-petroleo-osc">Sector sugerido por tu ubicación: {zonaSugerida}</div>
+  {/if}
   <div class="flex flex-col gap-2" role="radiogroup">
     {#each datos.sectors as s (s.id)}
       <button

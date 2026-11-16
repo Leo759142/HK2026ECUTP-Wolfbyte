@@ -1,0 +1,776 @@
+Aquí tienes la especificación completa de Requerimientos Funcionales (RF), No
+Funcionales (RNF), Casos de Uso (CU) y la implementación técnica en SvelteKit +
+TypeScript + Vite con almacenamiento local, geolocalización híbrida (GPS/IP),
+OpenStreetMap y enfoque PWA Offline-First.
+
+Fase 1: Especificación de Requerimientos
+
+1. Requerimientos Funcionales (RF)
+
+| ID        | Nombre                                | Descripción                                                                                                                                                                   |
+| :-------- | :------------------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **RF-01** | **Geolocalización Híbrida**           | El sistema debe solicitar permiso para obtener GPS de alta precisión en móviles. Si se deniega o falla, debe solicitar consentimiento para geolocalización aproximada por IP. |
+| **RF-02** | **Visualización de Mapa OSM**         | Renderizar un mapa interactivo basado en OpenStreetMap (tiles estándar) centrado en la posición del usuario.                                                                  |
+| **RF-03** | **Marcadores Categóricos (POIs)**     | Representar puntos de interés con iconos diferenciados por categoría: Comida (`food`), Tiendas (`shop`), Ocio (`entertainment`), Salud (`health`), etc.                       |
+| **RF-04** | **CRUD de POIs en LocalStorage**      | Permitir al usuario crear, listar, editar y eliminar puntos personalizados/favoritos almacenados en el navegador de manera persistente.                                       |
+| **RF-05** | **Ordenación y Filtro por Distancia** | Calcular la distancia esférica (fórmula de Haversine) y ordenar la lista de POIs desde el más cercano al más lejano respecto a la posición actual.                            |
+| **RF-06** | **Interacción Social / Compartir**    | Permitir compartir la ficha del lugar (nombre, coordenadas, reseña) mediante la Web Share API (móvil) o copiar enlace con fallback.                                           |
+
+2. Requerimientos No Funcionales (RNF)
+
+| ID         | Nombre                                       | Criterio de Calidad                                                                                                                  |
+| :--------- | :------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| **RNF-01** | **Rendimiento y PWA**                        | Tiempo de carga inicial (FCP) menor a 1.5s en conexiones 3G/4G móviles. Cumplir con estándares PWA (instalable, offline manifest).   |
+| **RNF-02** | **Privacidad y Permisos**                    | Cumplir principios de minimización de datos: no recolectar ubicación sin autorización explícita previa (opt-in).                     |
+| **RNF-03** | **Tolerancia a Desconexión (Offline-First)** | El mapa y la lista deben operar con datos cacheados en `localStorage` y tiles en Service Worker cuando no haya internet.             |
+| **RNF-04** | **Arquitectura y Framework**                 | Desarrollado puramente en SvelteKit con TypeScript y empaquetador Vite (sin librerías de otros ecosistemas como React o Angular).    |
+| **RNF-05** | **Accesibilidad (a11y)**                     | Cumplir WCAG 2.1 AA en contrastes de colores de marcadores, botones táctiles mínimos de 48x48px y soporte para lectores de pantalla. |
+
+3. Casos de Uso (CU)
+
+CU-01: Solicitar Ubicación (Estrategia Permisiva Híbrida)
+
+  - Actor Principal: Usuario Móvil / Desktop.
+  - Flujo Principal:
+    1.  El usuario entra a la PWA; la aplicación presenta un diálogo contextual
+        explicativo ("Necesitamos tu ubicación para mostrarte locales
+        cercanos").
+    2.  Si el usuario acepta, se invoca navigator.geolocation.getCurrentPosition
+        (enableHighAccuracy: true).
+    3.  Si el usuario rechaza el GPS o el navegador no lo soporta, la app ofrece
+        la alternativa: "¿Deseas aproximar tu ubicación por tu proveedor de
+        Internet (IP)?".
+    4.  Si acepta, se consulta el endpoint de geolocalización por IP y se
+        posiciona en el mapa con un radio de incertidumbre visual.
+
+CU-02: Gestión de Lugares Favoritos/Comunitarios (CRUD Local)
+
+  - Actor Principal: Usuario.
+  - Flujo Principal:
+    1.  El usuario toca sobre el mapa o presiona el botón flotante "+ Nuevo
+        Lugar".
+    2.  Introduce: Título, Categoría, Descripción, Calificación y Foto/Icono.
+    3.  El sistema valida los datos y lo almacena mediante el POIStorageService
+        en localStorage.
+    4.  El mapa coloca de inmediato el marcador correspondiente con su
+        color/símbolo y la lista se actualiza automáticamente.
+
+CU-03: Compartir POI (Social)
+
+  - Actor Principal: Usuario.
+  - Flujo Principal:
+    1.  El usuario abre la ficha de un POI en la lista o en el pop-up del mapa.
+    2.  Presiona "Compartir".
+    3.  Si el dispositivo soporta navigator.share, se abre la hoja nativa
+        (WhatsApp, Telegram, etc.).
+    4.  Si no, se genera un enlace deep-link con parámetros de coordenadas
+        copiado al portapapeles.
+
+Fase 2: Implementación Técnica (SvelteKit + TS + Vite)
+
+Estructura del Proyecto
+
+src/
+├── lib/
+│   ├── components/
+│   │   ├── Map.svelte
+│   │   ├── PoiCard.svelte
+│   │   └── PoiModal.svelte
+│   ├── services/
+│   │   ├── geoService.ts
+│   │   └── poiService.ts
+│   ├── types/
+│   │   └── poi.types.ts
+│   └── utils/
+│       └── distance.ts
+└── routes/
+    ├── +page.svelte
+    └── +layout.svelte
+
+Instala Leaflet y sus tipos (librería estándar compatible con OSM):
+
+npm install leaflet
+npm install -D @types/leaflet
+
+1. Tipos e Interfaces (src/lib/types/poi.types.ts)
+
+export type Category = 'food' | 'shop' | 'leisure' | 'health' | 'service';
+
+export interface Coordinates {
+  lat: number;
+  lng: number;
+  accuracy?: number; // en metros
+}
+
+export interface POI {
+  id: string;
+  name: string;
+  category: Category;
+  description: string;
+  coords: Coordinates;
+  rating: number; // 1 a 5
+  createdAt: number;
+}
+
+export type GeoProvider = 'gps' | 'ip' | 'manual';
+
+export interface UserLocation {
+  coords: Coordinates;
+  provider: GeoProvider;
+  timestamp: number;
+}
+
+2. Utilidad Matemática Haversine (src/lib/utils/distance.ts)
+
+import type { Coordinates } from '$lib/types/poi.types';
+
+// Calcula distancia en kilómetros entre dos coordenadas
+export function calculateDistance(coord1: Coordinates, coord2: Coordinates): number {
+  const R = 6371; // Radio de la Tierra en km
+  const dLat = ((coord2.lat - coord1.lat) * Math.PI) / 180;
+  const dLon = ((coord2.lng - coord1.lng) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((coord1.lat * Math.PI) / 180) *
+      Math.cos((coord2.lat * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Number((R * c).toFixed(2));
+}
+
+3. Servicio de Geolocalización Híbrida (src/lib/services/geoService.ts)
+
+import type { UserLocation } from '$lib/types/poi.types';
+
+export class GeoLocationService {
+  // 1. Obtener ubicación precisa por GPS
+  public static async getGpsLocation(): Promise<UserLocation> {
+    return new Promise((resolve, reject) => {
+      if (!('geolocation' in navigator)) {
+        return reject(new Error('Geolocalización no soportada por el navegador.'));
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          resolve({
+            coords: {
+              lat: pos.coords.latitude,
+              lng: pos.coords.longitude,
+              accuracy: pos.coords.accuracy
+            },
+            provider: 'gps',
+            timestamp: pos.timestamp
+          });
+        },
+        (err) => reject(err),
+        { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+      );
+    });
+  }
+
+  // 2. Fallback de geolocalización aproximada por IP (con API pública)
+  public static async getIpLocation(): Promise<UserLocation> {
+    const res = await fetch('https://ipapi.co/json/');
+    if (!res.ok) throw new Error('No se pudo determinar la ubicación por IP');
+    const data = await res.json();
+    return {
+      coords: {
+        lat: data.latitude,
+        lng: data.longitude,
+        accuracy: 10000 // Exactitud estimada de ~10km por IP
+      },
+      provider: 'ip',
+      timestamp: Date.now()
+    };
+  }
+}
+
+4. Servicio CRUD con localStorage (src/lib/services/poiService.ts)
+
+import { writable } from 'svelte/store';
+import type { POI } from '$lib/types/poi.types';
+
+const STORAGE_KEY = 'geo_pois_v1';
+
+const initialPois: POI[] = [
+  {
+    id: '1',
+    name: 'Café & Panadería Central',
+    category: 'food',
+    description: 'El mejor café de especialidad y brunch.',
+    coords: { lat: -12.046374, lng: -77.042793 },
+    rating: 5,
+    createdAt: Date.now()
+  },
+  {
+    id: '2',
+    name: 'Supermercado Orgánico',
+    category: 'shop',
+    description: 'Frutas, verduras frescas y productos locales.',
+    coords: { lat: -12.049374, lng: -77.045793 },
+    rating: 4,
+    createdAt: Date.now()
+  }
+];
+
+function createPoiStore() {
+  const isBrowser = typeof window !== 'undefined';
+  let stored: POI[] = initialPois;
+
+  if (isBrowser) {
+    const item = localStorage.getItem(STORAGE_KEY);
+    stored = item ? JSON.parse(item) : initialPois;
+  }
+
+  const { subscribe, set, update } = writable<POI[]>(stored);
+
+  const persist = (pois: POI[]) => {
+    if (isBrowser) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pois));
+    }
+    set(pois);
+  };
+
+  return {
+    subscribe,
+    create: (poi: Omit<POI, 'id' | 'createdAt'>) => {
+      const newPoi: POI = {
+        ...poi,
+        id: crypto.randomUUID(),
+        createdAt: Date.now()
+      };
+      update((pois) => {
+        const updated = [newPoi, ...pois];
+        persist(updated);
+        return updated;
+      });
+      return newPoi;
+    },
+    update: (id: string, updatedFields: Partial<POI>) => {
+      update((pois) => {
+        const updated = pois.map((p) => (p.id === id ? { ...p, ...updatedFields } : p));
+        persist(updated);
+        return updated;
+      });
+    },
+    delete: (id: string) => {
+      update((pois) => {
+        const updated = pois.filter((p) => p.id !== id);
+        persist(updated);
+        return updated;
+      });
+    }
+  };
+}
+
+export const poiStore = createPoiStore();
+
+5. Componente del Mapa con Leaflet (src/lib/components/Map.svelte)
+
+Importante para SvelteKit: Leaflet accede directamente al DOM (window). Debe ser
+importado dinámicamente solo en el cliente (browser).
+
+<script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
+  import { browser } from '$app/environment';
+  import type { POI, UserLocation } from '$lib/types/poi.types';
+  import 'leaflet/dist/leaflet.css';
+
+  export let userLocation: UserLocation | null = null;
+  export let pois: POI[] = [];
+  export let onMapClick: ((coords: { lat: number; lng: number }) => void) | undefined = undefined;
+
+  let mapContainer: HTMLDivElement;
+  let L: typeof import('leaflet');
+  let mapInstance: import('leaflet').Map;
+  let markersLayer: import('leaflet').LayerGroup;
+
+  const categoryIcons: Record<string, { emoji: string; color: string }> = {
+    food: { emoji: '🍔', color: '#f59e0b' },
+    shop: { emoji: '🛍️', color: '#3b82f6' },
+    leisure: { emoji: '🎉', color: '#ec4899' },
+    health: { emoji: '💊', color: '#10b981' },
+    service: { emoji: '🔧', color: '#6366f1' }
+  };
+
+  onMount(async () => {
+    if (!browser) return;
+    L = await import('leaflet');
+
+    // Inicializar mapa centrado por defecto
+    const defaultCenter: [number, number] = userLocation
+      ? [userLocation.coords.lat, userLocation.coords.lng]
+      : [0, 0];
+
+    mapInstance = L.map(mapContainer).setView(defaultCenter, 15);
+
+    // Tiles de OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(mapInstance);
+
+    markersLayer = L.layerGroup().addTo(mapInstance);
+
+    // Listener para registrar POIs al clickear
+    mapInstance.on('click', (e: import('leaflet').LeafletMouseEvent) => {
+      if (onMapClick) {
+        onMapClick({ lat: e.latlng.lat, lng: e.latlng.lng });
+      }
+    });
+
+    renderMarkers();
+  });
+
+  $: if (mapInstance && (pois || userLocation)) {
+    renderMarkers();
+  }
+
+  function renderMarkers() {
+    if (!mapInstance || !L || !markersLayer) return;
+    markersLayer.clearLayers();
+
+    // 1. Marcador de usuario
+    if (userLocation) {
+      const userIcon = L.divIcon({
+        className: 'user-pin',
+        html: `<div class="pulse-marker" title="Tu posición (${userLocation.provider})">📍</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
+      });
+
+      L.marker([userLocation.coords.lat, userLocation.coords.lng], { icon: userIcon })
+        .addTo(markersLayer)
+        .bindPopup(`<b>Estás aquí</b><br>Fuente: ${userLocation.provider.toUpperCase()}`);
+
+      mapInstance.panTo([userLocation.coords.lat, userLocation.coords.lng]);
+    }
+
+    // 2. Marcadores POIs
+    pois.forEach((poi) => {
+      const cat = categoryIcons[poi.category] || { emoji: '📍', color: '#6b7280' };
+      const customIcon = L.divIcon({
+        className: 'poi-custom-pin',
+        html: `<div style="background-color: ${cat.color};" class="poi-bubble">${cat.emoji}</div>`,
+        iconSize: [36, 36],
+        iconAnchor: [18, 36]
+      });
+
+      const marker = L.marker([poi.coords.lat, poi.coords.lng], { icon: customIcon }).addTo(markersLayer);
+      marker.bindPopup(`
+        <div class="popup-content">
+          <strong style="font-size: 1.1em;">${poi.name}</strong>
+          <p style="margin: 4px 0;">${poi.description}</p>
+          <small>Categoría: ${poi.category.toUpperCase()} | Calificación: ⭐ ${poi.rating}/5</small>
+        </div>
+      `);
+    });
+  }
+
+  onDestroy(() => {
+    if (mapInstance) mapInstance.remove();
+  });
+</script>
+
+<div bind:this={mapContainer} class="map-wrapper" />
+
+<style>
+  .map-wrapper {
+    width: 100%;
+    height: 100%;
+    min-height: 380px;
+    z-index: 10;
+  }
+  :global(.poi-bubble) {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    border: 2px solid white;
+    font-size: 16px;
+  }
+  :global(.pulse-marker) {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+</style>
+
+6. Vista Principal (src/routes/+page.svelte)
+
+Integra el selector permisivo de ubicación, visualización de mapa, filtrado por
+categorías, cálculo Haversine y Web Share API.
+
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import Map from '$lib/components/Map.svelte';
+  import { poiStore } from '$lib/services/poiService';
+  import { GeoLocationService } from '$lib/services/geoService';
+  import { calculateDistance } from '$lib/utils/distance';
+  import type { POI, UserLocation, Category } from '$lib/types/poi.types';
+
+  let userLocation: UserLocation | null = null;
+  let permissionPromptOpen = false;
+  let selectedCategory: Category | 'all' = 'all';
+  let isOnline = true;
+
+  // Formulario POI reactivo
+  let newPoiName = '';
+  let newPoiDesc = '';
+  let newPoiCat: Category = 'food';
+  let tempCoords: { lat: number; lng: number } | null = null;
+
+  onMount(() => {
+    isOnline = navigator.onLine;
+    window.addEventListener('online', () => (isOnline = true));
+    window.addEventListener('offline', () => (isOnline = false));
+
+    // Determinar si ya tenemos ubicación o abrimos el diálogo de permisos
+    checkOrAskPermissions();
+  });
+
+  async function checkOrAskPermissions() {
+    try {
+      // Intento primario: GPS móvil
+      userLocation = await GeoLocationService.getGpsLocation();
+    } catch {
+      // Si el GPS falla o fue rechazado, abrimos modal para consultar IP
+      permissionPromptOpen = true;
+    }
+  }
+
+  async function acceptIpFallback() {
+    permissionPromptOpen = false;
+    try {
+      userLocation = await GeoLocationService.getIpLocation();
+    } catch (e) {
+      alert('No se pudo obtener ubicación aproximada.');
+    }
+  }
+
+  function handleMapClick(coords: { lat: number; lng: number }) {
+    tempCoords = coords;
+  }
+
+  function savePoi() {
+    if (!tempCoords || !newPoiName.trim()) return;
+    poiStore.create({
+      name: newPoiName,
+      description: newPoiDesc,
+      category: newPoiCat,
+      coords: tempCoords,
+      rating: 5
+    });
+    tempCoords = null;
+    newPoiName = '';
+    newPoiDesc = '';
+  }
+
+  async function sharePoi(poi: POI) {
+    const text = `¡Mira este lugar: ${poi.name}! Categoria: ${poi.category}. Ubicación: https://www.openstreetmap.org/?mlat=${poi.coords.lat}&mlon=${poi.coords.lng}`;
+    if (navigator.share) {
+      await navigator.share({ title: poi.name, text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      alert('¡Enlace copiado al portapapeles!');
+    }
+  }
+
+  // POIs ordenados por distancia reactivamente
+  $: enrichedPois = $poiStore
+    .filter((p) => selectedCategory === 'all' || p.category === selectedCategory)
+    .map((p) => {
+      const distance = userLocation ? calculateDistance(userLocation.coords, p.coords) : null;
+      return { ...p, distance };
+    })
+    .sort((a, b) => (a.distance ?? Infinity) - (b.distance ?? Infinity));
+</script>
+
+<div class="app-layout">
+  <!-- Cabecera de estado UX -->
+  <header class="app-header">
+    <h1>🧭 Explorador Local</h1>
+    <div class="status-badges">
+      <span class="badge {isOnline ? 'online' : 'offline'}">
+        {isOnline ? '● Online' : '○ Modo Offline'}
+      </span>
+      {#if userLocation}
+        <span class="badge geo">Loc: {userLocation.provider.toUpperCase()}</span>
+      {/if}
+    </div>
+  </header>
+
+  <!-- Modal Permisivo (Fallback IP) -->
+  {#if permissionPromptOpen}
+    <div class="modal-backdrop">
+      <div class="modal">
+        <h3>📍 Permiso de Geolocalización</h3>
+        <p>No se pudo acceder a tu GPS. ¿Deseas usar tu dirección IP para aproximar tu ciudad/distrito?</p>
+        <div class="modal-actions">
+          <button on:click={() => (permissionPromptOpen = false)} class="btn-secondary">Cancelar</button>
+          <button on:click={acceptIpFallback} class="btn-primary">Aceptar IP</button>
+        </div>
+      </div>
+    </div>
+  {/if}
+
+  <main class="content-split">
+    <!-- Contenedor del Mapa -->
+    <div class="map-view">
+      <Map {userLocation} pois={enrichedPois} onMapClick={handleMapClick} />
+      {#if tempCoords}
+        <div class="floating-poi-creator">
+          <h4>Añadir punto en: {tempCoords.lat.toFixed(4)}, {tempCoords.lng.toFixed(4)}</h4>
+          <input type="text" placeholder="Nombre del local" bind:value={newPoiName} />
+          <input type="text" placeholder="Descripción breve" bind:value={newPoiDesc} />
+          <select bind:value={newPoiCat}>
+            <option value="food">Comida 🍔</option>
+            <option value="shop">Tienda 🛍️</option>
+            <option value="leisure">Ocio 🎉</option>
+            <option value="health">Salud 💊</option>
+            <option value="service">Servicio 🔧</option>
+          </select>
+          <div class="creator-actions">
+            <button on:click={() => (tempCoords = null)} class="btn-secondary">Descartar</button>
+            <button on:click={savePoi} class="btn-primary">Guardar</button>
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <!-- Lista Lateral Ordenada por Cercanía -->
+    <aside class="sidebar-list">
+      <div class="filters">
+        <label for="cat">Categoría:</label>
+        <select id="cat" bind:value={selectedCategory}>
+          <option value="all">Todas</option>
+          <option value="food">Comida</option>
+          <option value="shop">Tiendas</option>
+          <option value="leisure">Ocio</option>
+          <option value="health">Salud</option>
+          <option value="service">Servicios</option>
+        </select>
+      </div>
+
+      <div class="poi-items">
+        {#each enrichedPois as poi (poi.id)}
+          <article class="poi-card">
+            <div class="card-header">
+              <h3>{poi.name}</h3>
+              <button class="btn-delete" on:click={() => poiStore.delete(poi.id)} title="Eliminar">✕</button>
+            </div>
+            <p>{poi.description}</p>
+            <div class="card-footer">
+              <span class="category-pill {poi.category}">{poi.category}</span>
+              {#if poi.distance !== null}
+                <span class="distance-tag">📏 {poi.distance} km</span>
+              {/if}
+              <button class="btn-share" on:click={() => sharePoi(poi)} title="Compartir">🔗</button>
+            </div>
+          </article>
+        {:else}
+          <p class="empty-state">No hay lugares en esta vista.</p>
+        {/each}
+      </div>
+    </aside>
+  </main>
+</div>
+
+<style>
+  :global(body) {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  .app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  h1 { margin: 0; font-size: 1.25rem; }
+  .badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge.online { background: #dcfce7; color: #15803d; }
+  .badge.offline { background: #fee2e2; color: #b91c1c; }
+  .badge.geo { background: #e0e7ff; color: #4338ca; }
+
+  .content-split {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+  .map-view {
+    flex: 2;
+    position: relative;
+  }
+  .sidebar-list {
+    flex: 1;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #e2e8f0;
+    background: white;
+  }
+  .filters {
+    padding: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .poi-items {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .poi-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0.85rem;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-header h3 { margin: 0; font-size: 1rem; }
+  .btn-delete { background: none; border: none; cursor: pointer; color: #94a3b8; }
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+  }
+  .category-pill {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: capitalize;
+  }
+  .category-pill.food { background: #fef3c7; color: #b45309; }
+  .category-pill.shop { background: #dbeafe; color: #1d4ed8; }
+  .distance-tag { font-size: 0.8rem; font-weight: 500; color: #64748b; }
+  .btn-share { border: none; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+
+  /* Creador de POI flotante sobre el mapa */
+  .floating-poi-creator {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 380px;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  .modal {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    max-width: 320px;
+  }
+  .btn-primary { background: #2563eb; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+  .btn-secondary { background: #f1f5f9; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+
+  @media (max-width: 768px) {
+    .content-split { flex-direction: column; }
+    .sidebar-list { max-width: 100%; height: 50%; }
+    .map-view { height: 50%; }
+  }
+</style>
+
+Fase 3: UX Adicional y Configuración PWA en Vite
+
+Para convertir esta aplicación en una PWA lista para instalar y trabajar
+offline, agrega @vite-pwa/sveltekit al archivo vite.config.ts:
+
+// vite.config.ts
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
+import { SwaPlugin } from '@vite-pwa/sveltekit';
+
+export default defineConfig({
+  plugins: [
+    sveltekit(),
+    SwaPlugin({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'GeoSocial OSM PWA',
+        short_name: 'GeoPOIs',
+        description: 'Explora y guarda lugares cercanos offline-first',
+        theme_color: '#2563eb',
+        background_color: '#ffffff',
+        display: 'standalone',
+        icons: [
+          { src: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/icon-512x512.png', sizes: '512x512', type: 'image/png' }
+        ]
+      },
+      workbox: {
+        // Cachear tiles de OpenStreetMap para navegación sin internet
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/[a-c]\.tile\.openstreetmap\.org\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'osm-tiles-cache',
+              expiration: {
+                maxEntries: 500,
+                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 días
+              },
+              cacheableResponse: { statuses: [0, 200] }
+            }
+          }
+        ]
+      }
+    })
+  ]
+});
+
+Características de UX añadidas:
+
+1.  Fallback progresivo de Geolocalización: Respeta la privacidad del usuario;
+    si rechaza el GPS (por privacidad o batería), no rompe la experiencia y
+    ofrece estimación por IP.
+2.  Cálculo de Distancia Dinámico: La lista se reordena en tiempo real según la
+    distancia euclidiana/Haversine calculada en el navegador.
+3.  Persistencia Reactiva Offline-First: Las altas/bajas en localStorage
+    sincronizan los marcadores del mapa y las tarjetas de forma instantánea.
+4.  Diseño Responsive: Modo dividido para pantallas de escritorio y vista
+    apilada fluida para móviles con gestos táctiles.

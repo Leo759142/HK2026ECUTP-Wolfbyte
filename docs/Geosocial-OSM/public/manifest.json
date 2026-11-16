@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "GeoSocial OSM - PWA Geolocation & POI Explorer",
+  "short_name": "GeoPOIs",
+  "description": "Explorador social de POIs con OpenStreetMap, geolocalización híbrida con permiso (GPS/IP), offline-first y cálculo Haversine.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["navigation", "social", "travel"]
+}
