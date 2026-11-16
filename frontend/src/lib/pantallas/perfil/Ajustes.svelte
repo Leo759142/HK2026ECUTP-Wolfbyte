@@ -45,6 +45,14 @@
   <div class="rounded-[20px] border border-linea bg-white px-4">
     <Toggle checked={app.settings.largeText} onChange={(v) => cambiar({ largeText: v })} label="🔠 Letra grande" hint="Agranda los textos de toda la app" />
   </div>
+  <div class="text-sm font-extrabold text-gris">Apariencia</div>
+  <div class="rounded-[20px] border border-linea bg-white px-4">
+    <Toggle checked={app.settings.modoOscuro} onChange={(v) => cambiar({ modoOscuro: v })} label="🌙 Modo oscuro" hint="Interfaz con fondo oscuro" />
+  </div>
+  <div class="text-sm font-extrabold text-gris">Accesibilidad</div>
+  <div class="rounded-[20px] border border-linea bg-white px-4">
+    <Toggle checked={app.settings.reducirMovimiento} onChange={(v) => cambiar({ reducirMovimiento: v })} label="↓ Reducir movimiento" hint="Reducir animaciones y scroll automático" />
+  </div>
   {#if app.user && app.sector}
     <div class="text-sm font-extrabold text-gris">Mi zona · {app.sector.name}</div>
     <Pills options={app.sector.manzanas.map((m) => ({ id: m, label: `Mz. ${m}` }))} value={app.user.manzana} onChange={(m) => actualizarPerfil({ manzana: m })} />

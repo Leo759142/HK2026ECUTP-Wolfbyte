@@ -11,16 +11,15 @@
   import FormPido from './FormPido.svelte';
   import FormServicio from './FormServicio.svelte';
 
-  let props = $props();
-  let { kind: kindInicial } = props;
+  let { kind: kindInicial, editCol, editId } = $props();
   const OPCIONES = [
     { id: 'servicio', emoji: '🛠️', titulo: 'Ofrezco producto o servicio', sub: 'Tu oficio, profesión o lo que vendes', bg: 'bg-ambar-claro' },
     { id: 'favor', emoji: '🤝', titulo: 'Ofrezco un favor', sub: 'Presto, regalo o intercambio', bg: 'bg-morado-claro' },
     { id: 'pido', emoji: '🙋', titulo: 'Necesito ayuda', sub: 'Pide algo a tus vecinos', bg: 'bg-petroleo-claro' },
   ];
-  const existente = props.editId ? db.get(props.editCol, props.editId) : null;
+  const existente = editId ? db.get(editCol, editId) : null;
   const kindDe = (col, item) => (!item ? null : col === 'services' ? 'servicio' : item.tipo === 'pido' ? 'pido' : 'favor');
-  let kind = $state(kindDe(props.editCol, existente) ?? kindInicial ?? null);
+  let kind = $state(kindDe(editCol, existente) ?? kindInicial ?? null);
 
   async function guardar(col, data) {
     const enviado = col === 'services' ? await guardarServicio(data, existente) : await guardarFavor(data, existente);

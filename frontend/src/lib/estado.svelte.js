@@ -2,13 +2,20 @@
  * sesión, navegación entre pantallas, idioma, conexión, emergencia activa y avisos. */
 import { db, load, save, subscribe } from './storage.js';
 import { RESERVA_MS } from './data.js';
+import { logAuth, logRender, logStorage } from './debug/logger.js';
 
 const COLECCIONES = ['users', 'sectors', 'services', 'recommendations', 'contacts', 'favors', 'reports', 'moderation', 'emergencies', 'needs', 'groups', 'outbox'];
 
 /** Copia reactiva de las colecciones de localStorage (equivale a useCollection). */
 export const datos = $state(Object.fromEntries(COLECCIONES.map((c) => [c, db.list(c)])));
 
-const AJUSTES_INICIALES = { lang: 'es', largeText: false, forceOffline: false };
+const AJUSTES_INICIALES = { 
+  lang: 'es', 
+  largeText: false, 
+  forceOffline: false,
+  modoOscuro: false,
+  reducirMovimiento: false
+};
 
 class App {
   session = $state(load('session', null));
@@ -50,17 +57,21 @@ class App {
 
   /* ---------- Navegación simple por pila ---------- */
   go = (name, params = {}) => {
+    logRender('debug', `Navigation: go → ${name}`, { params, from: this.route?.name });
     this.stack = [...this.stack, { name, params }];
     scrollTop();
   };
   replace = (name, params = {}) => {
+    logRender('debug', `Navigation: replace → ${name}`, { params, from: this.route?.name });
     this.stack = [...this.stack.slice(0, -1), { name, params }];
     scrollTop();
   };
   back = () => {
+    logRender('debug', 'Navigation: back', { from: this.route?.name });
     if (this.stack.length > 1) this.stack = this.stack.slice(0, -1);
   };
   reset = (name, params = {}) => {
+    logRender('debug', `Navigation: reset → ${name}`, { params, stackDepth: this.stack.length });
     this.stack = [{ name, params }];
     scrollTop();
   };
@@ -75,15 +86,27 @@ class App {
 
   setSettings = (next) => {
     const valor = typeof next === 'function' ? next(this.settings) : next;
+    logStorage('debug', 'Settings updated', { settings: valor });
     save('settings', valor);
   };
 
   startSession = (userId, screen = 'inicio') => {
+    if (!datos.users.some((u) => u.id === userId)) throw new Error('Usuario no existe');
+    logAuth('info', 'Session started', { userId, screen });
     save('session', { userId });
     this.reset(screen);
   };
+  validateSession = () => {
+    if (this.session?.userId && !datos.users.some((u) => u.id === this.session.userId)) {
+      logAuth('warn', 'Session validation failed - user not found', { userId: this.session.userId });
+      this.endSession();
+      return false;
+    }
+    return true;
+  };
   /** Solo la parte local; acciones.cerrarSesion avisa al servidor. */
   endSession = () => {
+    logAuth('info', 'Session ended', { userId: this.session?.userId });
     save('session', null);
     this.reset('portada');
   };
@@ -99,11 +122,18 @@ subscribe((key) => {
   for (const c of COLECCIONES) if (todas || key === c) datos[c] = db.list(c);
   if (todas || key === 'session') app.session = load('session', null);
   if (todas || key === 'settings') app.settings = { ...AJUSTES_INICIALES, ...load('settings', {}) };
+  if (key !== '*') logStorage('debug', `Storage updated: ${key}`);
 });
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => (app.netOnline = true));
-  window.addEventListener('offline', () => (app.netOnline = false));
+  window.addEventListener('online', () => {
+    logNetwork('info', 'Network online');
+    app.netOnline = true;
+  });
+  window.addEventListener('offline', () => {
+    logNetwork('warn', 'Network offline');
+    app.netOnline = false;
+  });
 
   // Un favor reservado que no se concreta en 1 hora vuelve a estar disponible (el servidor hace lo mismo).
   const liberar = () => {

@@ -1,0 +1,24 @@
+const fs = require('fs');
+const path = 'e:\\Proyecto XYZ\\CuasiFinalPOD\\HK2026ECUTP-Wolfbyte 800\\frontend\\src\\lib\\ui\\MapaOSM.svelte';
+let content = fs.readFileSync(path, 'utf8');
+const lines = content.split('\n');
+
+console.log('=== Verificacion de correcciones ===');
+console.log('1. geocodeResults es $state([]):', content.includes('geocodeResults = $state([])'));
+const togglePos = content.indexOf('function toggleTracking');
+const geocodePos = content.indexOf('async function onGeocodeSearch');
+console.log('2. toggleTracking antes de onGeocodeSearch:', togglePos < geocodePos || geocodePos === -1);
+console.log('3. clusterPins itera grid.values():', content.includes('for (const [key, cell] of grid)'));
+console.log('4. Distancia en metros (111000):', content.includes('111000'));
+console.log('5. Icono cluster con template:', content.includes('${pin.count}'));
+console.log('6. No tiene reactive $: bloque:', !content.includes('if (mapInstance) { renderUser(); renderMarkers(); }'));
+console.log('7. updateMarkers funciÃ³n existe:', content.includes('function updateMarkers()'));
+console.log('8. updateMarkers llamada manual:', content.includes('updateMarkers();'));
+console.log('9. Accuracy cap 2000:', content.includes('Math.min(acc, 2000)'));
+console.log('10. getZoom() < 15 en tracking:', content.includes('mapInstance.getZoom() < 15'));
+const geocodeSearchPos = content.indexOf('async function onGeocodeSearch');
+const togglePos2 = content.indexOf('function toggleTracking');
+console.log('11. onGeocodeSearch no estÃ¡ dentro de toggleTracking:', geocodeSearchPos < togglePos2 || geocodePos === -1);
+console.log('12. Total lÃ­neas:', lines.length);
+console.log('13. has </script>:', content.includes('</script>'));
+console.log('14. has closing div:', content.indexOf('</div>') !== -1);

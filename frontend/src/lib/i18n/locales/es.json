@@ -14,6 +14,8 @@
   "buscar": "¿Qué necesitas hoy?",
   "crearCuenta": "Crear cuenta",
   "yaTengo": "Ya tengo cuenta",
+  "entrando": "Entrando…",
+  "entrandoDescripcion": "Entrar como vecina de prueba (Rosa)",
   "favores": "Cadena de Favores",
   "favoresSub": "Sin dinero, entre vecinos",
   "reportar": "¿Pasa algo grave? Reportar emergencia",
@@ -44,6 +46,7 @@
   },
   "error": {
     "generico": "Algo salió mal. El mensaje te indicará cómo corregirlo.",
-    "permiso": "Tu rol actual no tiene autorización para esta acción."
+    "permiso": "Tu rol actual no tiene autorización para esta acción.",
+    "regresar": "Regresar"
   }
 }

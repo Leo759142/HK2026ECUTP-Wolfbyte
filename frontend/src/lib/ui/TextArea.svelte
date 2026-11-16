@@ -1,5 +1,7 @@
 <script>
+  import { useGlottalNormalization } from '$lib/utils/linguistic.ts';
   let { value = $bindable(''), class: clase = '', ...resto } = $props();
+  useGlottalNormalization();
 </script>
 
 <textarea

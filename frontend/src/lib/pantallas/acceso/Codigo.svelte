@@ -2,7 +2,7 @@
 <script>
   import { app } from '../../estado.svelte.js';
   import { load } from '../../storage.js';
-  import { entrar, verificarCodigo } from '../../acciones.js';
+  import { entrar, verificarCodigo, MODO_DEMO } from '../../acciones.js';
   import Btn from '../../ui/Btn.svelte';
   import H1 from '../../ui/H1.svelte';
   import Header from '../../ui/Header.svelte';
@@ -14,20 +14,24 @@
 
   let { mode = 'registro' } = $props();
   const DRAFT = load('registro', {});
-  // Números y códigos de demo hardcodeados (sin backend)
-  const PHONE_DEMO = '900000001';
-  const CODE_DEMO = '1234';
   let code = $state('');
   let error = $state('');
   let verificando = $state(false);
+  const esDemo = $derived(DRAFT.phone === MODO_DEMO.PHONE && DRAFT.codigoDemo === MODO_DEMO.CODE);
 
   async function verificar() {
     // Modo demostración: verificar con código hardcodeado sin llamar al backend
-    if (DRAFT.codigoDemo && code === CODE_DEMO) {
+    if (esDemo && code === MODO_DEMO.CODE) {
       verificando = true;
       try {
-        if (mode === 'registro') app.notify('✅ Código correcto. Bienvenido a AYNI.');
-        await entrar({ id: 'demo_user', nombre: 'Demo User', telefono: PHONE_DEMO });
+        const r = await verificarCodigo(MODO_DEMO.PHONE, MODO_DEMO.CODE);
+        if (r.tipo === 'sesion') {
+          if (mode === 'registro') app.notify('Ese número ya tenía cuenta: entraste a AYNI.');
+          await entrar(r.usuario);
+        } else {
+          if (mode === 'registro') app.notify('✅ Código correcto. Bienvenido a AYNI.');
+          app.go('nombre');
+        }
         return;
       } catch (e) {
         error = e.message;
@@ -38,7 +42,7 @@
     // Modo normal: llamar al backend
     verificando = true;
     try {
-      const r = await verificarCodigo(draft.phone, code);
+      const r = await verificarCodigo(DRAFT.phone, code);
       if (r.tipo === 'sesion') {
         if (mode === 'registro') app.notify('Ese número ya tenía cuenta: entraste a AYNI.');
         await entrar(r.usuario);

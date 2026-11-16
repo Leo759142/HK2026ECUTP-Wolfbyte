@@ -11,8 +11,7 @@
   import ServiceCard from './ServiceCard.svelte';
   import { ORDEN, serviciosVisibles } from './comun.js';
 
-  let props = $props();
-  let { category, query = '' } = props;
+  let { category, query = '' } = $props();
   let orden = $state('recomendados');
   let q = $state(query);
   const cat = $derived(category ? catById(category) : null);

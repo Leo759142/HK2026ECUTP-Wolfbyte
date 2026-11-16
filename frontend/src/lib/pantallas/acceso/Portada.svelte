@@ -2,7 +2,7 @@
 <script>
   import { app } from '../../estado.svelte.js';
   import { t } from '$lib/i18n';
-  import { entrar, solicitarCodigo, verificarCodigo } from '../../acciones.js';
+  import { entrar, solicitarCodigo, verificarCodigo, MODO_DEMO } from '../../acciones.js';
   import Btn from '../../ui/Btn.svelte';
   import H1 from '../../ui/H1.svelte';
   import LangChip from '../../ui/LangChip.svelte';
@@ -16,8 +16,8 @@
   async function entrarComoRosa() {
     entrando = true;
     try {
-      const envio = await solicitarCodigo('900000001');
-      const r = await verificarCodigo('900000001', envio.codigo_demo);
+      const envio = await solicitarCodigo(MODO_DEMO.PHONE);
+      const r = await verificarCodigo(MODO_DEMO.PHONE, MODO_DEMO.CODE);
       if (r.tipo === 'sesion') await entrar(r.usuario);
     } catch (e) {
       app.notify(e.message);
@@ -36,5 +36,5 @@
   </div>
   <Btn onclick={() => app.go('tutorial')}>{$t('crearCuenta')}</Btn>
   <Btn variant="borde" onclick={() => app.go('telefono', { mode: 'login' })}>{$t('yaTengo')}</Btn>
-  <LinkBtn onclick={entrarComoRosa} disabled={entrando}>{entrando ? 'Entrando…' : 'Entrar como vecina de prueba (Rosa)'}</LinkBtn>
+  <LinkBtn onclick={entrarComoRosa} disabled={entrando}>{entrando ? $t('entrando') : $t('entrandoDescripcion')}</LinkBtn>
 </Screen>

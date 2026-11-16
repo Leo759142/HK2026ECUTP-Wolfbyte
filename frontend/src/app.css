@@ -6,6 +6,21 @@
 html { font-size: 100%; }
 html.letra-grande { font-size: 115%; }
 
+/* Modo oscuro */
+html.modo-oscuro { 
+  --bg: #1a1a2e;
+  --tinta: #e0e0e0; 
+  --petroleo: #0e8767; 
+  --morado: #7b2cbf; 
+  --rojo: #e83e8c; 
+  --linea: #4a4a6a; 
+}
+
+/* Reducir movimiento */
+html.reducir-movimiento {
+  scroll-behavior: auto !important;
+}
+
 body {
   @apply bg-[#EFE8DC] font-sans text-tinta antialiased;
   margin: 0;

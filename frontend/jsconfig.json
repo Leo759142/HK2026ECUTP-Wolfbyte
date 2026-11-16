@@ -1,4 +1,5 @@
 {
+	"extends": "$app/tsconfig",
 	"compilerOptions": {
 		"moduleResolution": "bundler",
 		"module": "esnext",
@@ -11,5 +12,6 @@
 			"$lib/*": ["src/lib/*"]
 		}
 	},
-	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
+	"include": ["src", "test", "*"],
+	"exclude": ["src/service-worker"]
 }

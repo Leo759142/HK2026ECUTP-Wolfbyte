@@ -14,8 +14,10 @@
   "buscar": "What do you need today?",
   "crearCuenta": "Create account",
   "yaTengo": "I already have an account",
+  "entrando": "Joining...",
+  "entrandoDescripcion": "Join as a test neighbor (Rosa)",
   "favores": "Chain of Favors",
-  "favoresSub": "No money? between neighbors",
+  "favoresSub": "No money needed between neighbors",
   "reportar": "Something serious? Report an emergency",
   "misPublicaciones": "My posts",
   "idioma": "Language & reading",
@@ -44,6 +46,7 @@
   },
   "error": {
     "generico": "Something went wrong. The message will tell you how to fix it.",
-    "permiso": "Your current role is not authorized for this action."
+    "permiso": "Your current role is not authorized for this action.",
+    "regresar": "Back"
   }
 }

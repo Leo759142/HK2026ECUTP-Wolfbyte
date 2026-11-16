@@ -16,10 +16,17 @@ import { browser } from '$app/environment';
 
 const ahoraIso = () => new Date().toISOString();
 
-const PHONE_DEMO = '900000001';
-const CODE_DEMO = '1234';
-const SECTOR_DEMO_ID = 'demo-sector-1';
-const USER_DEMO_ID = 'demo-user-1';
+export const MODO_DEMO = {
+  PHONE: '900000001',
+  CODE: '1234',
+  SECTOR_ID: 'demo-sector-1',
+  USER_ID: 'demo-user-1',
+};
+
+const PHONE_DEMO = MODO_DEMO.PHONE;
+const CODE_DEMO = MODO_DEMO.CODE;
+const SECTOR_DEMO_ID = MODO_DEMO.SECTOR_ID;
+const USER_DEMO_ID = MODO_DEMO.USER_ID;
 
 function esDemo(celular, codigo) {
   return celular === PHONE_DEMO && codigo === CODE_DEMO;
@@ -65,7 +72,10 @@ const USUARIO_DEMO = {
 };
 
 async function verificarCodigoDemo() {
-  return { tipo: 'registro', token: 'demo-token-registro', usuario: null };
+  return { 
+    tipo: 'sesion', 
+    usuario: { ...USUARIO_DEMO } 
+  };
 }
 
 async function cargarSectoresPublicosDemo() {

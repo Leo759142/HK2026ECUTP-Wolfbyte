@@ -3,6 +3,7 @@
   import L from 'leaflet';
   import type { Coordinates, UserLocation } from '../types/poi';
   import { LocateFixed, MapPin, Layers, Eye, AlertTriangle } from 'lucide-svelte';
+  import { GeoLocationService } from '../servicios/geoService';
 
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -11,29 +12,39 @@
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   });
 
-  export let userLocation: UserLocation | null = null;
-  export let pins: Array<{
-    id: string;
-    kind: 'service' | 'favor' | 'need' | 'group' | 'me';
-    lat: number;
-    lng: number;
-    emoji: string;
-    label: string;
-    cls?: string;
-    onClick?: () => void;
-  }> = [];
-  export let selectedPinId: string | null = null;
-  export let onPinClick: (id: string) => void = () => {};
-  export let onMapClick: (coords: Coordinates) => void = () => {};
-  export let centerOnUser = false;
-  export let enableTracking = false;
+  let {
+    userLocation = null,
+    pins = [],
+    selectedPinId = null,
+    onPinClick = () => {},
+    onMapClick = () => {},
+    centerOnUser = false,
+    enableTracking = false,
+  } = $props<{
+    userLocation: UserLocation | null;
+    pins: Array<{
+      id: string;
+      kind: 'service' | 'favor' | 'need' | 'group' | 'me';
+      lat: number;
+      lng: number;
+      emoji: string;
+      label: string;
+      cls?: string;
+      onClick?: () => void;
+    }>;
+    selectedPinId: string | null;
+    onPinClick: (id: string) => void;
+    onMapClick: (coords: Coordinates) => void;
+    centerOnUser: boolean;
+    enableTracking: boolean;
+  }>();
+
   let searchQuery = $state('');
-  let geocodeResults = $derived([]);
+  let geocodeResults = $state<Array<{ lat: number; lng: number; name: string; city?: string; country?: string }>>([]);
 
-
-  let watchId: number | null = (null);
-  let isTracking = (false);
-  let trackingError: string | null = (null);
+  let watchId: number | null = null;
+  let isTracking = $state(false);
+  let trackingError = $state<string | null>(null);
 
   let mapContainer: HTMLDivElement;
   let mapInstance: L.Map | null = null;
@@ -43,8 +54,8 @@
   let tileLayer: L.TileLayer | null = null;
   let userMarker: L.Marker | null = null;
 
-  let activeTile: 'osm' | 'voyager' | 'dark' = 'osm';
-  let showTileMenu = false;
+  let activeTile = $state<'osm' | 'voyager' | 'dark'>('osm');
+  let showTileMenu = $state(false);
 
   const DEFAULT_CENTER: [number, number] = [-12.046374, -77.042793];
 
@@ -108,6 +119,10 @@
   });
 
   onDestroy(() => {
+    if (watchId !== null) {
+      GeoLocationService.stopWatch(watchId);
+      watchId = null;
+    }
     if (mapInstance) {
       mapInstance.remove();
       mapInstance = null;
@@ -141,7 +156,7 @@
     userMarker.bindPopup('<strong>Tú estás aquí</strong>');
 
     accuracyCircle = L.circle([lat, lng], {
-      radius: Math.min(acc, 500),
+      radius: Math.min(acc, 2000),
       color: '#2F80ED',
       fillColor: '#2F80ED',
       fillOpacity: 0.15,
@@ -156,13 +171,12 @@
     markersLayer.clearLayers();
 
     const clustered = clusterPins();
-    const markers = [];
 
     for (const pin of clustered) {
       if (pin.isCluster) {
         const clusterMarker = L.marker([pin.lat, pin.lng], {
-          title: pin.count + (pin.count === 1 ? "punto" : "puntos"),
-          alt: pin.count + (pin.count === 1 ? "punto" : "puntos"),
+          title: pin.count + (pin.count === 1 ? " punto" : " puntos"),
+          alt: pin.count + (pin.count === 1 ? " punto" : " puntos"),
           riseOnHover: true,
         });
 
@@ -183,7 +197,9 @@
                 box-shadow:0 2px 8px rgba(0,0,0,0.35);
                 display:flex;align-items:center;justify-content:center;
                 font-size:22px;
-              ">pin.count</div>
+                color:white;
+                font-weight:bold;
+              ">${pin.count}</div>
             </div>
           `,
           iconSize: [44, 44],
@@ -191,7 +207,7 @@
           popupAnchor: [0, -22],
         });
         clusterMarker.setIcon(icon);
-        clusterMarker.bindPopup(pin.count + (pin.count === 1 ? "punto" : "puntos"), { direction: "top", offset: [0, -8] });
+        clusterMarker.bindPopup(pin.count + (pin.count === 1 ? " punto" : " puntos"), { direction: "top", offset: [0, -8] });
         clusterMarker.on("click", function() {
           onPinClick("" + pin.id);
         });
@@ -216,12 +232,12 @@
               <div style="
                 width:34px;height:34px;
                 border-radius:50% 50% 50% 0;
-                background:iconColor;
+                background:${iconColor};
                 transform:rotate(-45deg);
                 box-shadow:0 2px 4px rgba(0,0,0,0.3);
                 display:flex;align-items:center;justify-content:center;
                 font-size:18px;
-              ">pin.emoji</div>
+              ">${pin.emoji}</div>
             </div>
           `,
           iconSize: [34, 34],
@@ -246,10 +262,11 @@
     }
   }
 
-  function escapeHtml(text) {
-    return text.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">").replace(/"/g, '"');
+  function escapeHtml(text: string) {
+    return text.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
   }
-function handleCenterUser() {
+
+  function handleCenterUser() {
     if (!mapInstance || !userLocation) return;
     const { lat, lng } = userLocation.coords;
     mapInstance.flyTo([lat, lng], 15);
@@ -264,39 +281,15 @@ function handleCenterUser() {
     }
     for (const pin of pins) allCoords.push([pin.lat, pin.lng]);
     if (allCoords.length === 0) return;
-    mapInstance.fitBounds(L.latLngBounds(allCoords), { padding: [60, 60], maxZoom: 16 }
+    mapInstance.fitBounds(L.latLngBounds(allCoords), { padding: [60, 60], maxZoom: 16 });
+  }
+
   function toggleTracking() {
     if (isTracking) {
       if (watchId !== null) {
         GeoLocationService.stopWatch(watchId);
         watchId = null;
       }
-  async function onGeocodeSearch(query) {
-    if (!query) return;
-    try {
-      const results = await GeoLocationService.geocode(query);
-      geocodeResults = results;
-    } catch {
-      geocodeResults = [];
-    }
-  }
-
-  function selectGeocodeResult(r) {
-    userLocation = {
-      coords: { lat: r.lat, lng: r.lng, accuracy: 7500 },
-      provider: 'ip',
-      city: r.city,
-      country: r.country,
-      timestamp: Date.now(),
-    };
-    searchQuery = '';
-    geocodeResults = [];
-    if (userMarker) {
-      mapInstance?.setView([r.lat, r.lng], 15);
-    }
-    renderUser();
-  }
-
       isTracking = false;
       trackingError = null;
     } else {
@@ -305,10 +298,13 @@ function handleCenterUser() {
         watchId = GeoLocationService.watchPosition(
           (loc) => {
             userLocation = loc;
-            if (userMarker) {
-              mapInstance?.setView([loc.coords.lat, loc.coords.lng], 16);
+            if (userMarker && mapInstance) {
+              if (mapInstance.getZoom && mapInstance.getZoom() < 15) {
+                mapInstance.setView([loc.coords.lat, loc.coords.lng], 16);
+              }
             }
             renderUser();
+            renderMarkers();
           },
           (err) => {
             trackingError = err.message || 'Error al seguir ubicación';
@@ -326,15 +322,34 @@ function handleCenterUser() {
       }
     }
   }
-);
+
+  async function onGeocodeSearch(query: string) {
+    if (!query) return;
+    try {
+      const results = await GeoLocationService.geocode(query);
+      geocodeResults = results;
+    } catch {
+      geocodeResults = [];
+    }
   }
 
-  $: if (mapInstance) {
+  function selectGeocodeResult(r: { lat: number; lng: number; name: string; city?: string; country?: string }) {
+    userLocation = {
+      coords: { lat: r.lat, lng: r.lng, accuracy: 7500 },
+      provider: 'ip',
+      city: r.city,
+      country: r.country,
+      timestamp: Date.now(),
+    };
+    searchQuery = '';
+    geocodeResults = [];
+    if (userMarker) {
+      mapInstance?.setView([r.lat, r.lng], 15);
+    }
     renderUser();
-    renderMarkers();
   }
 
-  // Clustering: group pins that are close together
+  // Clustering: group pins that are close together (distance in approximate meters)
   function getClusterOptions() {
     if (pins.length < 8) return { enabled: false, clusterRadius: 40, clusterMinSize: 2 };
     return { enabled: true, clusterRadius: 50, clusterMinSize: 2 };
@@ -344,10 +359,10 @@ function handleCenterUser() {
     const { enabled, clusterRadius, clusterMinSize } = getClusterOptions();
     if (!enabled || pins.length < 8) return pins;
 
-    const clusters = [];
     const cellSize = clusterRadius;
-    const grid = new Map();
+    const grid = new Map<string, { pins: typeof pins; center: { lat: number; lng: number }; count: number }>();
 
+    // Bucket pins into grid cells
     for (const pin of pins) {
       const cellX = Math.floor(pin.lat * 1000000 / cellSize);
       const cellY = Math.floor(pin.lng * 1000000 / cellSize);
@@ -355,39 +370,45 @@ function handleCenterUser() {
       if (!grid.has(key)) {
         grid.set(key, { pins: [], center: { lat: pin.lat, lng: pin.lng }, count: 0 });
       }
-      const cell = grid.get(key);
+      const cell = grid.get(key)!;
       cell.pins.push(pin);
       cell.count++;
     }
 
-    // Group cells that are within clusterRadius * 2
+    // Cluster cells that are within clusterRadius * 2 (approximate meters)
     const merged = [];
-    const visited = new Set();
-    for (let i = 0; i < clusters.length; i++) {
-      if (visited.has(i)) continue;
-      const c = clusters[i];
-      const group = [c];
-      visited.add(i);
-      for (let j = i + 1; j < clusters.length; j++) {
-        if (visited.has(j)) continue;
-        const cj = clusters[j];
-        const dist = Math.sqrt((c.center.lat - cj.center.lat) ** 2 + (c.center.lng - cj.center.lng) ** 2);
-        if (dist < clusterRadius * 2) {
-          group.push(cj);
-          visited.add(j);
+    const visited = new Set<string>();
+
+    for (const [key, cell] of grid) {
+      if (visited.has(key)) continue;
+      const group = [cell];
+      visited.add(key);
+
+      for (const [otherKey, otherCell] of grid) {
+        if (visited.has(otherKey)) continue;
+        const dLat = cell.center.lat - otherCell.center.lat;
+        const dLng = cell.center.lng - otherCell.center.lng;
+        const distMeters = Math.sqrt(dLat * dLat + dLng * dLng) * 111000; // approx meters
+        if (distMeters < clusterRadius * 2) {
+          group.push(otherCell);
+          visited.add(otherKey);
         }
       }
+
       const valid = group.filter(g => g.count > 0);
       if (valid.length > 0) {
         const largest = valid.reduce((a, b) => a.count > b.count ? a : b);
+        // Determine kind from pins in cluster
+        const kind = largest.pins[0]?.kind ?? 'service';
         merged.push({
-          id: 'cluster-' + i,
+          id: 'cluster-' + key,
           isCluster: true,
           count: largest.count,
           pins: largest.pins,
           lat: largest.center.lat,
           lng: largest.center.lng,
           emoji: '&#128681;',
+          kind,
         });
       }
     }
@@ -403,7 +424,7 @@ function handleCenterUser() {
   <div class="absolute top-4 right-4 z-[400] flex flex-col gap-2">
     {#if userLocation}
       <button
-        on:click={handleCenterUser}
+        onclick={handleCenterUser}
         title="Centrar en mi ubicación"
         class="p-2.5 rounded-xl bg-white/90 hover:bg-white text-petroleo border border-linea/60 shadow-lg backdrop-blur-md transition-all active:scale-95 flex items-center justify-center"
       >
@@ -412,16 +433,30 @@ function handleCenterUser() {
     {/if}
 
     <button
-      on:click={handleFitAll}
+      onclick={handleFitAll}
       title="Ver todos los puntos"
       class="p-2.5 rounded-xl bg-white/90 hover:bg-white text-slate-600 border border-linea/60 shadow-lg backdrop-blur-md transition-all active:scale-95 flex items-center justify-center"
     >
       <Eye class="w-5 h-5 text-slate-600" />
     </button>
 
+    {#if enableTracking}
+      <button
+        onclick={toggleTracking}
+        title={isTracking ? "Detener seguimiento GPS" : "Iniciar seguimiento GPS"}
+        class="p-2.5 rounded-xl bg-white/90 hover:bg-white border border-linea/60 shadow-lg backdrop-blur-md transition-all active:scale-95 flex items-center justify-center {isTracking ? 'bg-red-50 text-red-600' : 'text-slate-600'}"
+      >
+        {#if isTracking}
+          <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12"/></svg>
+        {:else}
+          <svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        {/if}
+      </button>
+    {/if}
+
     <div class="relative">
       <button
-        on:click={() => (showTileMenu = !showTileMenu)}
+        onclick={() => (showTileMenu = !showTileMenu)}
         title="Estilo de mapa"
         class="p-2.5 rounded-xl bg-white/90 hover:bg-white text-slate-600 border border-linea/60 shadow-lg backdrop-blur-md transition-all active:scale-95 flex items-center justify-center"
       >
@@ -432,21 +467,21 @@ function handleCenterUser() {
         <div class="absolute right-0 top-12 w-44 rounded-xl bg-white/95 border border-linea/60 shadow-2xl p-2 z-50 backdrop-blur-lg flex flex-col gap-1">
           <span class="text-[11px] font-semibold text-gris px-2 py-1">Estilo:</span>
           <button
-            on:click={() => changeTile('voyager')}
+            onclick={() => changeTile('voyager')}
             class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between {activeTile === 'voyager' ? 'bg-petroleo/10 text-petroleo' : 'text-gris hover:bg-slate-100'}"
           >
             <span>Carto Voyager</span>
             {#if activeTile === 'voyager'}<span class="text-[10px]">✓</span>{/if}
           </button>
           <button
-            on:click={() => changeTile('osm')}
+            onclick={() => changeTile('osm')}
             class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between {activeTile === 'osm' ? 'bg-petroleo/10 text-petroleo' : 'text-gris hover:bg-slate-100'}"
           >
             <span>OSM Estándar</span>
             {#if activeTile === 'osm'}<span class="text-[10px]">✓</span>{/if}
           </button>
           <button
-            on:click={() => changeTile('dark')}
+            onclick={() => changeTile('dark')}
             class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between {activeTile === 'dark' ? 'bg-petroleo/10 text-petroleo' : 'text-gris hover:bg-slate-100'}"
           >
             <span>Oscuro</span>
@@ -470,7 +505,7 @@ function handleCenterUser() {
     <div class="relative w-full max-w-sm">
       <input
         bind:value={searchQuery}
-        on:keydown={(e) => { if (e.key === 'Enter' && searchQuery.trim()) { onGeocodeSearch(searchQuery.trim()); } }}
+        onkeydown={(e) => { if (e.key === 'Enter' && searchQuery.trim()) { onGeocodeSearch(searchQuery.trim()); } }}
         placeholder="🔍 Buscar ciudad / sector (ej: Lima, Arequipa, Cusco…)"
         class="w-full pl-9 pr-3 py-2 rounded-xl border border-linea/60 bg-white/90 backdrop-blur-md text-sm placeholder-gris focus:outline-none focus:border-petroleo/50"
       />
@@ -487,13 +522,20 @@ function handleCenterUser() {
       {#each geocodeResults as r (r.name)}
         <button
           type="button"
-          on:click={() => selectGeocodeResult(r)}
+          onclick={() => selectGeocodeResult(r)}
           class="w-full text-left px-3 py-2 rounded-xl hover:bg-petroleo/10 hover:text-petroleo flex items-center gap-2"
         >
           <span class="flex-1 text-sm font-bold text-negro">{r.name}</span>
           <span class="text-xs text-gris font-mono">{r.city || ''}</span>
         </button>
       {/each}
+    </div>
+  {/if}
+
+  <!-- Tracking error -->
+  {#if trackingError}
+    <div class="absolute top-4 left-1/2 -translate-x-1/2 z-[400] px-3 py-2 rounded-full bg-red-50 border border-red-200 shadow-lg">
+      <span class="text-xs font-bold text-red-800">{trackingError}</span>
     </div>
   {/if}
 

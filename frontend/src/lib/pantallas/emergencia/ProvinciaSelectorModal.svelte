@@ -104,9 +104,13 @@
         <svg viewBox="300 150 450 950" class="h-[320px] w-full">
           <rect x="300" y="150" width="450" height="950" fill="#eef8fa" />
           <path d="M420,220 C500,200 620,260 650,360 C700,470 690,620 640,760 C600,860 560,960 620,1080 C560,1060 500,980 470,900 C430,780 360,700 380,560 C400,430 360,330 420,220 Z" fill="#d8ecef" stroke="#9ec9cf" />
-          {#each visibles as p (p.id)}
+{#each visibles as p (p.id)}
             <g>
               <circle
+                tabindex="0"
+                role="button"
+                aria-label={p.nombre}
+                onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); elegirProvincia(p); } }}
                 cx={p.x}
                 cy={p.y}
                 r={fase === 1 ? p.r1 : p.r2}

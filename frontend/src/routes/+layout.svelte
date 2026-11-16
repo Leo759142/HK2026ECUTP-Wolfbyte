@@ -4,6 +4,8 @@
   import { setLocale } from '$lib/i18n';
   import { browser } from '$app/environment';
   import { app } from '../lib/estado.svelte.js';
+  import { ErrorBoundary, DebugConsole } from '../lib/debug';
+  import { debugOpen, toggleDebug } from '../lib/debug/store.js';
   let { children } = $props();
 
   if (browser) {
@@ -22,7 +24,19 @@
       if (legacy) lang = legacy;
     }
     setLocale(lang);
+
+    // F12 para abrir/cerrar debug console
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'F12') {
+        e.preventDefault();
+        toggleDebug();
+      }
+    });
   }
 </script>
 
-{@render children()}
+<ErrorBoundary>
+  {@render children()}
+</ErrorBoundary>
+
+<DebugConsole />

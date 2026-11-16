@@ -2,7 +2,7 @@
 <script>
   import { app } from '../../estado.svelte.js';
   import { load, save } from '../../storage.js';
-  import { solicitarCodigo } from '../../acciones.js';
+  import { solicitarCodigo, MODO_DEMO } from '../../acciones.js';
   import Btn from '../../ui/Btn.svelte';
   import H1 from '../../ui/H1.svelte';
   import Header from '../../ui/Header.svelte';
@@ -13,21 +13,18 @@
 
   let { mode = 'registro' } = $props();
   const DRAFT = load('registro', {});
-  // Números de prueba hardcodeados (simulan SMS, no necesitan backend)
-  const PHONE_DEMO = '900000001';
-  const CODE_DEMO = '1234';
   let phone = $state(DRAFT.phone ?? '');
   let error = $state('');
   let enviando = $state(false);
   const valido = $derived(/^9\d{8}$/.test(phone));
-  const esDemo = $derived(phone === PHONE_DEMO);
+  const esDemo = $derived(phone === MODO_DEMO.PHONE);
 
   async function continuar() {
     enviando = true;
     try {
       if (esDemo) {
         // Modo demostración: simular recibir código SMS sin llamar al backend
-        save('registro', { ...DRAFT, phone: PHONE_DEMO, codigoDemo: CODE_DEMO });
+        save('registro', { ...DRAFT, phone: MODO_DEMO.PHONE, codigoDemo: MODO_DEMO.CODE });
         app.go('codigo', { mode });
         app.notify('🧪 Modo demostración: código 1234 enviado al número 900000001');
       } else {

@@ -7,9 +7,11 @@
   import { cargarEstadoServidor } from '../lib/acciones.js';
   import { alSincronizar, iniciarMotor, sincronizar } from '../lib/sync/motor.js';
 
-  // Letra grande e idioma del documento.
+  // Letra grande, modo oscuro y accesibilidad del documento.
   $effect(() => {
     document.documentElement.classList.toggle('letra-grande', Boolean(app.settings.largeText));
+    document.documentElement.classList.toggle('modo-oscuro', Boolean(app.settings.modoOscuro));
+    document.documentElement.classList.toggle('reducir-movimiento', Boolean(app.settings.reducirMovimiento));
     document.documentElement.lang = $locale;
   });
 
@@ -28,6 +30,7 @@
       }
     });
     if (app.session?.userId) sincronizar();
+    app.validateSession();
     // PWA: abre sin conexión (solo en la versión compilada).
     if (import.meta.env.PROD && 'serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
     return () => {
