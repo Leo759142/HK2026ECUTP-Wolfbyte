@@ -2,6 +2,8 @@ import { dao } from '../datos/dao';
 import type { RepositorioServicio } from '../dominio/repositorios';
 import type { Servicio, UUID } from '../dominio/tipos/tipos';
 
+const LS_KEY = 'ayni:v1:services';
+
 /** RF05 publicar servicio, RF06 buscar por categoría/zona. Persistencia local + outbox (RF17/RF18). */
 export class ServicioRepoLocal implements RepositorioServicio {
 	private entidad = 'servicios' as const;
@@ -26,6 +28,15 @@ export class ServicioRepoLocal implements RepositorioServicio {
 				payload: servicio
 			});
 		});
+		if (typeof localStorage !== 'undefined') {
+			try {
+				const existentes = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]') as Servicio[];
+				existentes.push(servicio);
+				localStorage.setItem(LS_KEY, JSON.stringify(existentes));
+			} catch {
+				/* best-effort sync */
+			}
+		}
 		return servicio;
 	}
 	async obtener(id: UUID): Promise<Servicio | null> {

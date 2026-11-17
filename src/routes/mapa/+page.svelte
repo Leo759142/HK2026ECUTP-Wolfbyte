@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
-import Screen from '../../lib/ui/Screen.svelte';
+	import Screen from '../../lib/ui/Screen.svelte';
+	import OsmMap from '../../lib/components/OsmMap.svelte';
+	import { obtenerSesionLocal } from '../../lib/onboarding';
 
 	type Punto = {
 		id: string;
 		titulo?: string;
 		descripcion?: string;
-		tipo?: string;
+		tipo?: 'servicio' | 'favor' | 'alerta';
 		lat_aprox?: number;
 		lng_aprox?: number;
 	};
@@ -21,9 +23,9 @@ import Screen from '../../lib/ui/Screen.svelte';
 	let error = $state('');
 
 	const puntos = $derived([
-		...(capa === 'todos' || capa === 'servicios' ? servicios.map(item => ({ ...item, tipo: 'servicio' })) : []),
-		...(capa === 'todos' || capa === 'favores' ? favores.map(item => ({ ...item, tipo: 'favor' })) : []),
-		...(capa === 'todos' || capa === 'alertas' ? alertas.map(item => ({ ...item, tipo: 'alerta' })) : [])
+		...(capa === 'todos' || capa === 'servicios' ? servicios.map(item => ({ ...item, tipo: 'servicio' as const })) : []),
+		...(capa === 'todos' || capa === 'favores' ? favores.map(item => ({ ...item, tipo: 'favor' as const })) : []),
+		...(capa === 'todos' || capa === 'alertas' ? alertas.map(item => ({ ...item, tipo: 'alerta' as const })) : [])
 	]);
 
 	const esGuardian = $derived(
@@ -70,10 +72,7 @@ import Screen from '../../lib/ui/Screen.svelte';
 		>
 	</div>
 
-	<OsmMap>
-		{puntos}
-		{esGuardian}
-	</OsmMap>
+	<OsmMap puntos={puntos} esGuardian={esGuardian} />
 
 	<div class="map-filters" role="tablist" aria-label="Capas del mapa">
 		{#each [['todos', 'Todo'], ['servicios', 'Servicios'], ['favores', 'Favores'], ['alertas', 'Alertas']] as item}

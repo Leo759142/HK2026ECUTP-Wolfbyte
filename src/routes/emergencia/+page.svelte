@@ -306,6 +306,10 @@
 
 <Screen>
 	<section class="emergency-page">
+		<header class="mobile-header">
+			<a class="mobile-header__back" href="/" aria-label="Volver a inicio">←</a>
+			<strong>Emergencia</strong>
+		</header>
 		{#if reporteEnviado && paso === 'confirmado'}
 			<div class="emergency-success">
 				<Icono name="check" class="success-icon" />

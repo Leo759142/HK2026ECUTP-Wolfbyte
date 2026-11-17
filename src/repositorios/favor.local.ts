@@ -3,6 +3,8 @@ import type { RepositorioFavor, RepositorioFavorConfirmacion } from '../dominio/
 import type { Favor, FavorConfirmacion, UUID } from '../dominio/tipos/tipos';
 import { ServicioCierreFavor } from '../dominio/favores/cierre';
 
+const LS_KEY = 'ayni:v1:favors';
+
 /** RF09 publicar favor, RF10 ofrecerse (parcial). */
 export class FavorRepoLocal implements RepositorioFavor {
 	private entidad = 'favores' as const;
@@ -22,6 +24,15 @@ export class FavorRepoLocal implements RepositorioFavor {
 			await dao.aplicarLocal(this.entidad, favor as unknown as Record<string, unknown>);
 			await dao.encolar({ op_id: opId, entidad: this.entidad, operacion: 'crear', payload: favor });
 		});
+		if (typeof localStorage !== 'undefined') {
+			try {
+				const existentes = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]') as Favor[];
+				existentes.push(favor);
+				localStorage.setItem(LS_KEY, JSON.stringify(existentes));
+			} catch {
+				/* best-effort sync */
+			}
+		}
 		return favor;
 	}
 	async obtener(id: UUID): Promise<Favor | null> {
@@ -44,6 +55,18 @@ export class FavorRepoLocal implements RepositorioFavor {
 				payload: siguiente
 			});
 		});
+		if (typeof localStorage !== 'undefined') {
+			try {
+				const existentes = JSON.parse(localStorage.getItem(LS_KEY) ?? '[]') as Favor[];
+				const idx = existentes.findIndex((f) => f.id === id);
+				if (idx >= 0) {
+					existentes[idx] = siguiente;
+					localStorage.setItem(LS_KEY, JSON.stringify(existentes));
+				}
+			} catch {
+				/* best-effort sync */
+			}
+		}
 		return siguiente;
 	}
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import 'leaflet/dist/leaflet.css';
+	import '@fortawesome/fontawesome-free/css/all.min.css';
 	import '../app.css';
 	import '../accesibilidad/tokens.css';
 	import { page } from '$app/state';
