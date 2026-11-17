@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency, requireRol } from '../../_http';
+import { leerSesion, ok, problem, requireIdempotency, requireRol } from '../../_http';
 import { cargarStore, persistirStore, store } from '../../_store';
 import {
 	elegir,
@@ -64,14 +64,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });
 
 	const aprox = coords ? enmascararCoordenadas(coords.lat, coords.lng) : UBICACION_POR_DEFECTO;
-	const usuarioId = (() => {
-		try {
-			const sesion = JSON.parse(cookies.get('pod_sesion') ?? '{}') as { usuarioId?: string };
-			return sesion.usuarioId ?? 'demo';
-		} catch {
-			return 'demo';
-		}
-	})();
+	const usuarioId = leerSesion(request, cookies).usuarioId ?? 'demo';
 	const item = {
 		...elegir(b, CAMPOS),
 		...aprox,

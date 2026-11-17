@@ -60,9 +60,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const sesion = autenticacionValida(event.cookies);
 	const headers = new Headers(event.request.headers);
 	// El rol enviado por el navegador nunca tiene prioridad sobre la cookie de sesión.
+	// Sin sesión usamos Vecino (rol mínimo) para que el modo offline/local siga funcionando.
 	headers.delete('x-rol');
-	const rolSesion = sesion?.rol ?? event.cookies.get('pod_rol');
-	if (rolSesion) headers.set('x-rol', rolSesion);
+	const rolSesion = sesion?.rol ?? event.cookies.get('pod_rol') ?? 'Vecino';
+	headers.set('x-rol', rolSesion);
 
 	const response = await resolve({
 		...event,

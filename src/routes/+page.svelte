@@ -183,8 +183,6 @@
 		>
 	</div>
 
-	<div class="connection"><span></span> En línea</div>
-
 	<form class="app-search" action="/servicios" role="search">
 		<span aria-hidden="true"><Icono name="buscar" /></span>
 		<input name="q" aria-label="¿Qué necesitas hoy?" placeholder="¿Qué necesitas hoy?" />

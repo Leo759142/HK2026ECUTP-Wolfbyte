@@ -77,7 +77,7 @@
 					titulo: form.titulo.trim(),
 					descripcion: form.descripcion.trim(),
 					foto: form.foto ?? undefined,
-					fotos: form.fotos,"
+					fotos: form.fotos,
 					lat_aprox: form.lat_aprox,
 					lng_aprox: form.lng_aprox
 				};

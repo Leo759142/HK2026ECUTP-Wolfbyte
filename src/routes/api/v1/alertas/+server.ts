@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency, requireRol } from '../../_http';
+import { leerSesion, ok, problem, requireIdempotency, requireRol } from '../../_http';
 import { cargarStore, persistirStore, store } from '../../_store';
 import {
 	elegir,
@@ -14,8 +14,8 @@ import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 
 const CAMPOS = ['zona_id', 'tipo', 'descripcion', 'foto', 'fotos'] as const;
 
-export const GET: RequestHandler = async ({ url, cookies }) => {
-	const sesion = JSON.parse(cookies.get('pod_sesion') || '{}');
+export const GET: RequestHandler = async ({ url, cookies, request }) => {
+	const sesion = leerSesion(request, cookies);
 	await cargarStore();
 	const zona = url.searchParams.get('zona_id');
 	const items = store.alertas
@@ -25,8 +25,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
 };
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	const sesion = JSON.parse(cookies.get('pod_sesion') || '{}');
-	if (!sesion.usuarioId) return problem(401, 'Sesión no válida');
+	const sesion = leerSesion(request, cookies);
 
 	await cargarStore();
 	const rol = requireRol(request, 'reportar_emergencia');
@@ -59,8 +58,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		...(coords ? enmascararCoordenadas(coords.lat, coords.lng) : {}),
 		id: key,
 		emergencia_id: typeof b.emergencia_id === 'string' && b.emergencia_id ? b.emergencia_id : null,
-		usuario_id: sesion.usuarioId,
-		rol: sesion.rol,
+		usuario_id: sesion.usuarioId ?? 'demo',
+		rol,
 		estado: 'sin_verificar',
 		oculto: 0,
 		creado_en: ahora,

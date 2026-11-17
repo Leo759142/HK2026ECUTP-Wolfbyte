@@ -1,6 +1,6 @@
 /**
  * Usuarios hardcodeados para desarrollo y testing.
- * Los PINs están hasheados con hashPin() usando Web Crypto (PBKDF2, 100k iteraciones).
+ * Los PINs están hasheados con hashPin() usando Web Crypto (PBKDF2, 600k iteraciones).
  * Nunca se almacena plaintext.
  */
 export type HardcodedUser = {
@@ -19,7 +19,7 @@ export const HARDCODED_USERS: HardcodedUser[] = [
 		celular: '999123456',
 		alias: 'admin',
 		// PIN: "1234" hasheado
-		pinHash: 'pbkdf2-v1:CuFsoD6uN3QF5WmLrX2yvQ==:SUF3p6d5E2Vyv8yrzjtM3lFbzYkXmRWRmJlbVZ9RzI='
+		pinHash: 'pbkdf2-v1:SUF3p6d5E2Vyv8yrzjtM3lFbzYkXmRWRmJlbVZ9RzI=:+7TioViVuFcnDUddpT2NzhhIt/dC+YjWE/YJY/QOFU8='
 	},
 	{
 		id: 'usuario1',
@@ -27,7 +27,7 @@ export const HARDCODED_USERS: HardcodedUser[] = [
 		alias: 'margarita',
 		// PIN: "5678" hasheado
 		pinHash:
-			'pbkdf2-v1:KxReH0yZLb1YqBWG5tN6trgFzHljMRZ9hmJ4vIW3L9M=:0J8d3qkCSmSSSCqBo9mRnPmPmPmPmPmPm'
+			'pbkdf2-v1:KxReH0yZLb1YqBWG5tN6trgFzHljMRZ9hmJ4vIW3L9M=:F/g0Gw9n1sQ5/IpeXuNZ+s45dKyNdmigKVs3r/Q7hHc='
 	},
 	{
 		id: 'invitado1',
@@ -35,7 +35,7 @@ export const HARDCODED_USERS: HardcodedUser[] = [
 		alias: 'invitado',
 		// PIN: "0000" hasheado
 		pinHash:
-			'pbkdf2-v1:B1oQO4/ZwXenf4JzQFqwdX/7nPmPmPmPmPmPmPmPm=:SuF3p6d5E2Vyv8yrzjtM3lFbzYkXmRmJlbVZ9RzI='
+			'pbkdf2-v1:B1oQO4/ZwXenf4JzQFqwdX/7nPmPmPmPmPmPmPmPm=:0V5wHUo9Xj7Anp3QnguzD3sUZspK3abS9imaSt6t8mE='
 	}
 ];
 

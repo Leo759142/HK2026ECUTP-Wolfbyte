@@ -1,13 +1,12 @@
 import type { RequestHandler } from './$types';
-import { ok, problem, requireIdempotency, requireRol } from '../../_http';
+import { leerSesion, ok, problem, requireIdempotency, requireRol } from '../../_http';
 import { cargarStore, persistirStore, store } from '../../_store';
 import { elegir, errorTextos, esRespuesta, leerObjeto, validarFoto } from '../../_validar';
 
 const CAMPOS = ['zona_id', 'tipo', 'titulo', 'foto'] as const;
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	const sesion = JSON.parse(cookies.get('pod_sesion') || '{}');
-	if (!sesion.usuarioId) return problem(401, 'Sesión no válida');
+	const sesion = leerSesion(request, cookies);
 
 	await cargarStore();
 	const rol = requireRol(request, 'activar_emergencia');

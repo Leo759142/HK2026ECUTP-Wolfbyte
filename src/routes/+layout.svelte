@@ -210,10 +210,10 @@
 	<div class="ml-4 flex items-center gap-1">
 		{#if enLinea}
 			<span class="bg-wa h-2.5 w-2.5 rounded-full" aria-hidden="true"></span>
-			<span class="text-tinta text-xs font-bold">{gestorIdiomas.t('header.conectado')}</span>
+			<span style="font-size: 24px" class="text-tinta text-xs font-bold">{gestorIdiomas.t('header.conectado')}</span>
 		{:else}
 			<span class="bg-ambar h-2.5 w-2.5 rounded-full" aria-hidden="true"></span>
-			<span class="text-tinta text-xs font-bold">{gestorIdiomas.t('header.sinConexion')}</span>
+			<span style="font-size: 24px" class="text-tinta text-xs font-bold">{gestorIdiomas.t('header.sinConexion')}</span>
 		{/if}
 	</div>
 </header>

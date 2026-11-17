@@ -56,14 +56,14 @@
 		});
 		map = m;
 
-		const t = L.tileLayer(
-			'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-			{
-				maxZoom: 19,
-				attribution:
-					'&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors &copy; <a href="https://carto.com">CARTO</a>'
-			}
-		);
+	const t = L.tileLayer(
+		'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+		{
+			maxZoom: 19,
+			attribution:
+				'&copy; <a href="https://openstreetmap.org">OpenStreetMap</a> contributors'
+		}
+	);
 		t.on('tileerror', () => {
 			offline = true;
 		});
@@ -226,7 +226,7 @@
 
 		<div class="flex flex-wrap items-center gap-1.5">
 			<span class="bg-white/90 border border-color-linea rounded-lg px-2 py-1 text-[10px] font-bold text-tinta uppercase tracking-wide">
-				OpenStreetMap · CARTO
+				OpenStreetMap
 			</span>
 			{#if modoEmergencia}
 				<span class="bg-rojo-claro border border-rojo-claro/50 rounded-lg px-2 py-1 text-[10px] font-bold text-rojo-osc uppercase tracking-wide">

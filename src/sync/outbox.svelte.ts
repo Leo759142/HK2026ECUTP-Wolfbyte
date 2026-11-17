@@ -1,7 +1,9 @@
 import { writable, derived, get } from 'svelte/store';
-import { outboxDAO, esPendiente, requiereAtencion, type OperacionOutbox } from '../datos/outbox';
+import { esPendiente, requiereAtencion, type OperacionOutbox } from '../datos/outbox';
+import { dao, outboxDAO } from '../datos/dao';
 import { vaciarColaOutbox } from './motor';
 import { AnunciadorAccesible } from '../accesibilidad/anunciador';
+import { obtenerSesionLocal } from '../lib/onboarding';
 
 /** Todas las operaciones guardadas en el celular (pendientes, con reintento programado, rechazadas…). */
 export const operacionesOutbox = writable<OperacionOutbox[]>([]);
@@ -36,12 +38,34 @@ export async function programarSiguienteReintento(ahora = Date.now()): Promise<n
 	return espera;
 }
 
+/** Guarda una copia local de la publicación para que aparezca ya en "Mis publicaciones". */
+async function guardarCopiaLocal(entidad: string, id: string, payload: unknown) {
+	if (!payload || typeof payload !== 'object') return;
+	const sesion = obtenerSesionLocal();
+	const usuarioId = sesion?.usuarioId ?? 'demo';
+	const ahora = new Date().toISOString();
+	const estado =
+		entidad === 'alertas' ? 'sin_verificar' : entidad === 'favores' ? 'abierto' : 'publicado';
+	await dao.aplicarLocal(entidad, {
+		...(payload as Record<string, unknown>),
+		id,
+		usuario_id: usuarioId,
+		creador_id: usuarioId,
+		estado,
+		oculto: 0,
+		creado_en: ahora,
+		actualizado_en: ahora,
+		pendiente_envio: true
+	});
+}
+
 export async function encolarAccion(
 	entidad: string,
 	payload: unknown,
 	operacion: 'crear' | 'actualizar' = 'crear'
 ) {
 	const op = await outboxDAO.encolar({ op_id: crypto.randomUUID(), entidad, operacion, payload });
+	await guardarCopiaLocal(entidad, op.op_id, payload);
 	anunciador.vocalizar(
 		'Publicación guardada localmente. Se enviará al recuperar cobertura.',
 		'polite'

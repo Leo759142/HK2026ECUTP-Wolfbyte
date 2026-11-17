@@ -7,6 +7,7 @@
 	import { esGuardian, obtenerSesionLocal } from '../../lib/onboarding';
 	import { telefonosPorDepartamento } from '../../lib/telefonos-peru';
 	import { modoEmergencia } from '../../lib/emergencia/estado.svelte';
+	import { dao } from '../../datos/dao';
 	import OsmMap from '../../lib/components/OsmMap.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
 	import Btn from '../../lib/ui/Btn.svelte';
@@ -31,6 +32,7 @@
 		lng_aprox?: number;
 		zona_id?: string;
 		manzana?: string;
+		usuario_id?: string;
 	};
 
 	const TIPOS_DESASTRE = [
@@ -260,26 +262,36 @@
 	async function cargar() {
 		cargando = true;
 		error = '';
+		const usuarioId = obtenerSesionLocal()?.usuarioId;
+		const locales = (await dao.listarLocal<Record<string, unknown>>('alertas')).filter(
+			(a) => a.oculto !== 1 && (!usuarioId || a.usuario_id === usuarioId || !a.usuario_id)
+		);
+		const normalizar = (a: Record<string, unknown>): Alerta => ({
+			id: String(a.id),
+			tipo: a.tipo as string | undefined,
+			descripcion: a.descripcion as string | undefined,
+			estado: a.estado as string | undefined,
+			creado_en: (a.creado_en ?? a.createdAt) as string | undefined,
+			createdAt: a.createdAt as string | undefined,
+			foto: (a.foto as string | null) ?? null,
+			lat_aprox: a.lat_aprox as number | undefined,
+			lng_aprox: a.lng_aprox as number | undefined,
+			zona_id: a.zona_id as string | undefined,
+			manzana: (a.manzana ?? a.zona_id) as string | undefined,
+			usuario_id: a.usuario_id as string | undefined
+		});
+		const pendientesLocales = locales.map(normalizar);
 		try {
 			const resp = await fetch('/api/v1/alertas', {
 				headers: { 'x-rol': (obtenerSesionLocal()?.rol ?? 'vecino').toLowerCase() }
 			});
 			if (!resp.ok) throw new Error(t('error.emergencia.carga_fallo'));
 			const data = await resp.json();
-			items = (data.items ?? []).map((a: any) => ({
-				id: a.id,
-				tipo: a.tipo,
-				descripcion: a.descripcion,
-				estado: a.estado,
-				creado_en: a.creado_en,
-				createdAt: a.createdAt,
-				foto: a.foto ?? null,
-				lat_aprox: a.lat_aprox,
-				lng_aprox: a.lng_aprox,
-				zona_id: a.zona_id,
-				manzana: a.manzana ?? a.zona_id
-			}));
+			const remotas = ((data.items ?? []) as Array<Record<string, unknown>>).map(normalizar);
+			const idsRemotos = new Set(remotas.map((a) => a.id));
+			items = [...pendientesLocales.filter((a) => !idsRemotos.has(a.id)), ...remotas];
 		} catch (err) {
+			items = pendientesLocales;
 			error = err instanceof Error ? mensajeErrorDominio(err) : t('error.emergencia.carga_fallo');
 		} finally {
 			cargando = false;

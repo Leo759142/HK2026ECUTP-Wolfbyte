@@ -1,0 +1,647 @@
+﻿node.exe : npm notice run proyectoonedrive@0.0.1 check
+En línea: 1 Carácter: 1
++ & "D:\dependencias\nodejs/node.exe" "D:\dependencias\npm-global/node_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm notice run ...ive@0.0.1 check:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm notice run svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --config ./vite.config.ts
+Loading svelte-check in workspace: e:\Repos\Wb15112026
+Getting Svelte diagnostics...
+
+e:\Repos\Wb15112026\[32msrc\routes\api\v1\auth\+server.ts[39m:25:54
+[31mError[39m: Property 'rol' does not exist on type 'HardcodedUser'. 
+[36m	const exp = Date.now() + 24 * 60 * 60 * 1000; // 24 horas
+	const sesionConRol = { ...sesion, exp, rol: usuario.[35mrol[36m ?? 'Vecino' };[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\api\v1\auth\+server.ts[39m:35:50
+[31mError[39m: Property 'rol' does not exist on type 'HardcodedUser'. 
+[36m
+	return ok({ usuarioId: usuario.id, rol: usuario.[35mrol[36m ?? 'Vecino' });
+};[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:1:37
+[31mError[39m: Cannot find module './$types' or its corresponding type declarations. 
+[36mimport type { RequestHandler } from [35m'./$types'[36m;
+import { ok, problem, requireRol } from '../../_http';[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:2:41
+[31mError[39m: Cannot find module '../../_http' or its corresponding type declarations. 
+[36mimport type { RequestHandler } from './$types';
+import { ok, problem, requireRol } from [35m'../../_http'[36m;
+import { cargarStore, persistirStore, store } from '../../_store';[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:3:52
+[31mError[39m: Cannot find module '../../_store' or its corresponding type declarations. 
+[36mimport { ok, problem, requireRol } from '../../_http';
+import { cargarStore, persistirStore, store } from [35m'../../_store'[36m;[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:5:45
+[31mError[39m: Binding element 'request' implicitly has an 'any' type. 
+[36m
+export const GET: RequestHandler = async ({ [35mrequest[36m, cookies }) => {
+	// Verificar sesión activa y rol de Guardian/Coordinador[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:5:54
+[31mError[39m: Binding element 'cookies' implicitly has an 'any' type. 
+[36m
+export const GET: RequestHandler = async ({ request, [35mcookies[36m }) => {
+	// Verificar sesión activa y rol de Guardian/Coordinador[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:13:47
+[31mError[39m: Parameter 'a' implicitly has an 'any' type. 
+[36m	// Retornar alertas con usuario_id real (no 'demo')
+	const alertasConUsuario = store.alertas.map(([35ma[36m) => ({
+		...a,[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:22:46
+[31mError[39m: Binding element 'request' implicitly has an 'any' type. 
+[36m
+export const POST: RequestHandler = async ({ [35mrequest[36m, cookies }) => {
+	// Verificar sesión activa[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:22:55
+[31mError[39m: Binding element 'cookies' implicitly has an 'any' type. 
+[36m
+export const POST: RequestHandler = async ({ request, [35mcookies[36m }) => {
+	// Verificar sesión activa[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:49:47
+[31mError[39m: Binding element 'request' implicitly has an 'any' type. 
+[36m
+export const PATCH: RequestHandler = async ({ [35mrequest[36m, params, cookies }) => {
+	// Verificar sesión activa y permisos de Guardian/Coordinador[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:49:56
+[31mError[39m: Binding element 'params' implicitly has an 'any' type. 
+[36m
+export const PATCH: RequestHandler = async ({ request, [35mparams[36m, cookies }) => {
+	// Verificar sesión activa y permisos de Guardian/Coordinador[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:49:64
+[31mError[39m: Binding element 'cookies' implicitly has an 'any' type. 
+[36m
+export const PATCH: RequestHandler = async ({ request, params, [35mcookies[36m }) => {
+	// Verificar sesión activa y permisos de Guardian/Coordinador[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\alertas\+server.ts[39m:59:39
+[31mError[39m: Parameter 'a' implicitly has an 'any' type. 
+[36m
+	const idx = store.alertas.findIndex(([35ma[36m) => a.id === id);
+	if (idx === -1) return problem(404, 'Alerta no encontrada');[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:1:37
+[31mError[39m: Cannot find module './$types' or its corresponding type declarations. 
+[36mimport type { RequestHandler } from [35m'./$types'[36m;
+import { ok, problem, requireIdempotency, requireRol } from '../../_http';[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:2:61
+[31mError[39m: Cannot find module '../../_http' or its corresponding type declarations. 
+[36mimport type { RequestHandler } from './$types';
+import { ok, problem, requireIdempotency, requireRol } from [35m'../../_http'[36m;
+import { cargarStore, persistirStore, store } from '../../_store';[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:3:52
+[31mError[39m: Cannot find module '../../_store' or its corresponding type declarations. 
+[36mimport { ok, problem, requireIdempotency, requireRol } from '../../_http';
+import { cargarStore, persistirStore, store } from [35m'../../_store'[36m;
+import { elegir, errorTextos, esRespuesta, leerObjeto, validarFoto } from '../../_validar';[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:4:75
+[31mError[39m: Cannot find module '../../_validar' or its corresponding type declarations. 
+[36mimport { cargarStore, persistirStore, store } from '../../_store';
+import { elegir, errorTextos, esRespuesta, leerObjeto, validarFoto } from [35m'../../_validar'[36m;[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:8:46
+[31mError[39m: Binding element 'request' implicitly has an 'any' type. 
+[36m
+export const POST: RequestHandler = async ({ [35mrequest[36m, cookies }) => {
+	// Verificar sesión activa antes de cualquier operación[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:8:55
+[31mError[39m: Binding element 'cookies' implicitly has an 'any' type. 
+[36m
+export const POST: RequestHandler = async ({ request, [35mcookies[36m }) => {
+	// Verificar sesión activa antes de cualquier operación[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:35:44
+[31mError[39m: Parameter 'e' implicitly has an 'any' type. 
+[36m
+	const existente = store.emergencias.find(([35me[36m) => e.id === key);
+	if (existente) return ok(existente, 200, { 'Idempotent-Replayed': 'true' });[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:51:47
+[31mError[39m: Binding element 'request' implicitly has an 'any' type. 
+[36m
+export const PATCH: RequestHandler = async ({ [35mrequest[36m, params, cookies }) => {
+	// Verificar sesión activa[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:51:56
+[31mError[39m: Binding element 'params' implicitly has an 'any' type. 
+[36m
+export const PATCH: RequestHandler = async ({ request, [35mparams[36m, cookies }) => {
+	// Verificar sesión activa[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:51:64
+[31mError[39m: Binding element 'cookies' implicitly has an 'any' type. 
+[36m
+export const PATCH: RequestHandler = async ({ request, params, [35mcookies[36m }) => {
+	// Verificar sesión activa[39m
+
+e:\Repos\Wb15112026\[32msrc\rutas\api\v1\emergencias\+server.ts[39m:69:43
+[31mError[39m: Parameter 'e' implicitly has an 'any' type. 
+[36m	// Buscar y actualizar la emergencia existente
+	const idx = store.emergencias.findIndex(([35me[36m) => e.id === id);
+	if (idx === -1) return problem(404, 'Emergencia no encontrada');[39m
+
+e:\Repos\Wb15112026\[32msrc\lib\ui\AyudaComoFunciona.svelte[39m:18:2
+[33mWarn[39m: Visible, non-interactive element `<div>` with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m	<!-- Fondo oscuro con cierre al hacer clic afuera -->
+	[35m<div
+		transition:fade={{ duration: 150 }}
+		role="region"
+		aria-label={gestorIdiomas.t('ayuda.titulo')}
+		onclick={onClose}
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
+	>
+		<!-- Contenedor del modal (más ancho y espacioso) -->
+		<div
+			transition:scale={{ duration: 200, start: 0.96 }}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="modal-ayuda-titulo"
+			onclick={(e) => e.stopPropagation()}
+			class="relative mx-auto max-w-2xl w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-linea/60 my-auto"
+		>
+			<!-- Cabecera fija con botón de cierre accesible -->
+			<div class="flex items-start justify-between gap-4 mb-5">
+				<div class="flex items-center gap-3.5">
+					<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-petroleo/10 text-petroleo">
+						<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<circle cx="12" cy="12" r="10" />
+							<path d="M12 16v-4M12 8h.01" />
+						</svg>
+					</div>
+					<div>
+						<h3 id="modal-ayuda-titulo" class="text-xl sm:text-2xl font-black text-tinta tracking-tight">
+							{gestorIdiomas.t('ayuda.titulo')}
+						</h3>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					aria-label="Cerrar ayuda"
+					onclick={onClose}
+					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-tinta transition-colors hover:bg-petroleo/10 hover:text-petroleo focus:outline-none focus:ring-2 focus:ring-petroleo/40 cursor-pointer"
+				>
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M18 6L6 18M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+			<!-- Introducción con mejor legibilidad -->
+			<p class="text-base text-gris leading-relaxed mb-6">
+				{gestorIdiomas.t('ayuda.intro')}
+			</p>
+
+			<!-- Lista numerada con insignias visuales en lugar de texto plano -->
+			<ol class="space-y-3 mb-6">
+				{#each [
+					gestorIdiomas.t('ayuda.puntoShell'),
+					gestorIdiomas.t('ayuda.puntoDatos'),
+					gestorIdiomas.t('ayuda.puntoCola'),
+					gestorIdiomas.t('ayuda.puntoApi')
+				] as punto, i}
+					<li class="flex items-start gap-3.5 rounded-2xl bg-gray-50/90 p-3.5 sm:p-4 border border-linea/50 transition-colors hover:bg-gray-50">
+						<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-petroleo text-xs font-bold text-white shadow-sm mt-0.5">
+							{i + 1}
+						</span>
+						<span class="text-sm sm:text-base text-tinta/90 leading-relaxed">
+							{punto}
+						</span>
+					</li>
+				{/each}
+			</ol>
+
+			<!-- Nota de consejo / prueba destacada -->
+			<div class="flex items-start gap-3 rounded-2xl bg-petroleo/5 border border-petroleo/15 p-4 mb-6">
+				<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-petroleo shrink-0 mt-0.5" aria-hidden="true">
+					<path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
+				</svg>
+				<p class="text-sm text-tinta/80 italic leading-relaxed">
+					{gestorIdiomas.t('ayuda.probar')}
+				</p>
+			</div>
+
+			<!-- Sección de advertencia / caché tipo Callout -->
+			<div class="rounded-2xl bg-red-50/80 border border-red-200/80 p-4 sm:p-5 flex items-start gap-3.5">
+				<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+						<line x1="12" y1="9" x2="12" y2="13" />
+						<line x1="12" y1="17" x2="12.01" y2="17" />
+					</svg>
+				</div>
+				<div class="space-y-1">
+					<h4 class="text-xs sm:text-sm font-black text-red-900 uppercase tracking-wider">
+						{gestorIdiomas.t('cache.titulo')}
+					</h4>
+					<p class="text-xs sm:text-sm text-red-800/90 leading-relaxed">
+						{gestorIdiomas.t('cache.sensibles')}
+					</p>
+				</div>
+			</div>
+
+			<!-- Botón inferior de acción clara para cerrar -->
+			<div class="mt-6 pt-4 border-t border-linea/60 flex justify-end">
+				<button
+					type="button"
+					onclick={onClose}
+					class="w-full sm:w-auto rounded-xl bg-petroleo px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-petroleo/50 cursor-pointer"
+				>
+					Entendido
+				</button>
+			</div>
+		</div>
+	</div>[36m
+{/if}[39m
+
+e:\Repos\Wb15112026\[32msrc\lib\ui\AyudaComoFunciona.svelte[39m:18:2
+[33mWarn[39m: Non-interactive element `<div>` should not be assigned mouse or keyboard event listeners
+https://svelte.dev/e/a11y_no_noninteractive_element_interactions (svelte)
+[36m	<!-- Fondo oscuro con cierre al hacer clic afuera -->
+	[35m<div
+		transition:fade={{ duration: 150 }}
+		role="region"
+		aria-label={gestorIdiomas.t('ayuda.titulo')}
+		onclick={onClose}
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto"
+	>
+		<!-- Contenedor del modal (más ancho y espacioso) -->
+		<div
+			transition:scale={{ duration: 200, start: 0.96 }}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="modal-ayuda-titulo"
+			onclick={(e) => e.stopPropagation()}
+			class="relative mx-auto max-w-2xl w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-linea/60 my-auto"
+		>
+			<!-- Cabecera fija con botón de cierre accesible -->
+			<div class="flex items-start justify-between gap-4 mb-5">
+				<div class="flex items-center gap-3.5">
+					<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-petroleo/10 text-petroleo">
+						<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<circle cx="12" cy="12" r="10" />
+							<path d="M12 16v-4M12 8h.01" />
+						</svg>
+					</div>
+					<div>
+						<h3 id="modal-ayuda-titulo" class="text-xl sm:text-2xl font-black text-tinta tracking-tight">
+							{gestorIdiomas.t('ayuda.titulo')}
+						</h3>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					aria-label="Cerrar ayuda"
+					onclick={onClose}
+					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-tinta transition-colors hover:bg-petroleo/10 hover:text-petroleo focus:outline-none focus:ring-2 focus:ring-petroleo/40 cursor-pointer"
+				>
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M18 6L6 18M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+			<!-- Introducción con mejor legibilidad -->
+			<p class="text-base text-gris leading-relaxed mb-6">
+				{gestorIdiomas.t('ayuda.intro')}
+			</p>
+
+			<!-- Lista numerada con insignias visuales en lugar de texto plano -->
+			<ol class="space-y-3 mb-6">
+				{#each [
+					gestorIdiomas.t('ayuda.puntoShell'),
+					gestorIdiomas.t('ayuda.puntoDatos'),
+					gestorIdiomas.t('ayuda.puntoCola'),
+					gestorIdiomas.t('ayuda.puntoApi')
+				] as punto, i}
+					<li class="flex items-start gap-3.5 rounded-2xl bg-gray-50/90 p-3.5 sm:p-4 border border-linea/50 transition-colors hover:bg-gray-50">
+						<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-petroleo text-xs font-bold text-white shadow-sm mt-0.5">
+							{i + 1}
+						</span>
+						<span class="text-sm sm:text-base text-tinta/90 leading-relaxed">
+							{punto}
+						</span>
+					</li>
+				{/each}
+			</ol>
+
+			<!-- Nota de consejo / prueba destacada -->
+			<div class="flex items-start gap-3 rounded-2xl bg-petroleo/5 border border-petroleo/15 p-4 mb-6">
+				<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-petroleo shrink-0 mt-0.5" aria-hidden="true">
+					<path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
+				</svg>
+				<p class="text-sm text-tinta/80 italic leading-relaxed">
+					{gestorIdiomas.t('ayuda.probar')}
+				</p>
+			</div>
+
+			<!-- Sección de advertencia / caché tipo Callout -->
+			<div class="rounded-2xl bg-red-50/80 border border-red-200/80 p-4 sm:p-5 flex items-start gap-3.5">
+				<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+						<line x1="12" y1="9" x2="12" y2="13" />
+						<line x1="12" y1="17" x2="12.01" y2="17" />
+					</svg>
+				</div>
+				<div class="space-y-1">
+					<h4 class="text-xs sm:text-sm font-black text-red-900 uppercase tracking-wider">
+						{gestorIdiomas.t('cache.titulo')}
+					</h4>
+					<p class="text-xs sm:text-sm text-red-800/90 leading-relaxed">
+						{gestorIdiomas.t('cache.sensibles')}
+					</p>
+				</div>
+			</div>
+
+			<!-- Botón inferior de acción clara para cerrar -->
+			<div class="mt-6 pt-4 border-t border-linea/60 flex justify-end">
+				<button
+					type="button"
+					onclick={onClose}
+					class="w-full sm:w-auto rounded-xl bg-petroleo px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-petroleo/50 cursor-pointer"
+				>
+					Entendido
+				</button>
+			</div>
+		</div>
+	</div>[36m
+{/if}[39m
+
+e:\Repos\Wb15112026\[32msrc\lib\ui\AyudaComoFunciona.svelte[39m:26:3
+[33mWarn[39m: Elements with the 'dialog' interactive role must have a tabindex value
+https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
+[36m		<!-- Contenedor del modal (más ancho y espacioso) -->
+		[35m<div
+			transition:scale={{ duration: 200, start: 0.96 }}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="modal-ayuda-titulo"
+			onclick={(e) => e.stopPropagation()}
+			class="relative mx-auto max-w-2xl w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-linea/60 my-auto"
+		>
+			<!-- Cabecera fija con botón de cierre accesible -->
+			<div class="flex items-start justify-between gap-4 mb-5">
+				<div class="flex items-center gap-3.5">
+					<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-petroleo/10 text-petroleo">
+						<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<circle cx="12" cy="12" r="10" />
+							<path d="M12 16v-4M12 8h.01" />
+						</svg>
+					</div>
+					<div>
+						<h3 id="modal-ayuda-titulo" class="text-xl sm:text-2xl font-black text-tinta tracking-tight">
+							{gestorIdiomas.t('ayuda.titulo')}
+						</h3>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					aria-label="Cerrar ayuda"
+					onclick={onClose}
+					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-tinta transition-colors hover:bg-petroleo/10 hover:text-petroleo focus:outline-none focus:ring-2 focus:ring-petroleo/40 cursor-pointer"
+				>
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M18 6L6 18M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+			<!-- Introducción con mejor legibilidad -->
+			<p class="text-base text-gris leading-relaxed mb-6">
+				{gestorIdiomas.t('ayuda.intro')}
+			</p>
+
+			<!-- Lista numerada con insignias visuales en lugar de texto plano -->
+			<ol class="space-y-3 mb-6">
+				{#each [
+					gestorIdiomas.t('ayuda.puntoShell'),
+					gestorIdiomas.t('ayuda.puntoDatos'),
+					gestorIdiomas.t('ayuda.puntoCola'),
+					gestorIdiomas.t('ayuda.puntoApi')
+				] as punto, i}
+					<li class="flex items-start gap-3.5 rounded-2xl bg-gray-50/90 p-3.5 sm:p-4 border border-linea/50 transition-colors hover:bg-gray-50">
+						<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-petroleo text-xs font-bold text-white shadow-sm mt-0.5">
+							{i + 1}
+						</span>
+						<span class="text-sm sm:text-base text-tinta/90 leading-relaxed">
+							{punto}
+						</span>
+					</li>
+				{/each}
+			</ol>
+
+			<!-- Nota de consejo / prueba destacada -->
+			<div class="flex items-start gap-3 rounded-2xl bg-petroleo/5 border border-petroleo/15 p-4 mb-6">
+				<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-petroleo shrink-0 mt-0.5" aria-hidden="true">
+					<path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
+				</svg>
+				<p class="text-sm text-tinta/80 italic leading-relaxed">
+					{gestorIdiomas.t('ayuda.probar')}
+				</p>
+			</div>
+
+			<!-- Sección de advertencia / caché tipo Callout -->
+			<div class="rounded-2xl bg-red-50/80 border border-red-200/80 p-4 sm:p-5 flex items-start gap-3.5">
+				<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+						<line x1="12" y1="9" x2="12" y2="13" />
+						<line x1="12" y1="17" x2="12.01" y2="17" />
+					</svg>
+				</div>
+				<div class="space-y-1">
+					<h4 class="text-xs sm:text-sm font-black text-red-900 uppercase tracking-wider">
+						{gestorIdiomas.t('cache.titulo')}
+					</h4>
+					<p class="text-xs sm:text-sm text-red-800/90 leading-relaxed">
+						{gestorIdiomas.t('cache.sensibles')}
+					</p>
+				</div>
+			</div>
+
+			<!-- Botón inferior de acción clara para cerrar -->
+			<div class="mt-6 pt-4 border-t border-linea/60 flex justify-end">
+				<button
+					type="button"
+					onclick={onClose}
+					class="w-full sm:w-auto rounded-xl bg-petroleo px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-petroleo/50 cursor-pointer"
+				>
+					Entendido
+				</button>
+			</div>
+		</div>[36m
+	</div>[39m
+
+e:\Repos\Wb15112026\[32msrc\lib\ui\AyudaComoFunciona.svelte[39m:26:3
+[33mWarn[39m: Visible, non-interactive element `<div>` with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m		<!-- Contenedor del modal (más ancho y espacioso) -->
+		[35m<div
+			transition:scale={{ duration: 200, start: 0.96 }}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="modal-ayuda-titulo"
+			onclick={(e) => e.stopPropagation()}
+			class="relative mx-auto max-w-2xl w-full rounded-3xl bg-white p-6 sm:p-8 shadow-2xl border border-linea/60 my-auto"
+		>
+			<!-- Cabecera fija con botón de cierre accesible -->
+			<div class="flex items-start justify-between gap-4 mb-5">
+				<div class="flex items-center gap-3.5">
+					<div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-petroleo/10 text-petroleo">
+						<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<circle cx="12" cy="12" r="10" />
+							<path d="M12 16v-4M12 8h.01" />
+						</svg>
+					</div>
+					<div>
+						<h3 id="modal-ayuda-titulo" class="text-xl sm:text-2xl font-black text-tinta tracking-tight">
+							{gestorIdiomas.t('ayuda.titulo')}
+						</h3>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					aria-label="Cerrar ayuda"
+					onclick={onClose}
+					class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100 text-tinta transition-colors hover:bg-petroleo/10 hover:text-petroleo focus:outline-none focus:ring-2 focus:ring-petroleo/40 cursor-pointer"
+				>
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M18 6L6 18M6 6l12 12" />
+					</svg>
+				</button>
+			</div>
+
+			<!-- Introducción con mejor legibilidad -->
+			<p class="text-base text-gris leading-relaxed mb-6">
+				{gestorIdiomas.t('ayuda.intro')}
+			</p>
+
+			<!-- Lista numerada con insignias visuales en lugar de texto plano -->
+			<ol class="space-y-3 mb-6">
+				{#each [
+					gestorIdiomas.t('ayuda.puntoShell'),
+					gestorIdiomas.t('ayuda.puntoDatos'),
+					gestorIdiomas.t('ayuda.puntoCola'),
+					gestorIdiomas.t('ayuda.puntoApi')
+				] as punto, i}
+					<li class="flex items-start gap-3.5 rounded-2xl bg-gray-50/90 p-3.5 sm:p-4 border border-linea/50 transition-colors hover:bg-gray-50">
+						<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-petroleo text-xs font-bold text-white shadow-sm mt-0.5">
+							{i + 1}
+						</span>
+						<span class="text-sm sm:text-base text-tinta/90 leading-relaxed">
+							{punto}
+						</span>
+					</li>
+				{/each}
+			</ol>
+
+			<!-- Nota de consejo / prueba destacada -->
+			<div class="flex items-start gap-3 rounded-2xl bg-petroleo/5 border border-petroleo/15 p-4 mb-6">
+				<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-petroleo shrink-0 mt-0.5" aria-hidden="true">
+					<path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z" />
+				</svg>
+				<p class="text-sm text-tinta/80 italic leading-relaxed">
+					{gestorIdiomas.t('ayuda.probar')}
+				</p>
+			</div>
+
+			<!-- Sección de advertencia / caché tipo Callout -->
+			<div class="rounded-2xl bg-red-50/80 border border-red-200/80 p-4 sm:p-5 flex items-start gap-3.5">
+				<div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700">
+					<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+						<line x1="12" y1="9" x2="12" y2="13" />
+						<line x1="12" y1="17" x2="12.01" y2="17" />
+					</svg>
+				</div>
+				<div class="space-y-1">
+					<h4 class="text-xs sm:text-sm font-black text-red-900 uppercase tracking-wider">
+						{gestorIdiomas.t('cache.titulo')}
+					</h4>
+					<p class="text-xs sm:text-sm text-red-800/90 leading-relaxed">
+						{gestorIdiomas.t('cache.sensibles')}
+					</p>
+				</div>
+			</div>
+
+			<!-- Botón inferior de acción clara para cerrar -->
+			<div class="mt-6 pt-4 border-t border-linea/60 flex justify-end">
+				<button
+					type="button"
+					onclick={onClose}
+					class="w-full sm:w-auto rounded-xl bg-petroleo px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:opacity-90 active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-petroleo/50 cursor-pointer"
+				>
+					Entendido
+				</button>
+			</div>
+		</div>[36m
+	</div>[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\+page.svelte[39m:123:22
+[33mWarn[39m: Avoid using autofocus
+https://svelte.dev/e/a11y_autofocus (svelte)
+[36m			<div class="emergency-takeover__icon"><Icono name="emergencia" /></div>
+			<h1 tabindex="-1" [35mautofocus[36m>EMERGENCIA EN TU SECTOR</h1>
+			<p class="emergency-takeover__title">{modoEmergencia.titulo}</p>[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\emergencia\+page.svelte[39m:561:2
+[33mWarn[39m: Unused CSS selector ".tipo-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.tipo-icon[36m {
+		font-size: 1.75rem;[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\emergencia\+page.svelte[39m:821:2
+[33mWarn[39m: Unused CSS selector ".success-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.success-icon[36m {
+		font-size: 4rem;[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\emergencia\+page.svelte[39m:888:2
+[33mWarn[39m: Unused CSS selector ".leyenda-icon"
+https://svelte.dev/e/css_unused_selector (svelte)
+[36m
+	[35m.leyenda-icon[36m {
+		font-size: 1.25rem;[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\favores\+page.svelte[39m:237:6
+[31mError[39m: Object literal may only specify known properties, and '"class"' does not exist in type 'Props'. (ts)
+[36m					alt={seleccionado.titulo}
+					[35mclass[36m="detail-sheet__gallery"
+				/>[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\perfil\+page.svelte[39m:190:3
+[31mError[39m: Type 'number' is not assignable to type '() => number'. (ts)
+[36m		>('favors', []);
+		[35mpublicaciones[36m =
+			servicios.filter((item) => item.ownerId === userId || item.usuario_id === userId).length +[39m
+
+e:\Repos\Wb15112026\[32msrc\routes\perfil\ajustes\+page.svelte[39m:43:32
+[31mError[39m: Property 'id' does not exist on type '{ manzana?: string | undefined; }'. (ts)
+[36m		const user = sesion?.usuarioId
+			? users.find((item) => item.[35mid[36m === sesion.usuarioId)
+			: undefined;[39m
+
+====================================
+[31msvelte-check found 28 errors and 8 warnings in 9 files
+[39m

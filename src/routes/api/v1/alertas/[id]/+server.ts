@@ -1,11 +1,10 @@
 import type { RequestHandler } from './$types';
-import { ok, problem } from '../../../_http';
+import { leerSesion, ok, problem } from '../../../_http';
 import { cargarStore, persistirStore, store } from '../../../_store';
 import { esRespuesta, leerObjeto } from '../../../_validar';
 
 export const PATCH: RequestHandler = async ({ request, params, cookies }) => {
-	const sesion = JSON.parse(cookies.get('pod_sesion') || '{}');
-	if (!sesion.usuarioId) return problem(401, 'Sesión no válida');
+	const sesion = leerSesion(request, cookies);
 
 	await cargarStore();
 

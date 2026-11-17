@@ -3,20 +3,26 @@
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
 	import { obtenerSesionLocal } from '../../../lib/onboarding';
+	import { dao } from '../../../datos/dao';
 	import Icono from '../../../lib/iconos/Icono.svelte';
-	let items = $state<
-		Array<{
-			id?: string;
-			titulo?: string;
-			descripcion?: string;
-			tipo?: string;
-			foto?: string | null;
-			estado?: string;
-			categoria?: string;
-			creado_en?: string;
-		}>
-	>([]);
+
+	type Publicacion = {
+		id?: string;
+		titulo?: string;
+		descripcion?: string;
+		tipo?: string;
+		foto?: string | null;
+		estado?: string;
+		categoria?: string;
+		creado_en?: string;
+		usuario_id?: string;
+		creador_id?: string;
+		ownerId?: string;
+	};
+
+	let items = $state<Publicacion[]>([]);
 	let imagenAmpliada = $state<string | null>(null);
+
 	function leer<T>(key: string, fallback: T): T {
 		try {
 			const raw = localStorage.getItem(`ayni:v1:${key}`);
@@ -25,19 +31,51 @@
 			return fallback;
 		}
 	}
+
+	const esPropia = (item: Record<string, unknown>, usuarioId?: string) =>
+		!usuarioId ||
+		item.usuario_id === usuarioId ||
+		item.creador_id === usuarioId ||
+		item.ownerId === usuarioId;
+
+	const conTipo = (rows: Array<Record<string, unknown>>, tipo: string): Publicacion[] =>
+		rows.map((row) => ({ ...row, tipo }) as Publicacion);
+
+	function fusionar(listas: Publicacion[][]): Publicacion[] {
+		const mapa = new Map<string, Publicacion>();
+		for (const lista of listas) {
+			for (const item of lista) {
+				if (!item.id) continue;
+				const id = String(item.id);
+				const previo = mapa.get(id);
+				mapa.set(id, previo ? { ...previo, ...item } : item);
+			}
+		}
+		return [...mapa.values()].sort((a, b) =>
+			(b.creado_en ?? '').localeCompare(a.creado_en ?? '')
+		);
+	}
+
 	async function cargar() {
 		const usuarioId = obtenerSesionLocal()?.usuarioId;
+
 		const locales = [
-			...leer<Array<Record<string, unknown>>>('services', []),
-			...leer<Array<Record<string, unknown>>>('favors', [])
-		].filter(
-			(item) =>
-				item.ownerId === usuarioId || item.usuario_id === usuarioId || item.creador_id === usuarioId
-		);
+			...conTipo(await dao.listarLocal<Record<string, unknown>>('servicios'), 'servicio'),
+			...conTipo(await dao.listarLocal<Record<string, unknown>>('favores'), 'favor'),
+			...conTipo(await dao.listarLocal<Record<string, unknown>>('alertas'), 'alerta')
+		].filter((item) => esPropia(item as Record<string, unknown>, usuarioId));
+
+		const legacy = [
+			...conTipo(leer<Array<Record<string, unknown>>>('services', []), 'servicio'),
+			...conTipo(leer<Array<Record<string, unknown>>>('favors', []), 'favor')
+		].filter((item) => esPropia(item as Record<string, unknown>, usuarioId));
+
+		let remotas: Publicacion[] = [];
 		try {
-			const [serviciosRespuesta, favoresRespuesta] = await Promise.all([
+			const [serviciosRespuesta, favoresRespuesta, alertasRespuesta] = await Promise.all([
 				fetch('/api/v1/servicios'),
-				fetch('/api/v1/favores')
+				fetch('/api/v1/favores'),
+				fetch('/api/v1/alertas')
 			]);
 			const serviciosApi = serviciosRespuesta.ok
 				? (((await serviciosRespuesta.json()) as { items?: Array<Record<string, unknown>> })
@@ -47,23 +85,20 @@
 				? (((await favoresRespuesta.json()) as { items?: Array<Record<string, unknown>> }).items ??
 					[])
 				: [];
-			const serviciosPropios = serviciosApi
-				.filter((item) => item.usuario_id === usuarioId)
-				.map((item) => ({ ...item, tipo: 'servicio' }));
-			const favoresPropios = favoresApi
-				.filter((item) => item.creador_id === usuarioId)
-				.map((item) => ({ ...item, tipo: 'favor' }));
-			const demoFallback =
-				usuarioId === 'admin' && !serviciosPropios.length && !favoresPropios.length
-					? [
-							...serviciosApi.map((item) => ({ ...item, tipo: 'servicio' })),
-							...favoresApi.map((item) => ({ ...item, tipo: 'favor' }))
-						]
-					: [];
-			items = [...serviciosPropios, ...favoresPropios, ...demoFallback, ...locales] as typeof items;
+			const alertasApi = alertasRespuesta.ok
+				? (((await alertasRespuesta.json()) as { items?: Array<Record<string, unknown>> }).items ??
+					[])
+				: [];
+			remotas = [
+				...conTipo(serviciosApi, 'servicio'),
+				...conTipo(favoresApi, 'favor'),
+				...conTipo(alertasApi, 'alerta')
+			].filter((item) => esPropia(item as Record<string, unknown>, usuarioId));
 		} catch {
-			items = locales as typeof items;
+			remotas = [];
 		}
+
+		items = fusionar([locales, legacy, remotas]);
 	}
 
 	onMount(() => {
@@ -88,8 +123,18 @@
 	<div class="publication-list">
 			{#each items as item (item.id)}<article>
 				<div class="publication-list__type">
-					<span><Icono name={item.tipo === 'favor' ? 'favores' : 'servicio'} /></span>
-					<small>{item.tipo === 'favor' ? 'Favor' : 'Servicio'}</small>
+					<span
+						><Icono
+							name={item.tipo === 'favor'
+								? 'favores'
+								: item.tipo === 'alerta'
+									? 'alerta'
+									: 'servicio'}
+						/></span
+					>
+					<small
+						>{item.tipo === 'favor' ? 'Favor' : item.tipo === 'alerta' ? 'Alerta' : 'Servicio'}</small
+					>
 				</div>
 				<div class="publication-list__thumb">
 					{#if item.foto}
@@ -103,7 +148,13 @@
 						</button>
 					{:else}
 						<div class="publication-list__placeholder" aria-hidden="true">
-							<Icono name={item.tipo === 'favor' ? 'favores' : 'servicio'} />
+							<Icono
+								name={item.tipo === 'favor'
+									? 'favores'
+									: item.tipo === 'alerta'
+										? 'alerta'
+										: 'servicio'}
+							/>
 						</div>
 					{/if}
 				</div>

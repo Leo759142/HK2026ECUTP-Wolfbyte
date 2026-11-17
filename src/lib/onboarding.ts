@@ -66,5 +66,10 @@ export function encabezadosSesion(): Record<string, string> {
 	const sesion = obtenerSesionLocal();
 	if (!sesion) return {};
 	// Sesiones antiguas pueden no tener rol; Vecino es el rol mínimo para publicar.
-	return { 'x-rol': sesion.rol?.trim() || 'Vecino' };
+	// x-usuario-id permite que la API (modo demo/offline) asocie la publicación al
+	// mismo usuario que ve la app, aunque la cookie de sesión no exista.
+	return {
+		'x-rol': sesion.rol?.trim() || 'Vecino',
+		'x-usuario-id': sesion.usuarioId
+	};
 }
