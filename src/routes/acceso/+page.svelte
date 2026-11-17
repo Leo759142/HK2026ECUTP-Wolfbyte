@@ -118,10 +118,20 @@
 		paso = 'codigo';
 	}
 
+	function generarPinRegistro(telefono: string): string {
+		const d = telefono.replace(/\D/g, '');
+		const debiles = new Set(['000000', '111111', '123456', '654321', '123123']);
+		const base = (d.slice(-6) || '000000').padStart(6, '0');
+		if (!debiles.has(base)) return base;
+		const alt = String((Number(d.slice(-6) || 0) + 137911) % 1_000_000).padStart(6, '0');
+		return debiles.has(alt) ? '543219' : alt;
+	}
+
 	async function completarAcceso(
 		telefonoAcceso: string,
 		aliasUsuario = 'Rosa',
-		datosPerfil: { ubicacion?: string; manzana?: string } = {}
+		datosPerfil: { ubicacion?: string; manzana?: string } = {},
+		accion: 'login' | 'registro' = 'registro'
 	) {
 		let datos: { usuarioId?: string; rol?: string } = {};
 		try {
@@ -129,9 +139,10 @@
 				method: 'POST',
 				headers: { 'content-type': 'application/json' },
 				body: JSON.stringify({
-					accion: 'registro',
+					accion,
 					celular: telefonoAcceso,
-					pin: codigo || '1234',
+					pin:
+						accion === 'registro' ? generarPinRegistro(telefonoAcceso) : codigo.trim() || '1234',
 					alias: aliasUsuario
 				})
 			});
@@ -194,7 +205,9 @@
 			}>;
 			await completarAcceso(
 				telefono,
-				usuarios.find((usuario) => usuario.phone === telefono)?.firstName ?? 'Vecino'
+				usuarios.find((usuario) => usuario.phone === telefono)?.firstName ?? 'Vecino',
+				{},
+				'login'
 			);
 		} catch {
 			error = t('error.acceso.login_fallo');
@@ -205,7 +218,7 @@
 		error = '';
 		modo = 'login';
 		try {
-			await completarAcceso('999123456');
+			await completarAcceso('999123456', 'Rosa', {}, 'login');
 		} catch {
 			error = t('error.acceso.login_fallo');
 		}
@@ -256,30 +269,17 @@
 			async ({ coords }) => {
 				try {
 					const respuesta = await fetch(
-						`https://openstreetmap.org{encodeURIComponent(coords.latitude)}&lon=${encodeURIComponent(coords.longitude)}&zoom=18&addressdetails=1`,
+						`/api/v1/geo/reverse?lat=${encodeURIComponent(coords.latitude)}&lng=${encodeURIComponent(coords.longitude)}`,
 						{ headers: { Accept: 'application/json' } }
 					);
 					if (!respuesta.ok) throw new Error(t('error.acceso.direccion_no_consultada'));
 					const datos = (await respuesta.json()) as {
-						address?: {
-							road?: string;
-							neighbourhood?: string;
-							suburb?: string;
-							city?: string;
-							town?: string;
-							village?: string;
-							state?: string;
-						};
+						direccion?: string;
+						barrio?: string;
+						distrito?: string;
 					};
-					const direccion = datos.address
-						? [
-								datos.address.road,
-								datos.address.neighbourhood ?? datos.address.suburb,
-								datos.address.city ?? datos.address.town ?? datos.address.village
-							]
-								.filter(Boolean)
-								.join(', ')
-						: '';
+					const direccion =
+						datos.direccion || [datos.barrio, datos.distrito].filter(Boolean).join(', ');
 					ubicacion = direccion || 'Ubicación aproximada detectada';
 				} catch {
 					ubicacion = `Ubicación aproximada (${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)})`;
@@ -355,14 +355,7 @@
 		{/if}
 
 		<div class="access-spacer"></div>
-		<StepNav
-			{pasoActual}
-			{totalPasos}
-			onBack={retroceder}
-			{onNext}
-			{nextLabel}
-			{nextDisabled}
-		/>
+		<StepNav {pasoActual} {totalPasos} onBack={retroceder} {onNext} {nextLabel} {nextDisabled} />
 	</section>
 {/snippet}
 
@@ -396,13 +389,13 @@
 				</button>
 			</div>
 		</section>
-
 	{:else if paso === 'tutorial'}
 		{@const slide = tutoriales[tutorial]}
 		<div class={`access-step ${slide.color}`}>
 			<div class="access-step__header">
 				<button class="access-skip" type="button" onclick={retroceder}>Volver</button>
-				<button class="access-skip" type="button" onclick={() => (paso = 'telefono')}>Saltar</button>
+				<button class="access-skip" type="button" onclick={() => (paso = 'telefono')}>Saltar</button
+				>
 			</div>
 
 			<div class="access-step__image">
@@ -424,7 +417,6 @@
 				{tutorial < tutoriales.length - 1 ? t('access.siguiente') : t('access.empezar')}
 			</Btn>
 		</div>
-
 	{:else if paso === 'telefono'}
 		{#snippet camposTelefono()}
 			<div class="phone-field">
@@ -454,7 +446,6 @@
 			continuarTelefono,
 			camposTelefono
 		)}
-
 	{:else if paso === 'codigo'}
 		{#snippet camposCodigo()}
 			<Input
@@ -482,7 +473,6 @@
 			verificarCodigo,
 			camposCodigo
 		)}
-
 	{:else if paso === 'nombre'}
 		{#snippet camposNombre()}
 			<Input
@@ -511,7 +501,6 @@
 			guardarRegistro,
 			camposNombre
 		)}
-
 	{:else if paso === 'ubicacion'}
 		{#snippet camposUbicacion()}
 			<label class="publish-label">
@@ -547,7 +536,6 @@
 			guardarUbicacion,
 			camposUbicacion
 		)}
-
 	{:else}
 		{#snippet camposZona()}
 			<div class="zone-grid">

@@ -1,0 +1,166 @@
+' ============================================================================
+' AYNI · Flujo de navegación ESPERADO (cómo debería comportarse)
+' Diagrama de flujo en PlantUML. Contrasta con flujo-navegacion-actual.uml.
+' Describe el grafo deseado: jerarquía clara, back consistente, permisos
+' correctos (reportar = todos; moderación = guardianes), emergencia canalizada.
+' ============================================================================
+@startuml flujo_navegacion_esperado
+title AYNI · Flujo de navegación ESPERADO (objetivo)
+
+top to bottom direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #4A4A4A
+skinparam ArrowThickness 1.2
+skinparam rectangle {
+  BackgroundColor #F7FBF7
+  BorderColor #2B2B2B
+  RoundCorner 12
+}
+skinparam card {
+  BackgroundColor #F7FBF7
+  BorderColor #2B2B2B
+}
+
+' ---------- Nodos ----------
+card "Acceso\n(/acceso)\nOnboarding · Registro · Login" as ACCESO #FFE8D6
+card "Inicio\n(/)" as HOME #DFF5E1
+card "Favores\n(/favores)" as FAVORES #DFF5E1
+card "Mapa\n(/mapa)" as MAPA #DFF5E1
+card "Yo / Perfil\n(/perfil)" as PERFIL #DFF5E1
+card "Publicar\n(/publicar)\nAsistente 3 pasos" as PUBLICAR #FFF3BF
+card "Servicios\n(/servicios)" as SERVICIOS #DFF5E1
+card "Detalle\nServicio/Favor" as DETALLE #DFF5E1
+card "Reportar publicación\n(/moderacion/reportar)" as MREP #FFE8D6
+card "Emergencia\n(/emergencia)" as EMERGENCIA #FFD6D6
+card "Pedir ayuda\n(/pedir-ayuda)" as PEDIRAYUDA #FFD6D6
+card "Grupos de apoyo\n(/grupos)" as GRUPOS #DFF5E1
+card "Perfil · Publicaciones\n(/perfil/publicaciones)" as PUBS #DFF5E1
+card "Perfil · Ajustes\n(/perfil/ajustes)" as AJUSTES #DFF5E1
+card "Guardián · Invitación" as GINVIT #E7DFFF
+card "Guardián · Panel\n(/perfil/guardian)" as GPANEL #E7DFFF
+card "Moderación · Alertas\n(/moderacion/alertas-oficiales)" as MALERT #E7DFFF
+card "Moderación · Bloqueados\n(/moderacion/bloqueados)" as MBLOQ #E7DFFF
+card "Página de error" as ERROR #EEEEEE
+
+' ---------- Entrada / sesión ----------
+ACCESO --> HOME : login / registro OK
+HOME --> ACCESO : cerrar sesión
+note as GUARD
+  Rejilla de acceso esperada:
+  • Sin sesión → sólo /acceso y /emergencia (modo invitado).
+  • Con sesión → App Shell (barra inferior) en todas las pantallas de la app.
+  • Reportar una publicación = cualquier usuario autenticado.
+  • Panel Guardián y Moderación (alertas/bloqueados) = sólo Guardianes.
+end note
+
+' ---------- Hub Inicio ----------
+HOME --> SERVICIOS : buscar / categorías
+HOME --> FAVORES : accesos a favores
+HOME --> MAPA : ver mapa
+HOME --> EMERGENCIA : reportar emergencia
+HOME --> PEDIRAYUDA : pedir ayuda
+HOME --> PUBLICAR : publicar (botón central)
+
+' ---------- Servicios / Favores -> detalle -> reportar ----------
+SERVICIOS --> DETALLE : abrir tarjeta
+FAVORES --> DETALLE : abrir tarjeta
+DETALLE --> MREP : "Reportar" (todos los usuarios)
+MREP --> DETALLE : reporte enviado → volver
+SERVICIOS --> PUBLICAR : "Publicar servicio"
+FAVORES --> PUBLICAR : "Publicar favor"
+
+' ---------- Publicar ----------
+PUBLICAR --> SERVICIOS : éxito → volver al listado
+PUBLICAR --> FAVORES : éxito (favor) → volver al listado
+PUBLICAR --> HOME : "Ir al inicio"
+
+' ---------- Emergencia / pedir ayuda ----------
+EMERGENCIA --> EMERGENCIA : reportar / ver alertas\n(identidad si hay sesión)
+EMERGENCIA --> PEDIRAYUDA : "Necesito ayuda"
+PEDIRAYUDA --> GRUPOS : "Ver grupos de apoyo"
+PEDIRAYUDA --> EMERGENCIA : volver
+GRUPOS --> PEDIRAYUDA : "Necesito ayuda"
+GRUPOS --> EMERGENCIA : volver
+
+' ---------- Perfil ----------
+PERFIL --> PUBS : "Mis publicaciones"
+PERFIL --> AJUSTES : "Idioma, letra y zona"
+PERFIL --> MAPA : "Ver mi zona"
+PERFIL --> GINVIT : si cumple 60 días y no es Guardián
+PERFIL --> GPANEL : si es Guardián
+PUBS --> PUBLICAR : "Publicar"
+AJUSTES --> PERFIL : atrás (vuelve al perfil)
+PUBS --> PERFIL : atrás (vuelve al perfil)
+
+' ---------- Camino Guardián ----------
+GINVIT --> GPANEL : acepto → alta como Guardián
+GINVIT --> PERFIL : "Ahora no"
+GPANEL --> EMERGENCIA : confirmar reporte\n(activa modo emergencia)
+GPANEL --> MALERT : revisar alertas oficiales
+GPANEL --> MBLOQ : personas bloqueadas
+GPANEL --> PERFIL : atrás (vuelve al perfil)
+
+' ---------- Error ----------
+ERROR --> HOME : "Ir al inicio"
+ERROR --> ERROR : "Reintentar"
+
+' ---------- Notas de párrafo (qué pasa y por qué) ----------
+note as E1
+  ENTRADA LIMPIA
+  /acceso es la única puerta para quien no tiene sesión. Al autenticarse, la
+  persona entra siempre al App Shell con barra inferior. /emergencia puede
+  abrirse sin sesión como "modo invitado" claramente señalado, pero el resto
+  de la app exige identidad.
+end note
+
+note as E2
+  JERARQUÍA CLARA
+  Inicio es el hub y reparte a Servicios, Favores, Mapa, Emergencia y Publicar.
+  La barra inferior (Inicio · Favores · [Publicar] · Mapa · Yo) permanece
+  visible en toda pantalla autenticada, incluida Emergencia, para que nadie
+  quede "atrapado" sin salida.
+end note
+
+note as E3
+  REPORTAR vs MODERAR
+  "Reportar" una publicación debe estar disponible para cualquier vecino
+  autenticado y devolverlo al detalle/listado tras enviar. La **moderación**
+  (revisar reportes, alertas oficiales, bloqueados) es exclusiva de Guardianes.
+  Así se separa "acusar" (todos) de "resolver" (guardianes).
+end note
+
+note as E4
+  PUBLICAR COHERENTE
+  El asistente de 3 pasos valida en cliente y, al terminar, regresa al listado
+  que corresponde (Servicios si fue servicio, Favores si fue favor) o a Inicio,
+  en vez de dejar a la persona en una pantalla sin contexto.
+end note
+
+note as E5
+  BACK CONSISTENTE
+  El botón "atrás" (o breadcrumb) debe llevar a la pantalla padre real:
+  Ajustes/Publicaciones → Perfil; Panel Guardián → Perfil; Reportar → Detalle.
+  Sólo el "atrás" de nivel raíz va a Inicio. Esto evita el salto a Inicio
+  desde cualquier subpágina (problema del flujo actual).
+end note
+
+note as E6
+  GUARDIÁN BIEN GOBERNADO
+  El Panel Guardián es la sede de las acciones de alto impacto: confirmar una
+  emergencia enciende el "modo emergencia" del sector; revisar alertas
+  oficiales y personas bloqueadas vive aquí. El acceso se controla una sola vez
+  (rol Guardián), sin doble compuerta.
+end note
+
+legend right
+  Objetivo del rediseño:
+  · Sesión única         → un solo flujo de entrada (acceso / invitado)
+  · Barra siempre visible→ nadie queda sin navegación
+  · Permisos correctos   → reportar = todos; moderar = Guardianes
+  · Back al padre        → navegación predecible, sin saltos a Inicio
+  · Cierre de ciclo      → publicar / reportar vuelven al contexto
+end legend
+
+@enduml

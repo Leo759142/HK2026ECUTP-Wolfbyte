@@ -149,7 +149,8 @@
 				></button
 			>
 			<button class:active={tipo === 'favor'} type="button" onclick={() => (tipo = 'favor')}
-				><span><Icono name="favores" /></span><strong>Favor</strong><small>Pide o brinda ayuda</small
+				><span><Icono name="favores" /></span><strong>Favor</strong><small
+					>Pide o brinda ayuda</small
 				></button
 			>
 			<button class:active={tipo === 'alerta'} type="button" onclick={() => (tipo = 'alerta')}
@@ -191,7 +192,8 @@
 					{#each categorias as [id, icon, label]}<button
 							class:active={form.categoria === id}
 							type="button"
-							onclick={() => (form.categoria = id)}><span><Icono name={icon} /></span>{label}</button
+							onclick={() => (form.categoria = id)}
+							><span><Icono name={icon} /></span>{label}</button
 						>{/each}
 				</div>
 			</div>
@@ -216,7 +218,8 @@
 					{#each categoriasFavor as [id, icon, label]}<button
 							class:active={form.categoria_favor === id}
 							type="button"
-							onclick={() => (form.categoria_favor = id)}><span><Icono name={icon} /></span>{label}</button
+							onclick={() => (form.categoria_favor = id)}
+							><span><Icono name={icon} /></span>{label}</button
 						>{/each}
 				</div>
 			</div>
@@ -227,7 +230,8 @@
 					{#each tiposAlerta as [id, icon, label]}<button
 							class:active={form.tipo_alerta === id}
 							type="button"
-							onclick={() => (form.tipo_alerta = id)}><span><Icono name={icon} /></span>{label}</button
+							onclick={() => (form.tipo_alerta = id)}
+							><span><Icono name={icon} /></span>{label}</button
 						>{/each}
 				</div>
 			</div>

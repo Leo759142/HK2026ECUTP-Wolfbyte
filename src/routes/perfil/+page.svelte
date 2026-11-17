@@ -5,11 +5,10 @@
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
 	import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
-import Icono from '../../lib/iconos/Icono.svelte';
-const t = (key: string) => gestorIdiomas.t(key);
-const t = (key: string) => gestorIdiomas.t(key);
+	import Icono from '../../lib/iconos/Icono.svelte';
+	const t = (key: string) => gestorIdiomas.t(key);
 
-type Usuario = {
+	type Usuario = {
 		id?: string;
 		firstName?: string;
 		lastName?: string;
@@ -316,7 +315,9 @@ type Usuario = {
 		<a class="profile-link" href="/perfil/ajustes"
 			><Icono name="ajustes" /> Idioma, letra grande y zona <span aria-hidden="true">›</span></a
 		>
-		<a class="profile-link" href="/mapa"><Icono name="mapa" /> Ver mi zona <span aria-hidden="true">›</span></a>
+		<a class="profile-link" href="/mapa"
+			><Icono name="mapa" /> Ver mi zona <span aria-hidden="true">›</span></a
+		>
 		<button class="profile-link profile-link--button" type="button" onclick={cerrarSesion}
 			><Icono name="salir" /> Cerrar sesión <span aria-hidden="true">›</span></button
 		>

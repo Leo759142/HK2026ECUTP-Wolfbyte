@@ -2,14 +2,11 @@
 	import { onMount } from 'svelte';
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
-import Icono from '../../../lib/iconos/Icono.svelte';
-import { gestorIdiomas, mensajeErrorDominio } from '../../../i18n';
-const t = (key: string) => gestorIdiomas.t(key);
-import { gestorIdiomas, mensajeErrorDominio } from '../../../i18n';
+	import Icono from '../../../lib/iconos/Icono.svelte';
+	import { gestorIdiomas, mensajeErrorDominio } from '../../../i18n';
+	const t = (key: string) => gestorIdiomas.t(key);
 
-const t = (key: string) => gestorIdiomas.t(key);
-
-type AlertaOficial = {
+	type AlertaOficial = {
 		id: string;
 		fuente: string;
 		nivel: string;
@@ -27,10 +24,13 @@ type AlertaOficial = {
 		error = '';
 		try {
 			const response = await fetch('/api/v1/alertas-oficiales');
-			if (!response.ok) throw new Error('No se pudieron cargar las alertas oficiales.');
+			if (!response.ok) throw new Error(t('error.moderacion.alertas_carga_fallo'));
 			items = ((await response.json()) as { items?: AlertaOficial[] }).items ?? [];
 		} catch (cause) {
-			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.moderacion.alertas_carga_fallo');
+			error =
+				cause instanceof Error
+					? mensajeErrorDominio(cause)
+					: t('error.moderacion.alertas_carga_fallo');
 		} finally {
 			cargando = false;
 		}
@@ -43,7 +43,7 @@ type AlertaOficial = {
 			body: JSON.stringify({ estado })
 		});
 		if (!response.ok) {
-			error = 'No se pudo actualizar la alerta. Verifica tu rol de coordinador.';
+			error = t('error.moderacion.alerta_actualizar_fallo');
 			return;
 		}
 		await cargar();

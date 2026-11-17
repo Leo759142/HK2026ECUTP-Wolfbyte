@@ -11,12 +11,16 @@ function cliente(event: RequestEvent): string {
 	return event.request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local';
 }
 
+// La cookie pod_sesion es JSON plano (fijado en /api/v1/auth y leído en _quienSoy).
+// Validamos usuarioId y expiración; el rol viaja en la propia cookie firmada por el canal httpOnly.
 function autenticacionValida(cookies: RequestEvent['cookies']): Sesion | null {
 	const raw = cookies.get('pod_sesion');
 	if (!raw) return null;
 	try {
 		const sesion = JSON.parse(raw) as Sesion;
-		return sesion.exp && sesion.exp > Date.now() ? sesion : null;
+		if (!sesion.usuarioId || !sesion.exp) return null;
+		if (sesion.exp <= Date.now()) return null;
+		return { usuarioId: sesion.usuarioId, rol: sesion.rol, exp: sesion.exp };
 	} catch {
 		return null;
 	}
@@ -67,9 +71,5 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('x-content-type-options', 'nosniff');
 	response.headers.set('x-frame-options', 'DENY');
 	response.headers.set('referrer-policy', 'strict-origin-when-cross-origin');
-	response.headers.set(
-		'content-security-policy-report-only',
-		"default-src 'self'; img-src 'self' data: blob: https:; connect-src 'self' https://wa.me; frame-ancestors 'none'"
-	);
 	return response;
 };

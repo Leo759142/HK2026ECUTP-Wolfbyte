@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
+	import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 	import Icono from '../iconos/Icono.svelte';
 	import {
 		archivosDesdeClipboard,
@@ -69,7 +69,8 @@ import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 			}
 			return {
 				meta: {
-					id: crypto.randomUUID?.() ?? `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+					id:
+						crypto.randomUUID?.() ?? `img-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
 					name: 'imagen',
 					sizeOriginal: 0,
 					typeOriginal: 'image/*',
@@ -104,10 +105,16 @@ import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 		aviso = '';
 	}
 
-	async function ingestar(files: File[] | FileList | null | undefined, origen: 'seleccion' | 'drop' | 'paste') {
+	async function ingestar(
+		files: File[] | FileList | null | undefined,
+		origen: 'seleccion' | 'drop' | 'paste'
+	) {
 		if (!files || (Array.isArray(files) ? files.length === 0 : files.length === 0)) return;
 		if (lleno) {
-			error = limite === 1 ? gestorIdiomas.t('error.foto.limite_uno') : gestorIdiomas.tConVars('error.foto.limite', { max: limite });
+			error =
+				limite === 1
+					? gestorIdiomas.t('error.foto.limite_uno')
+					: gestorIdiomas.tConVars('error.foto.limite', { max: limite });
 			return;
 		}
 		limpiarAvisos();
@@ -131,7 +138,10 @@ import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 				aviso = aceptadas.length === 1 ? 'Imagen lista.' : `${aceptadas.length} imágenes listas.`;
 			}
 		} catch (cause) {
-			error = cause instanceof Error ? mensajeErrorDominio(cause) : gestorIdiomas.t('error.foto.carga_fallo');
+			error =
+				cause instanceof Error
+					? mensajeErrorDominio(cause)
+					: gestorIdiomas.t('error.foto.carga_fallo');
 		} finally {
 			procesando = false;
 		}
@@ -268,7 +278,15 @@ import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 		/>
 		<span class="photo-picker__icon" aria-hidden="true"><Icono name="camara" /></span>
 		<span class="photo-picker__copy">
-			<strong>{arrastrando ? 'Suelta para agregar' : lleno ? 'Imagen agregada' : actuales.length ? 'Cambiar o agregar imagen' : 'Agregar foto'}</strong>
+			<strong
+				>{arrastrando
+					? 'Suelta para agregar'
+					: lleno
+						? 'Imagen agregada'
+						: actuales.length
+							? 'Cambiar o agregar imagen'
+							: 'Agregar foto'}</strong
+			>
 			<small id={ayudaId}>Arrastra, pega o selecciona (máx. {limite}, {maxSizeMB} MB)</small>
 		</span>
 		<span class="photo-picker__badge">{actuales.length}/{limite}</span>
@@ -299,11 +317,14 @@ import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 				<li class="photo-picker__preview">
 					<img
 						src={imagen.previewUrl || imagen.dataUrl}
-						alt={limite === 1 ? 'Vista previa de la foto seleccionada (1 de 1)' : `Vista previa de la foto ${index + 1} de ${interno.length}`}
+						alt={limite === 1
+							? 'Vista previa de la foto seleccionada (1 de 1)'
+							: `Vista previa de la foto ${index + 1} de ${interno.length}`}
 					/>
 					<div class="photo-picker__meta">
 						<span class="photo-picker__name">{nombreCorto(imagen.meta.name)}</span>
-						{#if tamano(imagen.meta)}<span class="photo-picker__size">{tamano(imagen.meta)}</span>{/if}
+						{#if tamano(imagen.meta)}<span class="photo-picker__size">{tamano(imagen.meta)}</span
+							>{/if}
 					</div>
 					<button
 						class="photo-picker__remove"

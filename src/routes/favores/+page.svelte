@@ -25,7 +25,7 @@
 	let enviando = $state<string | null>(null);
 	let usuarioId = $state('demo');
 	let confirmaciones = $state<Record<string, RolEnFavor[]>>({});
-	
+
 	let datos = $derived<any[]>(items);
 	let visibles = $derived(
 		datos.filter((item) => {
@@ -81,7 +81,8 @@
 			seleccionado = null;
 			await cargar();
 		} catch (cause) {
-			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.favor.confirmar_fallo');
+			error =
+				cause instanceof Error ? mensajeErrorDominio(cause) : t('error.favor.confirmar_fallo');
 		} finally {
 			enviando = null;
 		}
@@ -196,11 +197,7 @@
 </Screen>
 
 {#if seleccionado}
-	<div
-		class="detail-overlay"
-		role="presentation"
-		onclick={() => (seleccionado = null)}
-	>
+	<div class="detail-overlay" role="presentation" onclick={() => (seleccionado = null)}>
 		<div
 			class="detail-sheet favor-detail"
 			role="dialog"
@@ -216,8 +213,8 @@
 					class="detail-sheet__close detail-close"
 					type="button"
 					aria-label="Cerrar"
-					onclick={() => (seleccionado = null)}
-				>×</button>
+					onclick={() => (seleccionado = null)}>×</button
+				>
 				<div class="detail-sheet__icon-wrap">
 					<div
 						class:favor-icon--offer={seleccionado.tipo === 'oferta'}
@@ -259,30 +256,30 @@
 					<button
 						class="mobile-btn mobile-btn--accent detail-sheet__btn"
 						disabled={enviando !== null}
-						onclick={() => reservar(seleccionado)}
-					><Icono name="ayuda" /> Ofrecer ayuda</button>
+						onclick={() => reservar(seleccionado)}><Icono name="ayuda" /> Ofrecer ayuda</button
+					>
 				{:else if seleccionado.estado === 'en_curso' && seleccionado.ayudante_id}
 					<div class="favor-confirm-actions detail-sheet__confirm">
 						{#if seleccionado.creador_id === usuarioId && !confirmaciones[seleccionado.id]?.includes('solicitante')}
 							<button
 								class="mobile-btn mobile-btn--primary detail-sheet__btn"
 								disabled={enviando !== null}
-								onclick={() => seCumplio(seleccionado, 'solicitante')}
-							>Se cumplió</button>
+								onclick={() => seCumplio(seleccionado, 'solicitante')}>Se cumplió</button
+							>
 						{:else if seleccionado.ayudante_id === usuarioId && !confirmaciones[seleccionado.id]?.includes('ayudante')}
 							<button
 								class="mobile-btn mobile-btn--primary detail-sheet__btn"
 								disabled={enviando !== null}
-								onclick={() => seCumplio(seleccionado, 'ayudante')}
-							>Se cumplió</button>
+								onclick={() => seCumplio(seleccionado, 'ayudante')}>Se cumplió</button
+							>
 						{/if}
 					</div>
 					{#if seleccionado.creador_id === usuarioId}
 						<button
 							class="mobile-btn mobile-btn--outline detail-sheet__btn detail-sheet__btn--danger"
 							disabled={enviando !== null}
-							onclick={() => cancelar(seleccionado)}
-						>Cancelar favor</button>
+							onclick={() => cancelar(seleccionado)}>Cancelar favor</button
+						>
 					{/if}
 					{#if seleccionado.creador_id !== usuarioId && seleccionado.ayudante_id !== usuarioId}
 						<p class="muted detail-sheet__muted">Este favor ya está coordinado con otro vecino.</p>
@@ -297,8 +294,8 @@
 					<button
 						class="mobile-btn mobile-btn--outline detail-sheet__btn detail-sheet__btn--danger"
 						disabled={enviando !== null}
-						onclick={() => cancelar(seleccionado)}
-					>Cancelar publicación</button>
+						onclick={() => cancelar(seleccionado)}>Cancelar publicación</button
+					>
 				{/if}
 			</div>
 
@@ -307,7 +304,8 @@
 				<div class="detail-sheet__moderation detail-moderation">
 					<a
 						href={`/moderacion/reportar?collection=favors&id=${encodeURIComponent(seleccionado.id)}`}
-						><Icono name="reporte" /> Reportar publicación</a>
+						><Icono name="reporte" /> Reportar publicación</a
+					>
 					<button
 						type="button"
 						onclick={() => {
@@ -316,11 +314,10 @@
 							) as string[];
 							if (!actual.includes(seleccionado.creador_id)) actual.push(seleccionado.creador_id);
 							localStorage.setItem('ayni:v1:blocked', JSON.stringify(actual));
-						}}
-					><Icono name="bloquear" /> Bloquear vecino</button>
+						}}><Icono name="bloquear" /> Bloquear vecino</button
+					>
 				</div>
 			{/if}
 		</div>
 	</div>
 {/if}
-

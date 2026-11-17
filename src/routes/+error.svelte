@@ -25,18 +25,19 @@
 		<p
 			class="error-code"
 			aria-label={gestorIdiomas.tConVars('error.pagina.codigo', { codigo: status })}
-		>{String(status).padStart(3, '0')}</p>
+		>
+			{String(status).padStart(3, '0')}
+		</p>
 		<h1 id="error-title">{gestorIdiomas.t('error.pagina.titulo')}</h1>
 		<p class="error-message">{mensaje}</p>
 		<div class="error-actions">
 			<button class="mobile-btn mobile-btn--primary" type="button" onclick={volver}
 				>{gestorIdiomas.t('error.pagina.volver')}</button
 			>
-			<a class="mobile-btn mobile-btn--outline" href="/">{gestorIdiomas.t('error.pagina.inicio')}</a>
-			<button
-				class="mobile-btn mobile-btn--outline"
-				type="button"
-				onclick={() => location.reload()}>{gestorIdiomas.t('error.pagina.reintentar')}</button
+			<a class="mobile-btn mobile-btn--outline" href="/">{gestorIdiomas.t('error.pagina.inicio')}</a
+			>
+			<button class="mobile-btn mobile-btn--outline" type="button" onclick={() => location.reload()}
+				>{gestorIdiomas.t('error.pagina.reintentar')}</button
 			>
 		</div>
 	</div>

@@ -1,17 +1,9 @@
 import type { RequestEvent } from '@sveltejs/kit';
 import { ok, problem } from '../../_http';
 import { verificarPin, crearSesionPin } from '../../../../seguridad/pin';
+import { verificarUsuarioHardcodeado, HARDCODED_USERS } from '../../../../seguridad/usuarios';
 
-// Usuario hardcodeado para pruebas (DEBORRAR DESPUÉS DE PRUEBAS)
-// El PIN "1234" está hasheado al almacenarse
-const HARDCODED_ADMIN = {
-	usuarioId: 'admin',
-	celular: '999123456',
-	pinHash: 'pbkdf2-v1:LiqobWVzYjpjb250cm9uaW9ucy0xOkJkRDJENTg=',
-	rol: 'Coordinador de emergencia'
-};
-
-// Login: validar celular y PIN, crear cookie sesión
+// Login: validar celular y PIN, crear cookie sesión firmada
 export const _login = async ({ request, cookies }: Pick<RequestEvent, 'request' | 'cookies'>) => {
 	const body = (await request.json().catch(() => null)) as {
 		celular?: string;
@@ -22,23 +14,17 @@ export const _login = async ({ request, cookies }: Pick<RequestEvent, 'request' 
 		return problem(400, 'Celular y PIN requeridos');
 	}
 
-	const valido = await verificarPin(body.pin, HARDCODED_ADMIN.pinHash);
-	if (!valido) {
-		return problem(401, 'PIN inválido');
+	const usuario = await verificarUsuarioHardcodeado(body.celular, body.pin);
+	if (!usuario) {
+		return problem(401, 'Celular o PIN inválido');
 	}
 
-	// Crear sesión en cookie
-	const sesion = crearSesionPin(HARDCODED_ADMIN.usuarioId);
+	// Crear sesión firmada en cookie
+	const sesion = crearSesionPin(usuario.id);
 	const exp = Date.now() + 24 * 60 * 60 * 1000; // 24 horas
+	const sesionConRol = { ...sesion, exp, rol: usuario.rol ?? 'Vecino' };
 
-	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp, rol: HARDCODED_ADMIN.rol }), {
-		path: '/',
-		httpOnly: true,
-		sameSite: 'lax',
-		secure: import.meta.env.PROD,
-		maxAge: 24 * 60 * 60
-	});
-	cookies.set('pod_rol', HARDCODED_ADMIN.rol, {
+	cookies.set('pod_sesion', JSON.stringify(sesionConRol), {
 		path: '/',
 		httpOnly: true,
 		sameSite: 'lax',
@@ -46,18 +32,14 @@ export const _login = async ({ request, cookies }: Pick<RequestEvent, 'request' 
 		maxAge: 24 * 60 * 60
 	});
 
-	return ok({ usuarioId: HARDCODED_ADMIN.usuarioId, rol: HARDCODED_ADMIN.rol });
+	return ok({ usuarioId: usuario.id, rol: usuario.rol ?? 'Vecino' });
 };
 
-// Register: solo para el usuario hardcodeado de pruebas
+// Register: crear usuario real (no hardcodeado)
 export const _register = async ({
 	request,
 	cookies
 }: Pick<RequestEvent, 'request' | 'cookies'>) => {
-	// En producción esto usaría base de datos, pero para pruebas:
-	// Validamos que no exista ya (siempre falla el check de existencia)
-	// y creamos la sesión igual.
-
 	const body = (await request.json().catch(() => null)) as {
 		celular?: string;
 		pin?: string;
@@ -68,24 +50,39 @@ export const _register = async ({
 		return problem(400, 'Celular, PIN y alias requeridos');
 	}
 
-	// Verificar si el PIN ya está registrado (el hardcodeado usa el mismo hash)
-	const existente = await verificarPin(body.pin, HARDCODED_ADMIN.pinHash);
-	if (existente) {
-		// Ya existe, hacer login en su lugar
-		return _login({ request, cookies });
+	// Política de PIN: mínimo 6 caracteres, no permitir PINs débiles
+	const pinDebiles = ['1234', '0000', '1111', '123456', '654321'];
+	if (pinDebiles.includes(body.pin)) {
+		return problem(400, 'PIN demasiado débil. Usa al menos 6 dígitos.');
+	}
+	if (body.pin.length < 6) {
+		return problem(400, 'El PIN debe tener al menos 6 dígitos');
 	}
 
-	// Para pruebas: crear sesión igual
-	const sesion = crearSesionPin(HARDCODED_ADMIN.usuarioId);
+	// Verificar si el celular ya existe
+	const existente = HARDCODED_USERS.find((u) => u.celular === body.celular);
+	if (existente) {
+		return problem(409, 'Este celular ya está registrado');
+	}
+
+	// Hashear PIN con PBKDF2 real
+	const { hashPin } = await import('../../../../seguridad/pin');
+	const pinHash = await hashPin(body.pin);
+
+	const nuevoUsuario: typeof HARDCODED_USERS[number] = {
+		id: `u_${Date.now()}`,
+		celular: body.celular,
+		alias: body.alias,
+		pinHash
+	};
+
+	// Agregar a la lista en memoria (desarrollo)
+	HARDCODED_USERS.push(nuevoUsuario);
+
+	// Crear sesión firmada
+	const sesion = crearSesionPin(nuevoUsuario.id);
 	const exp = Date.now() + 24 * 60 * 60 * 1000;
-	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp, rol: HARDCODED_ADMIN.rol }), {
-		path: '/',
-		httpOnly: true,
-		sameSite: 'lax',
-		secure: import.meta.env.PROD,
-		maxAge: 24 * 60 * 60
-	});
-	cookies.set('pod_rol', HARDCODED_ADMIN.rol, {
+	cookies.set('pod_sesion', JSON.stringify({ ...sesion, exp, rol: 'Vecino' }), {
 		path: '/',
 		httpOnly: true,
 		sameSite: 'lax',
@@ -94,10 +91,10 @@ export const _register = async ({
 	});
 
 	return ok({
-		usuarioId: HARDCODED_ADMIN.usuarioId,
-		rol: HARDCODED_ADMIN.rol,
+		usuarioId: nuevoUsuario.id,
+		rol: 'Vecino',
 		registrado: true,
-		mensaje: 'Usuario de prueba (borrar comentarios después)'
+		mensaje: 'Usuario registrado exitosamente'
 	});
 };
 export const _quienSoy = async ({ cookies }: Pick<RequestEvent, 'cookies'>) => {
@@ -112,7 +109,7 @@ export const _quienSoy = async ({ cookies }: Pick<RequestEvent, 'cookies'>) => {
 		return ok({
 			loggedIn: true,
 			usuarioId: payload.usuarioId,
-			rol: payload.rol ?? cookies.get('pod_rol') ?? null
+			rol: payload.rol ?? 'Vecino'
 		});
 	} catch {
 		return ok({ loggedIn: false, usuarioId: null, rol: null });
@@ -133,6 +130,5 @@ export async function POST(event: RequestEvent) {
 
 export function DELETE({ cookies }: RequestEvent) {
 	cookies.delete('pod_sesion', { path: '/' });
-	cookies.delete('pod_rol', { path: '/' });
 	return ok({ loggedIn: false });
 }

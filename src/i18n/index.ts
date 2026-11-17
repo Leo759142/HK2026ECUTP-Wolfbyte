@@ -15,7 +15,8 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'nav.publicar': 'Publicar',
 		hola: '¡Hola',
 		lema: 'Hoy por ti, mañana por mí',
-		serviciosDescritos: 'Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.',
+		serviciosDescritos:
+			'Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.',
 		buscar: '¿Qué necesitas hoy?',
 		oficios: 'Oficios del barrio',
 		recomendados: 'Los más recomendados',
@@ -73,19 +74,29 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'header.sinConexion': 'Sin conexión',
 		'header.ayuda': 'Ayuda',
 		'ayuda.titulo': 'Cómo funciona AYNI sin conexión',
-		'ayuda.intro': 'AYNI es offline-first: la app abre y funciona aunque caiga el localhost o no haya señal.',
-		'ayuda.puntoShell': 'Carcada de la página: el shell (logo, colores, botones) se guarda en el caché del service worker (cache-v1). Si no hay red, igual carga lo último guardado.',
-		'ayuda.puntoDatos': 'Tus datos: publicaciones, favores, contactos y pedidos de ayuda viven en tu celular (localStorage), no solo en la nube. Se ven sin internet.',
-		'ayuda.puntoCola': 'Cola de envío: lo que hagas sin señal queda pendiente y se envía solo al volver la conexión.',
-		'ayuda.puntoApi': 'Servidor: las peticiones a /api/... intentan la red y, sin señal, usan lo caché o fallan hasta recuperar la señal.',
+		'ayuda.intro':
+			'AYNI es offline-first: la app abre y funciona aunque caiga el localhost o no haya señal.',
+		'ayuda.puntoShell':
+			'Carcada de la página: el shell (logo, colores, botones) se guarda en el caché del service worker (cache-v1). Si no hay red, igual carga lo último guardado.',
+		'ayuda.puntoDatos':
+			'Tus datos: publicaciones, favores, contactos y pedidos de ayuda viven en tu celular (localStorage), no solo en la nube. Se ven sin internet.',
+		'ayuda.puntoCola':
+			'Cola de envío: lo que hagas sin señal queda pendiente y se envía solo al volver la conexión.',
+		'ayuda.puntoApi':
+			'Servidor: las peticiones a /api/... intentan la red y, sin señal, usan lo caché o fallan hasta recuperar la señal.',
 		'ayuda.probar': 'Prueba: activa modo sin conexión y recarga. La página sigue abriendo.',
 		'ayuda.cerrar': 'Cerrar',
 		'cache.titulo': 'Cuidado con el caché y los datos',
-		'cache.sensibles': 'Mensajes, contactos y pedidos de ayuda quedan en este dispositivo. No uses AYNI en celulares compartidos sin cerrar sesión.',
-		'cache.borrar': 'Para borrar todo: usa la opción de reiniciar datos o "Borrar datos del sitio" en tu navegador.',
-		'cache.chromium': 'Chromium/Chrome: DevTools > Application > Service Workers > Unregister; Cache Storage > borrar cache-v1.',
-		'cache.firefox': 'Firefox: DevTools > Almacenamiento > Service Workers > Desregistrar; Caché > borrar.',
-		'cache.error': 'Si algo falla, recarga con Shift + F5 (ignora caché) o desregistra el service worker desde el navegador.',
+		'cache.sensibles':
+			'Mensajes, contactos y pedidos de ayuda quedan en este dispositivo. No uses AYNI en celulares compartidos sin cerrar sesión.',
+		'cache.borrar':
+			'Para borrar todo: usa la opción de reiniciar datos o "Borrar datos del sitio" en tu navegador.',
+		'cache.chromium':
+			'Chromium/Chrome: DevTools > Application > Service Workers > Unregister; Cache Storage > borrar cache-v1.',
+		'cache.firefox':
+			'Firefox: DevTools > Almacenamiento > Service Workers > Desregistrar; Caché > borrar.',
+		'cache.error':
+			'Si algo falla, recarga con Shift + F5 (ignora caché) o desregistra el service worker desde el navegador.',
 		// ── i18n de errores · dominio ──
 		'error.dominio.permiso_denegado':
 			'Tu rol no cuenta con los permisos necesarios para realizar esta acción.',
@@ -102,14 +113,10 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 			'La descripción debe tener hasta {{max}} caracteres.',
 		'error.dominio.favor.agradecimiento_largo':
 			'El agradecimiento no puede exceder {{max}} caracteres.',
-		'error.dominio.favor.ayudante_es_creador':
-			'El ayudante no puede ser el creador del favor.',
-		'error.dominio.favor.coordinar_no_abierto':
-			'Solo se pueden coordinar favores abiertos.',
-		'error.dominio.favor.cerrar_sin_en_curso':
-			'Un favor solo puede cerrarse si está en curso.',
-		'error.dominio.favor.cerrar_sin_ayudante':
-			'El favor requiere un ayudante para cerrarse.',
+		'error.dominio.favor.ayudante_es_creador': 'El ayudante no puede ser el creador del favor.',
+		'error.dominio.favor.coordinar_no_abierto': 'Solo se pueden coordinar favores abiertos.',
+		'error.dominio.favor.cerrar_sin_en_curso': 'Un favor solo puede cerrarse si está en curso.',
+		'error.dominio.favor.cerrar_sin_ayudante': 'El favor requiere un ayudante para cerrarse.',
 		'error.dominio.favor.cancelar_ya_no': 'El favor ya no puede cancelarse.',
 		'error.dominio.servicio.titulo_longitud':
 			'El título debe tener entre {{min}} y {{max}} caracteres.',
@@ -119,18 +126,15 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 			'El comentario no puede exceder {{max}} caracteres.',
 		'error.dominio.alerta.descripcion_longitud':
 			'La descripción debe tener hasta {{max}} caracteres.',
-		'error.dominio.recurso.detalle_longitud':
-			'El detalle debe tener hasta {{max}} caracteres.',
+		'error.dominio.recurso.detalle_longitud': 'El detalle debe tener hasta {{max}} caracteres.',
 		'error.dominio.anuncio.titulo_longitud':
 			'El título debe tener entre {{min}} y {{max}} caracteres.',
 		'error.dominio.anuncio.descripcion_longitud':
 			'La descripción debe tener hasta {{max}} caracteres.',
-		'error.dominio.anuncio.aprobador_requerido':
-			'Un anuncio aprobado requiere aprobador.',
+		'error.dominio.anuncio.aprobador_requerido': 'Un anuncio aprobado requiere aprobador.',
 		'error.dominio.grupo.nombre_longitud':
 			'El nombre del grupo debe tener entre {{min}} y {{max}} caracteres.',
-		'error.dominio.grupo.reglas_largas':
-			'Las reglas no pueden exceder {{max}} caracteres.',
+		'error.dominio.grupo.reglas_largas': 'Las reglas no pueden exceder {{max}} caracteres.',
 		// ── i18n de errores · HTTP ──
 		'error.http.400': 'La solicitud no es válida. Revisa los datos e inténtalo de nuevo.',
 		'error.http.401': 'Necesitas iniciar sesión para continuar.',
@@ -180,6 +184,9 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'error.emergencia.confirmar_fallo': 'No se pudo confirmar.',
 		'error.emergencia.descartar_fallo': 'No se pudo descartar.',
 		'error.emergencia.enviar_reporte_fallo': 'No se pudo enviar el reporte.',
+		// ── i18n de errores · pedir ayuda ──
+		'error.pedir_ayuda.ayuda_requerida': 'Elige qué ayuda necesitas.',
+		'error.pedir_ayuda.guardar_fallo': 'No se pudo guardar el pedido en este dispositivo.',
 		// ── i18n de errores · mapa ──
 		'error.mapa.carga_fallo': 'No se pudo cargar el mapa.',
 		// ── i18n de errores · perfil ──
@@ -214,7 +221,8 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'nav.publicar': 'Post',
 		hola: 'Hi',
 		lema: 'Today for you, tomorrow for me',
-		serviciosDescritos: 'Services recommended by your neighbors, favors without money and support when it is most needed.',
+		serviciosDescritos:
+			'Services recommended by your neighbors, favors without money and support when it is most needed.',
 		buscar: 'What do you need today?',
 		oficios: 'Neighborhood trades',
 		recomendados: 'Most recommended',
@@ -271,19 +279,28 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'header.sinConexion': 'Offline',
 		'header.ayuda': 'Help',
 		'ayuda.titulo': 'How AYNI works offline',
-		'ayuda.intro': 'AYNI is offline-first: the app opens and works even if localhost goes down or there is no signal.',
-		'ayuda.puntoShell': 'Page shell: the shell (logo, colors, buttons) is cached by the service worker (cache-v1). Without network it still loads the last saved version.',
-		'ayuda.puntoDatos': 'Your data: publications, favors, contacts and help requests live on your phone (localStorage), not only in the cloud. They are visible without internet.',
-		'ayuda.puntoCola': 'Send queue: what you do without signal stays pending and sends alone when the connection returns.',
-		'ayuda.puntoApi': 'Server: requests to /api/... try the network and, without signal, use cache or fail until you recover signal.',
+		'ayuda.intro':
+			'AYNI is offline-first: the app opens and works even if localhost goes down or there is no signal.',
+		'ayuda.puntoShell':
+			'Page shell: the shell (logo, colors, buttons) is cached by the service worker (cache-v1). Without network it still loads the last saved version.',
+		'ayuda.puntoDatos':
+			'Your data: publications, favors, contacts and help requests live on your phone (localStorage), not only in the cloud. They are visible without internet.',
+		'ayuda.puntoCola':
+			'Send queue: what you do without signal stays pending and sends alone when the connection returns.',
+		'ayuda.puntoApi':
+			'Server: requests to /api/... try the network and, without signal, use cache or fail until you recover signal.',
 		'ayuda.probar': 'Test: activate offline mode and reload. The page still opens.',
 		'ayuda.cerrar': 'Close',
 		'cache.titulo': 'Care with cache and data',
-		'cache.sensibles': 'Messages, contacts and help requests stay on this device. Do not use AYNI on shared phones without signing out.',
-		'cache.borrar': 'To clear everything: use the reset data option or "Clear site data" in your browser.',
-		'cache.chromium': 'Chromium/Chrome: DevTools > Application > Service Workers > Unregister; Cache Storage > delete cache-v1.',
+		'cache.sensibles':
+			'Messages, contacts and help requests stay on this device. Do not use AYNI on shared phones without signing out.',
+		'cache.borrar':
+			'To clear everything: use the reset data option or "Clear site data" in your browser.',
+		'cache.chromium':
+			'Chromium/Chrome: DevTools > Application > Service Workers > Unregister; Cache Storage > delete cache-v1.',
 		'cache.firefox': 'Firefox: DevTools > Storage > Service Workers > Unregister; Cache > clear.',
-		'cache.error': 'If something fails, reload with Shift + F5 (ignore cache) or unregister the service worker from the browser.',
+		'cache.error':
+			'If something fails, reload with Shift + F5 (ignore cache) or unregister the service worker from the browser.',
 		// ── error i18n · domain ──
 		'error.dominio.permiso_denegado':
 			'Your role does not have the permissions needed to perform this action.',
@@ -301,20 +318,17 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 			'The acknowledgment cannot exceed {{max}} characters.',
 		'error.dominio.favor.ayudante_es_creador': 'The helper cannot be the favor creator.',
 		'error.dominio.favor.coordinar_no_abierto': 'Only open favors can be coordinated.',
-		'error.dominio.favor.cerrar_sin_en_curso':
-			'A favor can only be closed if it is in progress.',
+		'error.dominio.favor.cerrar_sin_en_curso': 'A favor can only be closed if it is in progress.',
 		'error.dominio.favor.cerrar_sin_ayudante': 'The favor requires a helper to be closed.',
 		'error.dominio.favor.cancelar_ya_no': 'The favor can no longer be canceled.',
 		'error.dominio.servicio.titulo_longitud':
 			'The title must have between {{min}} and {{max}} characters.',
 		'error.dominio.servicio.descripcion_longitud':
 			'The description can have up to {{max}} characters.',
-		'error.dominio.visto_bueno.comentario_largo':
-			'The comment cannot exceed {{max}} characters.',
+		'error.dominio.visto_bueno.comentario_largo': 'The comment cannot exceed {{max}} characters.',
 		'error.dominio.alerta.descripcion_longitud':
 			'The description can have up to {{max}} characters.',
-		'error.dominio.recurso.detalle_longitud':
-			'The detail can have up to {{max}} characters.',
+		'error.dominio.recurso.detalle_longitud': 'The detail can have up to {{max}} characters.',
 		'error.dominio.anuncio.titulo_longitud':
 			'The title must have between {{min}} and {{max}} characters.',
 		'error.dominio.anuncio.descripcion_longitud':
@@ -372,6 +386,9 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'error.emergencia.confirmar_fallo': 'Could not confirm.',
 		'error.emergencia.descartar_fallo': 'Could not dismiss.',
 		'error.emergencia.enviar_reporte_fallo': 'Could not send the report.',
+		// ── error i18n · ask for help ──
+		'error.pedir_ayuda.ayuda_requerida': 'Choose what help you need.',
+		'error.pedir_ayuda.guardar_fallo': 'Could not save the request on this device.',
 		// ── error i18n · map ──
 		'error.mapa.carga_fallo': 'Could not load the map.',
 		// ── error i18n · profile ──
@@ -406,7 +423,8 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'nav.publicar': 'Postay',
 		hola: 'Hay, allinllachu?',
 		lema: 'Kunanqa qampaq, qhipapas ñuqapaq',
-		serviciosDescritos: 'Serviciokunata recomendasqa vecinoykipura, mana qullqiyuqta aynikunam, chaymi aswan much`uypacha kachkan.',
+		serviciosDescritos:
+			'Serviciokunata recomendasqa vecinoykipura, mana qullqiyuqta aynikunam, chaymi aswan much`uypacha kachkan.',
 		buscar: 'Imam kaypi munanki?',
 		oficios: 'Vecinomasip yankinakunanku',
 		recomendados: 'Astawan recomendasqa',
@@ -464,58 +482,48 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'header.ayuda': 'Yanapay',
 		'ayuda.titulo': 'Cómo funciona AYNI sin conexión',
 		'ayuda.intro': 'AYNI es offline-first: la app abre y funciona aunque no haya señal.',
-		'ayuda.puntoShell': 'El shell se guarda en caché del service worker (cache-v1). Sin red, carga lo último guardado.',
+		'ayuda.puntoShell':
+			'El shell se guarda en caché del service worker (cache-v1). Sin red, carga lo último guardado.',
 		'ayuda.puntoDatos': 'Tus datos viven en tu celular (localStorage). Se ven sin internet.',
 		'ayuda.puntoCola': 'Lo que hagas sin señal queda pendiente y se envía al volver.',
 		'ayuda.puntoApi': 'Las peticiones a /api/... no se cachean; sin red fallan.',
 		'ayuda.probar': 'Activa modo sin conexión y recarga. La página sigue abriendo.',
 		'ayuda.cerrar': 'Cerrar',
 		'cache.titulo': 'Cuidado con el caché y los datos',
-		'cache.sensibles': 'Mensajes, contactos y pedidos quedan en este dispositivo. No uses celulares compartidos sin cerrar sesión.',
+		'cache.sensibles':
+			'Mensajes, contactos y pedidos quedan en este dispositivo. No uses celulares compartidos sin cerrar sesión.',
 		'cache.borrar': 'Para borrar todo: reinicia datos o borra datos del sitio en el navegador.',
-		'cache.chromium': 'Chromium/Chrome: DevTools > Application > Service Workers > Unregister; Cache Storage > borrar cache-v1.',
-		'cache.firefox': 'Firefox: DevTools > Almacenamiento > Service Workers > Desregistrar; Caché > borrar.',
+		'cache.chromium':
+			'Chromium/Chrome: DevTools > Application > Service Workers > Unregister; Cache Storage > borrar cache-v1.',
+		'cache.firefox':
+			'Firefox: DevTools > Almacenamiento > Service Workers > Desregistrar; Caché > borrar.',
 		'cache.error': 'Si falla, recarga con Shift + F5 o desregistra el service worker.',
 		// ── i18n de errores · dominio ──
 		'error.dominio.permiso_denegado': 'Qampa sawiykuna manam kay ruwayta atinichu.',
 		'error.dominio.membresia_inactiva':
-			'Qampa yaykuykuna aprobacionta suhlt\'aytaq utaq saytasqa kachkan.',
-		'error.dominio.red_desconectada':
-			'Ruwayqa localman waqaychisqa. Señal kutimuptin apachikunqa.',
+			"Qampa yaykuykuna aprobacionta suhlt'aytaq utaq saytasqa kachkan.",
+		'error.dominio.red_desconectada': 'Ruwayqa localman waqaychisqa. Señal kutimuptin apachikunqa.',
 		'error.dominio.no_encontrado': '{{entidad}} manam kanchu utaq mana atinchikchu.',
 		'error.dominio.validacion': 'Yaykuchasqa datata qhaway.',
-		'error.dominio.conflicto': 'Ruwayqa kunan pachapi t\'uqsikun.',
-		'error.dominio.favor.titulo_longitud':
-			'Sutikuna {{min}}nintin {{max}}nintin chawpipin kanan.',
-		'error.dominio.favor.descripcion_longitud':
-			'Willaykuna {{max}}nintin chawpipin kanan.',
-		'error.dominio.favor.agradecimiento_largo':
-			'Agradecimientoqa {{max}}nintin aswan kanmanchu.',
-		'error.dominio.favor.ayudante_es_creador':
-			'Yanapanapaq runa mana ayniq ruwaqchu kanman.',
-		'error.dominio.favor.coordinar_no_abierto':
-			'Sólo kichasqa aynikunata coordinakunman.',
-		'error.dominio.favor.cerrar_sin_en_curso':
-			'Aynita sólo llamk\'achkaptin wichq\'ikunman.',
-		'error.dominio.favor.cerrar_sin_ayudante':
-			'Aynita yanapanapaq kanan wichq\'inapaq.',
+		'error.dominio.conflicto': "Ruwayqa kunan pachapi t'uqsikun.",
+		'error.dominio.favor.titulo_longitud': 'Sutikuna {{min}}nintin {{max}}nintin chawpipin kanan.',
+		'error.dominio.favor.descripcion_longitud': 'Willaykuna {{max}}nintin chawpipin kanan.',
+		'error.dominio.favor.agradecimiento_largo': 'Agradecimientoqa {{max}}nintin aswan kanmanchu.',
+		'error.dominio.favor.ayudante_es_creador': 'Yanapanapaq runa mana ayniq ruwaqchu kanman.',
+		'error.dominio.favor.coordinar_no_abierto': 'Sólo kichasqa aynikunata coordinakunman.',
+		'error.dominio.favor.cerrar_sin_en_curso': "Aynita sólo llamk'achkaptin wichq'ikunman.",
+		'error.dominio.favor.cerrar_sin_ayudante': "Aynita yanapanapaq kanan wichq'inapaq.",
 		'error.dominio.favor.cancelar_ya_no': 'Aynita mana atinchikchu cancelayta.',
 		'error.dominio.servicio.titulo_longitud':
 			'Sutikuna {{min}}nintin {{max}}nintin chawpipin kanan.',
-		'error.dominio.servicio.descripcion_longitud':
-			'Willaykuna {{max}}nintin chawpipin kanan.',
-		'error.dominio.visto_bueno.comentario_largo':
-			'Willayqa {{max}}nintin aswan kanmanchu.',
-		'error.dominio.alerta.descripcion_longitud':
-			'Willaykuna {{max}}nintin chawpipin kanan.',
-		'error.dominio.recurso.detalle_longitud':
-			'Detalleqa {{max}}nintin chawpipin kanan.',
+		'error.dominio.servicio.descripcion_longitud': 'Willaykuna {{max}}nintin chawpipin kanan.',
+		'error.dominio.visto_bueno.comentario_largo': 'Willayqa {{max}}nintin aswan kanmanchu.',
+		'error.dominio.alerta.descripcion_longitud': 'Willaykuna {{max}}nintin chawpipin kanan.',
+		'error.dominio.recurso.detalle_longitud': 'Detalleqa {{max}}nintin chawpipin kanan.',
 		'error.dominio.anuncio.titulo_longitud':
 			'Sutikuna {{min}}nintin {{max}}nintin chawpipin kanan.',
-		'error.dominio.anuncio.descripcion_longitud':
-			'Willaykuna {{max}}nintin chawpipin kanan.',
-		'error.dominio.anuncio.aprobador_requerido':
-			'Aprobado anuncioqa aprobadorniyuq kanan.',
+		'error.dominio.anuncio.descripcion_longitud': 'Willaykuna {{max}}nintin chawpipin kanan.',
+		'error.dominio.anuncio.aprobador_requerido': 'Aprobado anuncioqa aprobadorniyuq kanan.',
 		'error.dominio.grupo.nombre_longitud':
 			'Grupon sutin {{min}}nintin {{max}}nintin chawpipin kanan.',
 		'error.dominio.grupo.reglas_largas': 'Reglakunaqa {{max}}nintin aswan kanmanchu.',
@@ -525,10 +533,10 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'error.http.403': 'Kay pankata qhawayta manam permisoqtiyuqchu.',
 		'error.http.404': 'Maskasqa pankacha manam kanchu utaq muskisqa.',
 		'error.http.408': 'Mañakuyqa aswan unayta qusan. Musuqmanta yanapaytaq.',
-		'error.http.429': 'Aswan mañakuykuna kachkan. Suqta suhlt\'aytaq musuqmanta yanapaytaq.',
-		'error.http.500': 'Servidorpi pantay t\'uqsikun.',
+		'error.http.429': "Aswan mañakuykuna kachkan. Suqta suhlt'aytaq musuqmanta yanapaytaq.",
+		'error.http.500': "Servidorpi pantay t'uqsikun.",
 		'error.http.503': 'Servicioqa kunanqa manam kanchu.',
-		'error.http.default': 'Mana suhaq pantay t\'uqsikun.',
+		'error.http.default': "Mana suhaq pantay t'uqsikun.",
 		// ── i18n de errores · página de error ──
 		'error.pagina.titulo': 'Kay pankata mana qhawachiyta atinkichu',
 		'error.pagina.codigo': 'Pantay yupay {{codigo}}',
@@ -538,14 +546,12 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'error.pagina.titulo_documento': 'Pantay {{status}} | AYNI',
 		// ── i18n de errores · outbox / sync ──
 		'error.outbox.motivo_default': 'Servidorqa kay apachisqata mana acepachkanichu.',
-		'error.outbox.conflicto': 'T\'uqu',
+		'error.outbox.conflicto': "T'uqu",
 		'error.outbox.rechazada': 'Rechazado',
 		// ── i18n de errores · acceso / registro ──
 		'error.acceso.telefono_invalido': 'Allin 9 yupniyuq celularniyuqta yaykuchay.',
-		'error.acceso.telefono_existe':
-			'Kay yupuqa cuentayuqña. "Cuentayuq kani"wan yaykuy.',
-		'error.acceso.telefono_no_existe':
-			'Kay yuputa mana tarinkichu. "Cuenta ruway"wan registray.',
+		'error.acceso.telefono_existe': 'Kay yupuqa cuentayuqña. "Cuentayuq kani"wan yaykuy.',
+		'error.acceso.telefono_no_existe': 'Kay yuputa mana tarinkichu. "Cuenta ruway"wan registray.',
 		'error.acceso.codigo_incorrecto': 'Pantay codigo. Demoypi 1234wan yanapay.',
 		'error.acceso.login_fallo': 'Manam yaykuyta atinkichu. Musuqmanta yanapay.',
 		'error.acceso.nombre_requerido': 'Sutiykiwan apellidoykita yaykuchay qatiytaq.',
@@ -554,8 +560,7 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'error.acceso.ubicacion_no_detectada':
 			'Manam ubicacionniyukita tarinkechu. Referencianniyuqta yaykuchayta atinkich.',
 		'error.acceso.zona_requerida': 'Manzanaykita akllay registruta tukachiytaq.',
-		'error.acceso.registro_fallo':
-			'Manam registruta tukachiyta atinkichu. Musuqmanta yanapay.',
+		'error.acceso.registro_fallo': 'Manam registruta tukachiyta atinkichu. Musuqmanta yanapay.',
 		'error.acceso.direccion_no_consultada': 'Manam direccionta consultayta atinkichu.',
 		// ── i18n de errores · favores ──
 		'error.favor.sin_asignar': 'Aynaqa manaraq runa asignadoyuqchu.',
@@ -563,22 +568,22 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'error.favor.reservar_fallo': 'Manam aynita reservayta atinkichu.',
 		'error.favor.cancelar_fallo': 'Manam publicacionta cancelayta atinkichu.',
 		// ── i18n de errores · servicios ──
-		'error.servicios.visto_bueno_fallo':
-			'Manam Visto Buenoykita waqaychiyta atinkichu.',
-		'error.servicios.recomendacion_fallo':
-			'Manam recomiendacionniyukita waqaychiyta atinkichu.',
+		'error.servicios.visto_bueno_fallo': 'Manam Visto Buenoykita waqaychiyta atinkichu.',
+		'error.servicios.recomendacion_fallo': 'Manam recomiendacionniyukita waqaychiyta atinkichu.',
 		// ── i18n de errores · emergencia ──
 		'error.emergencia.carga_fallo': 'Manam alertakunata cargayta atinkichu.',
 		'error.emergencia.confirmar_fallo': 'Manam confirmayta atinkichu.',
 		'error.emergencia.descartar_fallo': 'Manam descartayta atinkichu.',
 		'error.emergencia.enviar_reporte_fallo': 'Manam reporteta apachiyta atinkichu.',
+		// ── i18n de errores · yanapayta mañakuy ──
+		'error.pedir_ayuda.ayuda_requerida': 'Imam yanapayta munasqaykita akllay.',
+		'error.pedir_ayuda.guardar_fallo': 'Manam pedido-ta kay dispositivo-pi waqaychiyta atinkichu.',
 		// ── i18n de errores · mapa ──
-		'error.mapa.carga_fallo': 'Manam saywit\'ita cargayta atinkichu.',
+		'error.mapa.carga_fallo': "Manam saywit'ita cargayta atinkichu.",
 		// ── i18n de errores · perfil ──
 		'error.perfil.foto_fallo': 'Manam fotota actualizayta atinkichu.',
 		// ── i18n de errores · moderación ──
-		'error.moderacion.alertas_carga_fallo':
-			'Manam oficial alertakunata cargayta atinkichu.',
+		'error.moderacion.alertas_carga_fallo': 'Manam oficial alertakunata cargayta atinkichu.',
 		'error.moderacion.alerta_actualizar_fallo':
 			'Manam alertata actualizayta atinkichu. Coordinador sawiykita qhaway.',
 		// ── i18n de errores · publicación ──

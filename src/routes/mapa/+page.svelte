@@ -1,11 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
-	import Screen from '../../lib/ui/Screen.svelte';
-	import OsmMap from '../../lib/components/OsmMap.svelte';
-	import { obtenerSesionLocal } from '../../lib/onboarding';
-import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
-const t = (key: string) => gestorIdiomas.t(key);
+import Screen from '../../lib/ui/Screen.svelte';
 
 	type Punto = {
 		id: string;
@@ -16,8 +12,6 @@ const t = (key: string) => gestorIdiomas.t(key);
 		lng_aprox?: number;
 	};
 
-	type PuntoConTipo = Punto & { tipo: 'servicio' | 'favor' | 'alerta' };
-
 	let servicios = $state<Punto[]>([]);
 	let favores = $state<Punto[]>([]);
 	let alertas = $state<Punto[]>([]);
@@ -26,16 +20,10 @@ const t = (key: string) => gestorIdiomas.t(key);
 	let cargando = $state(true);
 	let error = $state('');
 
-	const puntos = $derived<PuntoConTipo[]>([
-		...(capa === 'todos' || capa === 'servicios'
-			? servicios.map((item): PuntoConTipo => ({ ...item, tipo: 'servicio' }))
-			: []),
-		...(capa === 'todos' || capa === 'favores'
-			? favores.map((item): PuntoConTipo => ({ ...item, tipo: 'favor' }))
-			: []),
-		...(capa === 'todos' || capa === 'alertas'
-			? alertas.map((item): PuntoConTipo => ({ ...item, tipo: 'alerta' }))
-			: [])
+	const puntos = $derived([
+		...(capa === 'todos' || capa === 'servicios' ? servicios.map(item => ({ ...item, tipo: 'servicio' })) : []),
+		...(capa === 'todos' || capa === 'favores' ? favores.map(item => ({ ...item, tipo: 'favor' })) : []),
+		...(capa === 'todos' || capa === 'alertas' ? alertas.map(item => ({ ...item, tipo: 'alerta' })) : [])
 	]);
 
 	const esGuardian = $derived(
@@ -58,7 +46,7 @@ const t = (key: string) => gestorIdiomas.t(key);
 			favores = datos[1].items ?? [];
 			alertas = datos[2].items ?? [];
 		} catch (cause) {
-			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.mapa.carga_fallo');
+			error = cause instanceof Error ? cause.message : 'No se pudo cargar el mapa.';
 		} finally {
 			cargando = false;
 		}
@@ -82,10 +70,10 @@ const t = (key: string) => gestorIdiomas.t(key);
 		>
 	</div>
 
-	<OsmMap
+	<OsmMap>
 		{puntos}
 		{esGuardian}
-	></OsmMap>
+	</OsmMap>
 
 	<div class="map-filters" role="tablist" aria-label="Capas del mapa">
 		{#each [['todos', 'Todo'], ['servicios', 'Servicios'], ['favores', 'Favores'], ['alertas', 'Alertas']] as item}

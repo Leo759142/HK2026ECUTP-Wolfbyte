@@ -2,6 +2,9 @@
 	import { goto } from '$app/navigation';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
+	import { gestorIdiomas } from '../../i18n';
+
+	const t = (key: string) => gestorIdiomas.t(key);
 
 	const necesidades = [
 		['agua', 'agua', 'Agua'],
@@ -33,7 +36,7 @@
 	async function pedir() {
 		error = '';
 		if (!necesidad) {
-			error = 'Elige qué ayuda necesitas.';
+			error = t('error.pedir_ayuda.ayuda_requerida');
 			return;
 		}
 		guardando = true;
@@ -52,7 +55,7 @@
 			localStorage.setItem('ayni:v1:pedidos-ayuda', JSON.stringify([pedido, ...actual]));
 			await goto(`/pedir-ayuda/mi-pedido?id=${encodeURIComponent(pedido.id)}`);
 		} catch {
-			error = 'No se pudo guardar el pedido en este dispositivo.';
+			error = t('error.pedir_ayuda.guardar_fallo');
 		} finally {
 			guardando = false;
 		}

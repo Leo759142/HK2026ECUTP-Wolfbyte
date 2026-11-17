@@ -5,7 +5,10 @@ import { elegir, errorTextos, esRespuesta, leerObjeto, validarFoto } from '../..
 
 const CAMPOS = ['zona_id', 'tipo', 'titulo', 'foto'] as const;
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	const sesion = JSON.parse(cookies.get('pod_sesion') || '{}');
+	if (!sesion.usuarioId) return problem(401, 'Sesión no válida');
+
 	await cargarStore();
 	const rol = requireRol(request, 'activar_emergencia');
 	if (!(typeof rol === 'string')) return rol;
@@ -30,7 +33,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		...elegir(b, CAMPOS),
 		id: key,
 		activa: 1,
-		activada_por: rol,
+		activada_por: sesion.rol ?? rol,
 		inicio: new Date().toISOString(),
 		fin: null
 	};

@@ -179,7 +179,10 @@
 			mostrarVistoBueno = false;
 			await cargarRecomendaciones(seleccionado.id);
 		} catch (cause) {
-			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.servicios.recomendacion_fallo');
+			error =
+				cause instanceof Error
+					? mensajeErrorDominio(cause)
+					: t('error.servicios.recomendacion_fallo');
 		}
 	}
 
@@ -249,11 +252,12 @@
 				</div>
 				<div class="service-result__body">
 					<strong>{servicio.owner} · {servicio.titulo}</strong>
-					<small><Icono name="ubicacion" /> A {servicio.distancia} cuadras · {servicio.horario}</small>
+					<small
+						><Icono name="ubicacion" /> A {servicio.distancia} cuadras · {servicio.horario}</small
+					>
 					<span class="service-rating"
-						><Icono name="pulgar" /> {servicio.votos} · {servicio.votos
-							? 'Recomendado por vecinos'
-							: 'Nuevo en AYNI'}</span
+						><Icono name="pulgar" />
+						{servicio.votos} · {servicio.votos ? 'Recomendado por vecinos' : 'Nuevo en AYNI'}</span
 					>
 				</div>
 			</button>
@@ -266,7 +270,6 @@
 		></a
 	>
 </Screen>
-
 
 {#if seleccionado}
 	<div class="detail-overlay" role="presentation" onclick={() => (seleccionado = null)}>
@@ -297,7 +300,9 @@
 			<h2>{seleccionado.owner} · {seleccionado.titulo}</h2>
 			<p>{seleccionado.descripcion}</p>
 			<div class="detail-tags">
-				<span><Icono name="pulgar" /> {recomendacionesServicio.length || seleccionado.votos || 0} vistos buenos</span
+				<span
+					><Icono name="pulgar" />
+					{recomendacionesServicio.length || seleccionado.votos || 0} vistos buenos</span
 				><span><Icono name="ubicacion" /> A {seleccionado.distancia} cuadras</span><span
 					><Icono name="reloj" /> {seleccionado.horario}</span
 				>
@@ -346,11 +351,13 @@
 						>Primero contacta al vecino para contar tu experiencia.</small
 					>{/if}
 				<div class="detail-moderation">
-					<a class="mobile-btn"
+					<a
+						class="mobile-btn"
 						href={`/moderacion/reportar?collection=services&id=${encodeURIComponent(seleccionado.id)}`}
 						><Icono name="reporte" /> Reportar publicación</a
 					>
-					<button class="mobile-btn"
+					<button
+						class="mobile-btn"
 						type="button"
 						onclick={() => {
 							const actual = JSON.parse(

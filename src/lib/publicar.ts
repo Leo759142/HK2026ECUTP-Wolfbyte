@@ -53,8 +53,7 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 	if (tipo === 'alerta') {
 		const texto = descripcion || titulo;
 		if (!texto) return { ok: false, error: 'error.publicar.alerta.descripcion_vacia' };
-		if (texto.length > 300)
-			return { ok: false, error: 'error.publicar.alerta.descripcion_larga' };
+		if (texto.length > 300) return { ok: false, error: 'error.publicar.alerta.descripcion_larga' };
 		if (!incluye(TIPOS_ALERTA, form.tipo_alerta))
 			return { ok: false, error: 'error.publicar.alerta.tipo_invalido' };
 		return {
@@ -74,8 +73,7 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 	if (titulo.length < 3 || titulo.length > 80)
 		return { ok: false, error: 'error.publicar.titulo_longitud' };
 	if (!descripcion) return { ok: false, error: 'error.publicar.descripcion_vacia' };
-	if (descripcion.length > 500)
-		return { ok: false, error: 'error.publicar.descripcion_larga' };
+	if (descripcion.length > 500) return { ok: false, error: 'error.publicar.descripcion_larga' };
 
 	if (tipo === 'favor') {
 		if (!incluye(TIPOS_FAVOR, form.tipo_favor) || !incluye(CATEGORIAS_FAVOR, form.categoria_favor))

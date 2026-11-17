@@ -29,7 +29,7 @@ export const GET: RequestHandler = async ({ url }) => {
 
 	try {
 		const res = await fetch(
-			`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=16&addressdetails=1`,
+			`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&zoom=18&addressdetails=1`,
 			{
 				headers: {
 					'User-Agent': 'AYNI/1.0 (contacto@ayni.pe)',
@@ -47,16 +47,24 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		const data = await res.json();
 
-		// Privacidad: solo devolver distrito y barrio, descartar dirección exacta
-		const direccion = data.address ?? {};
+		// Dirección legible a partir de la respuesta de Nominatim (calle, número, barrio, ciudad).
+		const a = data.address ?? {};
+		const calle = [a.road, a.house_number].filter(Boolean).join(' ');
+		const direccionTexto =
+			[calle, a.neighbourhood ?? a.suburb, a.city ?? a.town ?? a.village ?? a.municipality]
+				.filter(Boolean)
+				.join(', ') ||
+			data.display_name ||
+			'Ubicación aproximada';
 		const resultado = {
 			lat: Number(lat),
 			lng: Number(lng),
-			distrito: direccion.suburb ?? direccion.city_district ?? direccion.city ?? '',
-			barrio: direccion.neighbourhood ?? direccion.quarter ?? '',
-			departamento: direccion.state ?? '',
-			pais: direccion.country ?? '',
-			display_name: direccion.suburb || direccion.city || 'Ubicación aproximada'
+			direccion: direccionTexto,
+			distrito: a.suburb ?? a.city_district ?? a.city ?? '',
+			barrio: a.neighbourhood ?? a.quarter ?? '',
+			departamento: a.state ?? '',
+			pais: a.country ?? '',
+			display_name: direccionTexto
 		};
 
 		CACHE.set(key, { data: resultado, ts: ahora });

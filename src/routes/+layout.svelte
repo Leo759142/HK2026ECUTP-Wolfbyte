@@ -5,26 +5,28 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { browser } from '$app/environment';
-import Icono from '../lib/iconos/Icono.svelte';
-import { guardarSesionLocal, obtenerSesionLocal } from '../lib/onboarding';
-import {
-	descartarOperacion,
-	iniciarOutbox,
-	pendientesEnvio,
-	requierenAtencion,
-	sincronizarAhora,
-	sincronizando
-} from '../sync/outbox.svelte';
-import { gestorIdiomas, obtenerIdiomaDesdeURL, normalizarIdioma } from '../i18n';
-import { modoEmergencia } from '../lib/emergencia/estado.svelte';
-import FlotanteIzquierda from '../lib/ui/FlotanteIzquierda.svelte';
-let { children } = $props();
-let enEmergencia = $derived(modoEmergencia.activa);
-let sesionLocal = $derived(obtenerSesionLocal());
-let enLinea = $state(browser ? navigator.onLine : true);
+	import { browser } from '$app/env';
+	import Icono from '../lib/iconos/Icono.svelte';
+	import { guardarSesionLocal, obtenerSesionLocal } from '../lib/onboarding';
+	import {
+		descartarOperacion,
+		iniciarOutbox,
+		pendientesEnvio,
+		requierenAtencion,
+		sincronizarAhora,
+		sincronizando
+	} from '../sync/outbox.svelte';
+	import { gestorIdiomas, obtenerIdiomaDesdeURL, normalizarIdioma } from '../i18n';
+	import { modoEmergencia } from '../lib/emergencia/estado.svelte';
+	import FlotanteIzquierda from '../lib/ui/FlotanteIzquierda.svelte';
+	let { children } = $props();
+	let enEmergencia = $derived(modoEmergencia.activa);
+	let sesionLocal = $derived(obtenerSesionLocal());
+	let enLinea = $state(browser ? navigator.onLine : true);
 	let esGuardianLayout = $derived(
-		!!sesionLocal && (sesionLocal.rol?.toLowerCase().includes('guardian') || sesionLocal.rol?.toLowerCase().includes('coordinador'))
+		!!sesionLocal &&
+			(sesionLocal.rol?.toLowerCase().includes('guardian') ||
+				sesionLocal.rol?.toLowerCase().includes('coordinador'))
 	);
 	let pendientes = $derived($pendientesEnvio.length);
 	let atencion = $derived($requierenAtencion);
@@ -78,43 +80,49 @@ let enLinea = $state(browser ? navigator.onLine : true);
 			autenticado = false;
 			return;
 		}
-const sesionLocal = obtenerSesionLocal();
-	// Validar que la sesión corresponda a un usuario existente
-	if (sesionLocal) {
-		try {
-			const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<{ id?: string }>;
-			const existe = usuarios.some((u) => u.id === sesionLocal.usuarioId);
-			if (!existe) {
-				localStorage.removeItem('ayni:v1:session');
-				await goto('/acceso');
-				return;
+		const sesionLocal = obtenerSesionLocal();
+		// Validar que la sesión corresponda a un usuario existente
+		if (sesionLocal) {
+			try {
+				const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<{
+					id?: string;
+				}>;
+				const existe = usuarios.some((u) => u.id === sesionLocal.usuarioId);
+				if (!existe) {
+					localStorage.removeItem('ayni:v1:session');
+					await goto('/acceso');
+					return;
+				}
+			} catch {
+				/* ignore */
 			}
-		} catch {
-			/* ignore */
 		}
-	}
-	const rutasProtegidas = ['/perfil', '/publicar', '/moderacion'];
-	const requiereSesion = rutasProtegidas.some((r) => rutaActual === r || rutaActual.startsWith(r + '/'));
-	// Rutas que requieren rol Guardián/Coordinador
-	const rutasGuardian = ['/perfil/guardian', '/moderacion'];
-	const requiereGuardian = rutasGuardian.some((r) => rutaActual === r || rutaActual.startsWith(r + '/'));
-	if (requiereSesion && !sesionLocal) {
-		await goto('/acceso');
-		return;
-	}
-	if (requiereGuardian) {
-		const rol = (sesionLocal?.rol ?? '').toLowerCase();
-		const esGuardian = rol.includes('guardian') || rol.includes('coordinador');
-		if (!esGuardian) {
-			await goto('/');
+		const rutasProtegidas = ['/perfil', '/publicar', '/moderacion'];
+		const requiereSesion = rutasProtegidas.some(
+			(r) => rutaActual === r || rutaActual.startsWith(r + '/')
+		);
+		// Rutas que requieren rol Guardián/Coordinador
+		const rutasGuardian = ['/perfil/guardian', '/moderacion'];
+		const requiereGuardian = rutasGuardian.some(
+			(r) => rutaActual === r || rutaActual.startsWith(r + '/')
+		);
+		if (requiereSesion && !sesionLocal) {
+			await goto('/acceso');
 			return;
 		}
-	}
-	if (!sesionLocal) {
-		await goto('/acceso');
-		return;
-	}
-	autenticado = true;
+		if (requiereGuardian) {
+			const rol = (sesionLocal?.rol ?? '').toLowerCase();
+			const esGuardian = rol.includes('guardian') || rol.includes('coordinador');
+			if (!esGuardian) {
+				await goto('/');
+				return;
+			}
+		}
+		if (!sesionLocal) {
+			await goto('/acceso');
+			return;
+		}
+		autenticado = true;
 
 		try {
 			const respuesta = await fetch('/api/v1/auth');
@@ -178,7 +186,9 @@ const sesionLocal = obtenerSesionLocal();
 				<li class="flex flex-wrap items-center gap-2 rounded border border-red-200 bg-red-50 p-2">
 					<span class="font-medium">{op.entidad}</span>
 					<span class="text-red-800"
-						>{op.estado === 'conflicto' ? gestorIdiomas.t('error.outbox.conflicto') : gestorIdiomas.t('error.outbox.rechazada')}: {motivo(op.error)}</span
+						>{op.estado === 'conflicto'
+							? gestorIdiomas.t('error.outbox.conflicto')
+							: gestorIdiomas.t('error.outbox.rechazada')}: {motivo(op.error)}</span
 					>
 					<button
 						class="ml-auto rounded border px-2 py-1"
@@ -196,13 +206,13 @@ const sesionLocal = obtenerSesionLocal();
 >
 	<img src="/icon-192.png" alt="AYNI" width="64" height="64" />
 	<span style="font-size: 32px">AYNI</span>
-	<div class="flex items-center gap-1 ml-4">
+	<div class="ml-4 flex items-center gap-1">
 		{#if enLinea}
-			<span class="h-2.5 w-2.5 rounded-full bg-wa" aria-hidden="true"></span>
-			<span class="text-xs font-bold text-tinta">{gestorIdiomas.t('header.conectado')}</span>
+			<span class="bg-wa h-2.5 w-2.5 rounded-full" aria-hidden="true"></span>
+			<span class="text-tinta text-xs font-bold">{gestorIdiomas.t('header.conectado')}</span>
 		{:else}
-			<span class="h-2.5 w-2.5 rounded-full bg-ambar" aria-hidden="true"></span>
-			<span class="text-xs font-bold text-tinta">{gestorIdiomas.t('header.sinConexion')}</span>
+			<span class="bg-ambar h-2.5 w-2.5 rounded-full" aria-hidden="true"></span>
+			<span class="text-tinta text-xs font-bold">{gestorIdiomas.t('header.sinConexion')}</span>
 		{/if}
 	</div>
 </header>
@@ -222,7 +232,12 @@ const sesionLocal = obtenerSesionLocal();
 		{/if}
 	</div>
 {/if}
-<main id="contenido" class="app-shell" class:acceso={rutaActual === '/acceso'} class:sin-nav={enEmergencia}>
+<main
+	id="contenido"
+	class="app-shell"
+	class:acceso={rutaActual === '/acceso'}
+	class:sin-nav={enEmergencia}
+>
 	{@render children()}
 </main>
 {#if mostrarInterfazApp && !enEmergencia}
@@ -262,7 +277,10 @@ const sesionLocal = obtenerSesionLocal();
 				)}
 		>
 			{#each idiomasDisponibles as idioma}
-				<option value={idioma.codigo} title={`${idioma.nombre} (ISO: ${idioma.iso}, Glottolog: ${idioma.glottolog})`}>
+				<option
+					value={idioma.codigo}
+					title={`${idioma.nombre} (ISO: ${idioma.iso}, Glottolog: ${idioma.glottolog})`}
+				>
 					{idioma.codigo.toUpperCase()} · {idioma.nombre}
 				</option>
 			{/each}

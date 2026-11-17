@@ -2,8 +2,8 @@
 	let {
 		value = $bindable(''),
 		type = 'text',
-		inputmode,
-		maxlength,
+		inputmode = undefined,
+		maxlength = undefined,
 		placeholder = '',
 		label = '',
 		ariaLabel = '',

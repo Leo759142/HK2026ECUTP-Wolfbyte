@@ -8,6 +8,7 @@ export interface SesionLocal {
 	rol?: string;
 	telefono?: string;
 	alias?: string;
+	expiresIn?: number;
 	expiraEn?: number;
 }
 

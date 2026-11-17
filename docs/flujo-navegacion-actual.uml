@@ -1,0 +1,196 @@
+' ============================================================================
+' AYNI · Flujo de navegación ACTUAL (según el código implementado)
+' Diagrama de flujo en PlantUML. Fuente: src/routes/** y src/routes/+layout.svelte
+' Este diagrama refleja lo que REALMENTE ocurre hoy, incluidas inconsistencias.
+' ============================================================================
+@startuml flujo_navegacion_actual
+title AYNI · Flujo de navegación ACTUAL (implementado)
+
+top to bottom direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #4A4A4A
+skinparam ArrowThickness 1.2
+skinparam rectangle {
+  BackgroundColor #FDF6EC
+  BorderColor #2B2B2B
+  RoundCorner 12
+}
+skinparam card {
+  BackgroundColor #FDF6EC
+  BorderColor #2B2B2B
+}
+
+' ---------- Nodos (pantallas / rutas) ----------
+card "acceso\n(/acceso)\nOnboarding · Registro · Login" as ACCESO #FFE8D6
+card "Inicio\n(/)" as HOME #DFF5E1
+card "Favores\n(/favores)" as FAVORES #DFF5E1
+card "Mapa\n(/mapa)" as MAPA #DFF5E1
+card "Yo / Perfil\n(/perfil)" as PERFIL #DFF5E1
+card "Publicar\n(/publicar)\nAsistente 3 pasos" as PUBLICAR #FFF3BF
+card "Servicios\n(/servicios)" as SERVICIOS #DFF5E1
+card "Emergencia\n(/emergencia)\nAcceso abierto" as EMERGENCIA #FFD6D6
+card "Pedir ayuda\n(/pedir-ayuda)" as PEDIRAYUDA #FFD6D6
+card "Mi pedido\n(/pedir-ayuda/mi-pedido)" as MIPEDIDO #FFE8D6
+card "Grupos\n(/grupos)" as GRUPOS #DFF5E1
+card "Perfil · Publicaciones\n(/perfil/publicaciones)" as PUBS #DFF5E1
+card "Perfil · Ajustes\n(/perfil/ajustes)" as AJUSTES #DFF5E1
+card "Guardián · Invitación\n(/perfil/guardian/invitacion)" as GINVIT #E7DFFF
+card "Guardián · Aceptado\n(/perfil/guardian/aceptado)" as GACEPT #E7DFFF
+card "Guardián · Panel\n(/perfil/guardian)" as GPANEL #E7DFFF
+card "Moderación · Reportar\n(/moderacion/reportar)" as MREP #E7DFFF
+card "Moderación · Bloqueados\n(/moderacion/bloqueados)" as MBLOQ #E7DFFF
+card "Moderación · Alertas oficiales\n(/moderacion/alertas-oficiales)" as MALERT #E7DFFF
+card "Página de error\n(/+error)" as ERROR #EEEEEE
+card "Docs API\n(/api/docs)" as APIDOCS #EEEEEE
+
+' ---------- Guardia global del layout (+layout.svelte) ----------
+note as GUARD
+  Guardia del layout (onMount de +layout.svelte):
+  • /perfil, /publicar, /moderacion  → exigen sesión; sin sesión redirige a /acceso.
+  • /perfil/guardian, /moderacion     → exigen rol Guardián/Coordinador; si no, redirige a /.
+  • /emergencia                       → acceso abierto (autenticado = false).
+  • La barra inferior (Inicio/Favores/Mapa/Yo/Publicar) sólo se muestra si
+    hay sesión, no es /acceso y no hay "modo emergencia" activo.
+end note
+
+ACCESO --> HOME : registro / login OK\n(goto '/')
+ACCESO --> EMERGENCIA : botón "Hay una emergencia"\n(goto '/emergencia')
+HOME --> ACCESO : guard sin sesión\n(goto '/acceso')
+PERFIL --> ACCESO : cerrar sesión\n(goto '/acceso')
+
+' ---------- Navegación inferior (bottom nav) ----------
+HOME <--> FAVORES : bottom nav
+HOME <--> MAPA : bottom nav
+HOME <--> PERFIL : bottom nav + avatar
+HOME --> PUBLICAR : botón central "+"
+
+' ---------- Inicio (hub) ----------
+HOME --> SERVICIOS : buscador / categorías / recomendados
+HOME --> MAPA : "Ver mapa" / verQuePasa()
+HOME --> EMERGENCIA : tarjeta "Reportar emergencia"
+HOME --> PEDIRAYUDA : "Necesito ayuda" (goto)
+HOME --> PUBLICAR : "publicar?tipo=servicio"
+
+' ---------- Servicios / Favores ----------
+SERVICIOS --> MAPA : "Mapa"
+SERVICIOS --> PUBLICAR : "publicar?tipo=servicio"
+SERVICIOS --> MREP : "Reportar publicación"\n(?collection=services&id=...)
+FAVORES --> PUBLICAR : "publicar?tipo=favor"
+FAVORES --> MREP : "Reportar publicación"\n(?collection=favors&id=...)
+
+' ---------- Publicar (asistente) ----------
+PUBLICAR --> HOME : éxito (paso 3 "Ir al inicio")\n(o bottom nav)
+
+' ---------- Emergencia / Pedir ayuda / Grupos ----------
+EMERGENCIA --> EMERGENCIA : reportar / confirmar / descartar\n(estado interno; enlaces tel externos)
+PEDIRAYUDA --> MIPEDIDO : enviar (goto /pedir-ayuda/mi-pedido?id=...)
+PEDIRAYUDA --> GRUPOS : "Ver grupos y servicios de apoyo"
+PEDIRAYUDA --> EMERGENCIA : volver (href /emergencia)
+MIPEDIDO --> PEDIRAYUDA : volver
+MIPEDIDO --> GRUPOS : "Buscar apoyo disponible"
+GRUPOS --> EMERGENCIA : volver (href /emergencia)
+GRUPOS --> PEDIRAYUDA : "Necesito ayuda"
+
+' ---------- Perfil y subpáginas ----------
+PERFIL --> PUBS : "Mis publicaciones"
+PERFIL --> AJUSTES : "Idioma, letra grande y zona"
+PERFIL --> MAPA : "Ver mi zona"
+PERFIL --> GINVIT : si puedeSerGuardian\n(>= 60 días)
+PERFIL --> GPANEL : si esGuardián ("Abrir panel")
+PUBS --> PUBLICAR : "Publicar"
+AJUSTES --> HOME : Header "atrás" (goto '/')
+PUBS --> HOME : Header "atrás" (goto '/')
+
+' ---------- Camino Guardián ----------
+GINVIT --> GACEPT : "Acepto ser Guardián"
+GINVIT --> PERFIL : "Ahora no"
+GACEPT --> GPANEL : "Ir a mi panel"
+GACEPT --> PERFIL : "Volver al perfil"
+GPANEL --> HOME : Header "atrás" (goto '/')
+
+' ---------- Moderación ----------
+MREP --> PERFIL : enviar reporte (goto '/perfil')
+MREP --> HOME : Header "atrás" (goto '/')
+MBLOQ --> HOME : Header "atrás" (goto '/')
+MALERT --> HOME : Header "atrás" (goto '/')
+
+' ---------- Error / Docs ----------
+ERROR --> HOME : "Ir al inicio" / volver
+ERROR --> ERROR : "Reintentar" (location.reload)
+APIDOCS --> HOME : Header "atrás" (goto '/')
+
+' ---------- Notas de párrafo (qué pasa) ----------
+note as N1
+  PUNTO DE ENTRADA
+  La app arranca en /acceso (SSR apagado, +layout.ts). Si ya hay onboarding
+  visto y sesión local, /acceso redirige a / (goto '/'). El registro es un
+  asistente de pasos (portada → tutorial → teléfono → código → nombre →
+  ubicación → zona); al completar, guarda la sesión local y va a Inicio.
+end note
+
+note as N2
+  INICIO ES EL HUB
+  Inicio lee la sesión y el localStorage para saludar, mostrar el sector y
+  traer 3 servicios recomendados de /api/v1/servicios. Desde ahí se reparte a
+  Servicios (buscador/categorías), Mapa, Favores, Publicar y Emergencia.
+  Si el "modo emergencia" está activo, Inicio se reemplaza por una pantalla
+  de emergencia (Estoy bien / Necesito ayuda / Ver qué pasa).
+end note
+
+note as N3
+  NAVEGACIÓN INFERIOR
+  +layout.svelte dibuja la barra inferior (Inicio, Favores, [Publicar], Mapa,
+  Yo) sólo cuando hay sesión, no es /acceso y no hay emergencia activa. Por eso
+  /emergencia y /acceso se sienten "fuera de la app": no muestran navegación.
+end note
+
+note as N4
+  EMERGENCIA ABIERTA
+  /emergencia es de acceso libre (no exige sesión). Permite reportar una
+  alerta (con o sin ubicación), ver alertas de la comunidad y, si el usuario
+  es Guardián, confirmar/descartar reportes. Los botones de teléfono son
+  enlaces tel: (105, 116, 106) que salen de la app.
+end note
+
+note as N5
+  PUBLICAR (ASISTENTE)
+  /publicar es un asistente de 3 pasos (tipo → datos → éxito). Valida en el
+  cliente con construirPublicacion(); si ok, encola la acción (outbox) o llama
+  a la API y muestra el paso 3 con "Ir al inicio". También se llega con
+  ?tipo=servicio|favor desde Inicio, Servicios o Favores.
+end note
+
+note as N6
+  PERFIL Y GUARDIÁN
+  /perfil muestra balance de ayni, progreso "Camino a Guardián" (>= 60 días),
+  accesos a Publicaciones, Ajustes y Mapa, y cierre de sesión (-> /acceso).
+  Si el usuario ya es Guardián ve "Abrir panel"; si cumple 60 días ve
+  "Quiero ser Guardián" -> invitación -> aceptado -> panel.
+end note
+
+note as N7
+  INCONSISTENCIAS DETECTADAS (importante)
+  • El Header "atrás" por defecto hace goto('/'), no history.back(): desde
+    Ajustes, Panel Guardián, Moderación o Publicaciones el "atrás" lleva a
+    Inicio, no a la pantalla padre.
+  • /moderacion/reportar es enlazado desde Servicios/Favores para CUALQUIER
+    usuario, pero el guard exige rol Guardián en /moderacion: un vecino normal
+    que toca "Reportar" es redirigido a Inicio en vez de poder reportar.
+  • /emergencia omite la sesión por completo (autenticado=false), así que no
+    muestra navegación ni identidad del usuario.
+  • /perfil/guardian y /moderacion tienen doble compuerta (layout + chequeo
+    interno esGuardian en el propio panel).
+end note
+
+legend right
+  Leyenda de color:
+  · Verde   = Pantalla autenticada (app shell)
+  · Amarillo= Publicar / acciones
+  · Rojo    = Emergencia / pedir ayuda
+  · Lila    = Roles Guardianes / Moderación
+  · Gris    = Error / Docs (utilidad)
+end legend
+
+@enduml

@@ -14,15 +14,20 @@ import { enmascararCoordenadas } from '../../../../dominio/tipos/geohash';
 
 const CAMPOS = ['zona_id', 'tipo', 'descripcion', 'foto', 'fotos'] as const;
 
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, cookies }) => {
+	const sesion = JSON.parse(cookies.get('pod_sesion') || '{}');
 	await cargarStore();
 	const zona = url.searchParams.get('zona_id');
-	return ok({
-		items: store.alertas.filter((a) => a.oculto === 0 && (!zona || a.zona_id === zona))
-	});
+	const items = store.alertas
+		.filter((a) => a.oculto === 0 && (!zona || a.zona_id === zona))
+		.map((a) => (sesion.usuarioId ? { ...a, usuario_id: sesion.usuarioId, rol: sesion.rol } : a));
+	return ok({ items });
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, cookies }) => {
+	const sesion = JSON.parse(cookies.get('pod_sesion') || '{}');
+	if (!sesion.usuarioId) return problem(401, 'Sesión no válida');
+
 	await cargarStore();
 	const rol = requireRol(request, 'reportar_emergencia');
 	if (typeof rol !== 'string') return rol;
@@ -54,7 +59,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		...(coords ? enmascararCoordenadas(coords.lat, coords.lng) : {}),
 		id: key,
 		emergencia_id: typeof b.emergencia_id === 'string' && b.emergencia_id ? b.emergencia_id : null,
-		usuario_id: 'demo',
+		usuario_id: sesion.usuarioId,
+		rol: sesion.rol,
 		estado: 'sin_verificar',
 		oculto: 0,
 		creado_en: ahora,

@@ -64,13 +64,28 @@ class IndexedDbKV implements AlmacenKV {
 	private db() {
 		if (this.dbp) return this.dbp;
 		this.dbp = new Promise((resolve, reject) => {
-			const req = indexedDB.open(this.name, 1);
-			req.onupgradeneeded = () => {
-				if (!req.result.objectStoreNames.contains(this.store))
-					req.result.createObjectStore(this.store);
+			const abrir = (version?: number) => {
+				const req =
+					version === undefined ? indexedDB.open(this.name) : indexedDB.open(this.name, version);
+				req.onupgradeneeded = () => {
+					if (!req.result.objectStoreNames.contains(this.store))
+						req.result.createObjectStore(this.store);
+				};
+				req.onsuccess = () => {
+					const db = req.result;
+					if (db.objectStoreNames.contains(this.store)) {
+						resolve(db);
+						return;
+					}
+					// La base ya existía sin el object store: subir versión para crearlo.
+					const siguiente = db.version + 1;
+					db.close();
+					abrir(siguiente);
+				};
+				req.onerror = () => reject(req.error);
+				req.onblocked = () => reject(new Error('IndexedDB bloqueada por otra pestaña'));
 			};
-			req.onsuccess = () => resolve(req.result);
-			req.onerror = () => reject(req.error);
+			abrir();
 		});
 		return this.dbp;
 	}
@@ -87,24 +102,40 @@ class IndexedDbKV implements AlmacenKV {
 		});
 	}
 	async get<T>(key: string): Promise<T | null> {
-		const v = await this.tx('readonly', (s) => s.get(key));
-		return (v ?? null) as T | null;
+		try {
+			const v = await this.tx('readonly', (s) => s.get(key));
+			return (v ?? null) as T | null;
+		} catch {
+			return null;
+		}
 	}
 	async set<T>(key: string, value: T): Promise<void> {
-		await this.tx('readwrite', (s) => s.put(value as unknown, key));
+		try {
+			await this.tx('readwrite', (s) => s.put(value as unknown, key));
+		} catch {
+			// Si IndexedDB falla, no romper el flujo offline.
+		}
 	}
 	async del(key: string): Promise<void> {
-		await this.tx('readwrite', (s) => s.delete(key));
+		try {
+			await this.tx('readwrite', (s) => s.delete(key));
+		} catch {
+			// noop
+		}
 	}
 	async keys(prefix = ''): Promise<string[]> {
-		const db = await this.db();
-		return new Promise((resolve, reject) => {
-			const t = db.transaction(this.store, 'readonly');
-			const req = t.objectStore(this.store).getAllKeys();
-			req.onsuccess = () =>
-				resolve((req.result as string[]).filter((k) => String(k).startsWith(prefix)));
-			req.onerror = () => reject(req.error);
-		});
+		try {
+			const db = await this.db();
+			return await new Promise<string[]>((resolve, reject) => {
+				const t = db.transaction(this.store, 'readonly');
+				const req = t.objectStore(this.store).getAllKeys();
+				req.onsuccess = () =>
+					resolve((req.result as string[]).filter((k) => String(k).startsWith(prefix)));
+				req.onerror = () => reject(req.error);
+			});
+		} catch {
+			return [];
+		}
 	}
 }
 
