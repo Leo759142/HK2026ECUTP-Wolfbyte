@@ -2,7 +2,7 @@
 // Estrategia: red primero y, si no hay señal, lo último guardado en caché.
 // Los DATOS (publicaciones, vistos buenos, emergencias) viven en localStorage.
 const CACHE = 'ayni-v1';
-const SHELL = ['/', '/index.html', '/logo.jpg', '/icon-192.png', '/manifest.webmanifest'];
+const SHELL = ['/', '/index.html', 'public/logo.jpg', 'public/icon-192.png', '/manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();

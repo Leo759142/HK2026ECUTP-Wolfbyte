@@ -10,6 +10,32 @@
 	let imagenes = $derived([...(foto ? [foto] : []), ...fotos.filter((item) => item !== foto)].slice(0, 3));
 </script>
 
+<style>
+	.photo-gallery {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px;
+	}
+	.photo-gallery__thumb {
+		width: 88px;
+		height: 88px;
+		flex: 0 0 88px;
+		border: 0;
+		border-radius: 14px;
+		padding: 0;
+		overflow: hidden;
+		background: #eae3d6;
+		cursor: zoom-in;
+	}
+	.photo-gallery__thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+		display: block;
+	}
+</style>
+
 {#if imagenes.length}
 	<div class="photo-gallery" aria-label="Fotos de la publicación">
 		{#each imagenes as imagen, index}

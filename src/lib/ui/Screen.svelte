@@ -2,4 +2,4 @@
 	let { class: className = '', children = undefined } = $props();
 </script>
 
-<div class={`mobile-screen ${className}`}>{@render children?.()}</div>
+<section class={`app-screen ${className}`}>{@render children?.()}</section>

@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
+import Screen from '../../lib/ui/Screen.svelte';
 
 	type Punto = {
 		id: string;
@@ -61,7 +63,7 @@
 
 <svelte:head><title>Mapa | AYNI</title></svelte:head>
 
-<section class="map-page">
+<Screen class="map-page">
 	<div class="section-heading">
 		<div>
 			<h1>Mapa comunitario</h1>
@@ -79,13 +81,13 @@
 			aria-label="Servicios"
 			onclick={() => (capa = 'servicios')}
 		>
-			🛠️
+			<Icono name="servicio" />
 		</button>
 		<button class="map-pin map-pin--two" aria-label="Favores" onclick={() => (capa = 'favores')}>
-			🤝
+			<Icono name="favores" />
 		</button>
 		<button class="map-pin map-pin--three" aria-label="Alertas" onclick={() => (capa = 'alertas')}>
-			🚨
+			<Icono name="alerta" />
 		</button>
 		<div class="map-label">Tu zona · ubicación aproximada</div>
 	</div>
@@ -118,7 +120,7 @@
 				<li class:selected={seleccionado?.id === punto.id}>
 					<button type="button" class="map-list__button" onclick={() => seleccionar(punto)}>
 						<span class="map-list__icon"
-							>{punto.tipo === 'Alerta' ? '🚨' : punto.tipo === 'Favor' ? '🤝' : '🛠️'}</span
+							><Icono name={punto.tipo === 'Alerta' ? 'alerta' : punto.tipo === 'Favor' ? 'favores' : 'servicio'} /></span
 						>
 						<span>
 							<strong>{punto.titulo ?? punto.tipo}</strong>
@@ -146,4 +148,4 @@
 			<small>La ubicación exacta se comparte solo cuando es necesario.</small>
 		</div>
 	{/if}
-</section>
+</Screen>

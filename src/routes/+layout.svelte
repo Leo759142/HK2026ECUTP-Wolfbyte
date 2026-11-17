@@ -4,6 +4,8 @@
 	import { page } from '$app/state';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
+	import Icono from '../lib/iconos/Icono.svelte';
 	import { guardarSesionLocal, obtenerSesionLocal } from '../lib/onboarding';
 	import {
 		descartarOperacion,
@@ -13,6 +15,7 @@
 		sincronizarAhora,
 		sincronizando
 	} from '../sync/outbox.svelte';
+	import { gestorIdiomas, obtenerIdiomaDesdeURL, normalizarIdioma } from '../i18n';
 	let { children } = $props();
 	let pendientes = $derived($pendientesEnvio.length);
 	let atencion = $derived($requierenAtencion);
@@ -22,11 +25,23 @@
 	let autenticado = $state(false);
 	let mostrarInterfazApp = $derived(autenticado && rutaActual !== '/acceso');
 	const navItems = [
-		{ href: '/', icon: '🏠', label: 'Inicio' },
-		{ href: '/favores', icon: '🤝', label: 'Favores' },
-		{ href: '/mapa', icon: '🗺️', label: 'Mapa' },
-		{ href: '/perfil', icon: '👤', label: 'Yo' }
+		{ href: '/', icon: 'inicio', label: 'Inicio' },
+		{ href: '/favores', icon: 'favores', label: 'Favores' },
+		{ href: '/mapa', icon: 'mapa', label: 'Mapa' },
+		{ href: '/perfil', icon: 'perfil', label: 'Yo' }
 	];
+	const idiomasDisponibles = [
+		{ codigo: 'es', nombre: 'Español', iso: 'spa', glottolog: 'stan1288' },
+		{ codigo: 'en', nombre: 'English', iso: 'eng', glottolog: 'stan1291' },
+		{ codigo: 'qu', nombre: 'Qhapaq Simi', iso: 'qu0', glottolog: 'cusc1238' }
+	];
+
+	if (browser) {
+		const idiomaURL = obtenerIdiomaDesdeURL();
+		if (idiomaURL) {
+			gestorIdiomas.cambiarIdioma(normalizarIdioma(idiomaURL));
+		}
+	}
 	$effect(() => {
 		if (rutaActual === '/acceso') {
 			autenticado = false;
@@ -118,7 +133,13 @@
 		</ul>
 	</section>
 {/if}
-<main id="contenido" class="app-shell">{@render children()}</main>
+<header style="display:flex; justify-content: center;" class="app-brand" aria-label="AYNI">
+	<img src="/icon-192.png" alt="AYNI" width="64" height="64" />
+	<span style="font-size: 32px">AYNI</span>
+</header>
+<main id="contenido" class="app-shell" class:acceso={rutaActual === '/acceso'}>
+	{@render children()}
+</main>
 {#if mostrarInterfazApp}
 	<nav class="bottom-nav" aria-label="Navegación de la aplicación">
 		{#each navItems.slice(0, 2) as item}
@@ -127,12 +148,12 @@
 				href={item.href}
 				aria-current={rutaActual === item.href ? 'page' : undefined}
 			>
-				<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
+				<span class="bottom-nav__icon" aria-hidden="true"><Icono name={item.icon} /></span>
 				<span>{item.label}</span>
 			</a>
 		{/each}
 		<a class="publish-button" href="/publicar" aria-label="Publicar">
-			<span aria-hidden="true">+</span>
+			<span aria-hidden="true"><Icono name="agregar" /></span>
 		</a>
 		{#each navItems.slice(2) as item}
 			<a
@@ -140,9 +161,26 @@
 				href={item.href}
 				aria-current={rutaActual === item.href ? 'page' : undefined}
 			>
-				<span class="bottom-nav__icon" aria-hidden="true">{item.icon}</span>
+				<span class="bottom-nav__icon" aria-hidden="true"><Icono name={item.icon} /></span>
 				<span>{item.label}</span>
 			</a>
 		{/each}
+
+		<!-- Selector de idioma -->
+		<select
+			class="lang-combobox"
+			aria-label="Cambiar idioma"
+			value={gestorIdiomas.idiomaActual}
+			onchange={(e) =>
+				gestorIdiomas.cambiarIdioma(
+					(e.currentTarget as HTMLSelectElement).value as typeof gestorIdiomas.idiomaActual
+				)}
+		>
+			{#each idiomasDisponibles as idioma}
+				<option value={idioma.codigo} title={`${idioma.nombre} (ISO: ${idioma.iso}, Glottolog: ${idioma.glottolog})`}>
+					{idioma.codigo.toUpperCase()} · {idioma.nombre}
+				</option>
+			{/each}
+		</select>
 	</nav>
 {/if}

@@ -3,6 +3,7 @@
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
 	import { obtenerSesionLocal } from '../../../lib/onboarding';
+	import Icono from '../../../lib/iconos/Icono.svelte';
 	let items = $state<
 		Array<{
 			id?: string;
@@ -81,26 +82,32 @@
 					: 'Comparte servicios y favores con tu comunidad.'}
 			</p>
 		</div>
-		<a class="btn-publicar-compacto" href="/publicar">+ Publicar</a>
+		<a class="btn-publicar-compacto" href="/publicar"><Icono name="agregar" /> Publicar</a>
 	</div>
 	{#if !items.length}<div class="empty">Aún no tienes publicaciones activas.</div>{/if}
 	<div class="publication-list">
-		{#each items as item (item.id)}<article>
+			{#each items as item (item.id)}<article>
 				<div class="publication-list__type">
-					<span>{item.tipo === 'favor' ? '🤝' : '🛠️'}</span>
+					<span><Icono name={item.tipo === 'favor' ? 'favores' : 'servicio'} /></span>
 					<small>{item.tipo === 'favor' ? 'Favor' : 'Servicio'}</small>
 				</div>
-				{#if item.foto}
-					<button
-						class="publication-list__photo-button"
-						type="button"
-						aria-label="Ampliar imagen de la publicación"
-						onclick={() => (imagenAmpliada = item.foto ?? null)}
-					>
-						<img class="publication-list__photo" src={item.foto} alt="" />
-					</button>
-				{/if}
-				<div>
+				<div class="publication-list__thumb">
+					{#if item.foto}
+						<button
+							class="publication-list__photo-button"
+							type="button"
+							aria-label="Ampliar imagen de la publicación"
+							onclick={() => (imagenAmpliada = item.foto ?? null)}
+						>
+							<img class="publication-list__photo" src={item.foto} alt="" />
+						</button>
+					{:else}
+						<div class="publication-list__placeholder" aria-hidden="true">
+							<Icono name={item.tipo === 'favor' ? 'favores' : 'servicio'} />
+						</div>
+					{/if}
+				</div>
+				<div class="publication-list__body">
 					<strong>{item.titulo ?? 'Publicación'}</strong>
 					<p>{item.descripcion}</p>
 					<small class="publication-list__meta"

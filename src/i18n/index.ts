@@ -50,7 +50,23 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'access.siguiente': 'Siguiente →',
 		'access.empezar': 'Empezar',
 		'access.continuar': 'Continuar',
-		'access.entrar': 'Entrar a AYNI'
+		'access.entrar': 'Entrar a AYNI',
+		'btn.confirmar': 'Confirmar',
+		'btn.cancelar': 'Cancelar',
+		'btn.guardar': 'Guardar',
+		'btn.editar': 'Editar',
+		'btn.eliminar': 'Eliminar',
+		'btn.atras': 'Atrás',
+		'btn.siguiente': 'Siguiente',
+		'btn.verificar': 'Verificar',
+		'btn.enviar': 'Enviar',
+		'btn.registrar': 'Registrar',
+		'btn.entrar': 'Entrar',
+		'btn.crearCuenta': 'Crear cuenta',
+		'btn.yaTengo': 'Ya tengo cuenta',
+		'btn.reportarEmergencia': 'Reportar emergencia',
+		'btn.publicar': 'Publicar',
+		'btn.verMapa': 'Ver mapa'
 	},
 	en: {
 		'nav.inicio': 'Home',
@@ -96,11 +112,27 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'access.siguiente': 'Next →',
 		'access.empezar': 'Start',
 		'access.continuar': 'Continue',
-		'access.entrar': 'Enter AYNI'
+		'access.entrar': 'Enter AYNI',
+		'btn.confirmar': 'Confirm',
+		'btn.cancelar': 'Cancel',
+		'btn.guardar': 'Save',
+		'btn.editar': 'Edit',
+		'btn.eliminar': 'Delete',
+		'btn.atras': 'Back',
+		'btn.siguiente': 'Next',
+		'btn.verificar': 'Verify',
+		'btn.enviar': 'Send',
+		'btn.registrar': 'Register',
+		'btn.entrar': 'Enter',
+		'btn.crearCuenta': 'Create account',
+		'btn.yaTengo': 'I already have an account',
+		'btn.reportarEmergencia': 'Report emergency',
+		'btn.publicar': 'Post',
+		'btn.verMapa': 'View map'
 	},
 	qu: {
 		hola: '¡Allinllachu',
-		'emergencia.titulo': 'HUQ MUSYANA (EMERGENCIA)',
+		'emergencia.titulo': 'MUSYANA (EMERGENCIA)',
 		'emergencia.subtitulo': 'Suministrokunata chay manzanapi kachkan',
 		'emergencia.alerta_vacio': 'Manam kanchu alerts kay pacha.',
 		'favor.estado.abierto': 'Kichasqa',
@@ -122,7 +154,23 @@ export const DICCIONARIO_LOCAL: Record<Idioma, Record<string, string>> = {
 		'access.siguiente': 'Qatiy →',
 		'access.empezar': 'Qallariy',
 		'access.continuar': 'Qatiy',
-		'access.entrar': 'AYNI-man yaykuy'
+		'access.entrar': 'AYNI-man yaykuy',
+		'btn.confirmar': 'Llamkkasqa',
+		'btn.cancelar': 'Munakunawan',
+		'btn.guardar': 'Yuyasqa',
+		'btn.editar': 'Utichiy',
+		'btn.eliminar': 'Huchuy',
+		'btn.atras': 'Ñawpaq',
+		'btn.siguiente': 'Chawpi',
+		'btn.verificar': 'Allichiy',
+		'btn.enviar': 'Tusuq',
+		'btn.registrar': 'Ruray',
+		'btn.entrar': 'Yaykuy',
+		'btn.crearCuenta': 'Cuenta ruray',
+		'btn.yaTengo': 'Cuenta ñiyoq kani',
+		'btn.reportarEmergencia': 'Musya qhawasqa',
+		'btn.publicar': 'Llukchiy',
+		'btn.verMapa': 'Papakuna riku'
 	}
 };
 
@@ -153,3 +201,20 @@ export class GestorIdiomas {
 		return traduccion;
 	}
 }
+
+// Re-exportar desde gestor.ts para mantener compatibilidad con el sistema mejorado
+export {
+	gestorIdiomas,
+	traducir,
+	GestorIdiomasMejorado,
+	resolverIdiomaActual,
+	obtenerIdiomaDesdeURL,
+	normalizarIdioma,
+	obtenerCodigoISO,
+	obtenerCodigoGlottolog,
+	obtenerNombreIdioma,
+	IDIOMAS_DISPONIBLES,
+	CODIGOS_ISO_639_3
+} from './gestor';
+
+export type { CodigoIdioma } from './codigos';

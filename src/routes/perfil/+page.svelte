@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { obtenerSesionLocal } from '../../lib/onboarding';
+	import { goto } from '$app/navigation';
+	import { obtenerSesionLocal, cerrarSesionLocal } from '../../lib/onboarding';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
+	import Screen from '../../lib/ui/Screen.svelte';
+import Icono from '../../lib/iconos/Icono.svelte';
 
 	type Usuario = {
 		id?: string;
@@ -196,14 +199,14 @@
 
 	async function cerrarSesion() {
 		await fetch('/api/v1/auth', { method: 'DELETE' }).catch(() => undefined);
-		localStorage.removeItem('ayni:v1:session');
-		window.location.href = '/acceso';
+		cerrarSesionLocal();
+		goto('/acceso');
 	}
 </script>
 
 <svelte:head><title>Perfil | AYNI</title></svelte:head>
 
-<section class="profile">
+<Screen class="profile">
 	<div class="profile__hero">
 		<div class="profile__photo-wrap">
 			{#if foto}
@@ -212,7 +215,7 @@
 				<div class="profile__photo profile__photo--fallback" aria-hidden="true">{inicial()}</div>
 			{/if}
 			<label class="profile__camera" aria-label="Cambiar foto de perfil">
-				<span aria-hidden="true">📷</span>
+				<span aria-hidden="true"><Icono name="camara" /></span>
 				<input type="file" accept="image/*" onchange={cambiarFoto} />
 			</label>
 		</div>
@@ -228,7 +231,7 @@
 		{#if error}<p class="notice notice--error" role="alert">{error}</p>{/if}
 
 		<section class="profile-card">
-			<h2>🤝 Tu balance de Ayni</h2>
+			<h2><Icono name="favores" /> Tu balance de Ayni</h2>
 			<div class="profile-stats">
 				<div><strong>{favoresDados}</strong><small>Favores dados</small></div>
 				<div><strong>{favoresRecibidos}</strong><small>Favores recibidos</small></div>
@@ -238,7 +241,7 @@
 		{#if !esGuardian}
 			<section class="profile-card guardian-card">
 				<div class="profile-card__heading">
-					<h2>🛡️ Camino a Guardián</h2>
+					<h2><Icono name="guardian" /> Camino a Guardián</h2>
 					<span>{Math.min(100, Math.round((diasEnAyni / 60) * 100))}%</span>
 				</div>
 				<div class="guardian-progress">
@@ -258,7 +261,7 @@
 		{:else}
 			<section class="profile-card guardian-card">
 				<div class="profile-card__heading">
-					<h2>🛡️ Eres Guardián</h2>
+					<h2><Icono name="guardian" /> Eres Guardián</h2>
 					<span>Activo</span>
 				</div>
 				<p>Ayudas a confirmar emergencias y mantener segura la comunidad.</p>
@@ -303,14 +306,14 @@
 		</section>
 
 		<a class="profile-link" href="/perfil/publicaciones"
-			>📋 Mis publicaciones <span aria-hidden="true">›</span></a
+			><Icono name="lista" /> Mis publicaciones <span aria-hidden="true">›</span></a
 		>
 		<a class="profile-link" href="/perfil/ajustes"
-			>⚙️ Idioma, letra grande y zona <span aria-hidden="true">›</span></a
+			><Icono name="ajustes" /> Idioma, letra grande y zona <span aria-hidden="true">›</span></a
 		>
-		<a class="profile-link" href="/mapa">🗺️ Ver mi zona <span aria-hidden="true">›</span></a>
+		<a class="profile-link" href="/mapa"><Icono name="mapa" /> Ver mi zona <span aria-hidden="true">›</span></a>
 		<button class="profile-link profile-link--button" type="button" onclick={cerrarSesion}
-			>🚪 Cerrar sesión <span aria-hidden="true">›</span></button
+			><Icono name="salir" /> Cerrar sesión <span aria-hidden="true">›</span></button
 		>
 	</div>
-</section>
+</Screen>

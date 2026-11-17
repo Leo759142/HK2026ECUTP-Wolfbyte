@@ -8,6 +8,7 @@
 	import Header from '../../lib/ui/Header.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
 	import PhotoGallery from '../../lib/ui/PhotoGallery.svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
 
 	type Recomendacion = {
 		id: string;
@@ -37,13 +38,13 @@
 
 	const listarServicios = new ListarServicios(new ServicioRepoLocal());
 	const categorias = [
-		['todos', '✨', 'Todos'],
-		['gasfiteria', '🔧', 'Gasfitería'],
-		['electricidad', '⚡', 'Electricidad'],
-		['carpinteria', '🪚', 'Carpintería'],
-		['costura', '🧵', 'Costura'],
-		['clases', '📚', 'Clases'],
-		['comida', '🍲', 'Comida']
+		['todos', 'otro', 'Todos'],
+		['gasfiteria', 'gasfiteria', 'Gasfitería'],
+		['electricidad', 'electricidad', 'Electricidad'],
+		['carpinteria', 'carpinteria', 'Carpintería'],
+		['costura', 'costura', 'Costura'],
+		['clases', 'clases', 'Clases'],
+		['comida', 'comida', 'Comida']
 	];
 	let items = $state<ServicioVista[]>([]);
 	let perfiles = $state<PerfilLocal[]>([]);
@@ -102,7 +103,7 @@
 	);
 
 	function icono(id: string) {
-			return categorias.find((item) => item[0] === id)?.[1] ?? '🛠️';
+		return id === 'todos' ? 'otro' : id;
 	}
 
 	async function cargarRecomendaciones(id?: string) {
@@ -206,16 +207,16 @@
 			<h1>Encuentra ayuda cerca</h1>
 			<p>Recomendados por tus vecinos.</p>
 		</div>
-		<a class="services-map-link" href="/mapa">🗺️ Mapa</a>
+		<a class="services-map-link" href="/mapa"><Icono name="mapa" /> Mapa</a>
 	</div>
 	<form class="app-search" role="search" onsubmit={(event) => event.preventDefault()}>
-		<span aria-hidden="true">⌕</span>
+		<span aria-hidden="true"><Icono name="buscar" /></span>
 		<input aria-label="Buscar servicio" placeholder="¿Qué necesitas hoy?" bind:value={query} />
 	</form>
 	<div class="service-categories" aria-label="Categorías">
-		{#each categorias as [id, emoji, label]}
+		{#each categorias as [id, icon, label]}
 			<button class:active={categoria === id} type="button" onclick={() => (categoria = id)}
-				><span>{emoji}</span>{label}</button
+				><span><Icono name={icon} /></span>{label}</button
 			>
 		{/each}
 	</div>
@@ -240,14 +241,14 @@
 			<button class="service-result" type="button" onclick={() => abrirDetalle(servicio)}>
 				<div class="service-result__image">
 					{#if servicio.foto}<img src={servicio.foto} alt="" />{:else}<span
-							>{icono(servicio.categoria)}</span
+							><Icono name={icono(servicio.categoria)} /></span
 						>{/if}
 				</div>
 				<div class="service-result__body">
 					<strong>{servicio.owner} · {servicio.titulo}</strong>
-					<small>📍 A {servicio.distancia} cuadras · {servicio.horario}</small>
+					<small><Icono name="ubicacion" /> A {servicio.distancia} cuadras · {servicio.horario}</small>
 					<span class="service-rating"
-						>👍 {servicio.votos} · {servicio.votos
+						><Icono name="pulgar" /> {servicio.votos} · {servicio.votos
 							? 'Recomendado por vecinos'
 							: 'Nuevo en AYNI'}</span
 					>
@@ -257,7 +258,7 @@
 		{#if visibles.length === 0}<p class="empty">No encontramos servicios con esos filtros.</p>{/if}
 	</div>
 	<a class="publish-prompt" href="/publicar?tipo=servicio"
-		><span aria-hidden="true">🛠️</span><span
+		><span aria-hidden="true"><Icono name="servicio" /></span><span
 			><strong>¿Tienes un oficio?</strong><small>Ofrécelo a tus vecinos en 3 clics.</small></span
 		></a
 	>
@@ -288,13 +289,15 @@
 						fotos={seleccionado.fotos}
 						alt={seleccionado.titulo}
 					/>
-				{:else}{icono(seleccionado.categoria)}{/if}
+				{:else}<Icono name={icono(seleccionado.categoria)} />{/if}
 			</div>
 			<h2>{seleccionado.owner} · {seleccionado.titulo}</h2>
 			<p>{seleccionado.descripcion}</p>
 			<div class="detail-tags">
-				<span>👍 {recomendacionesServicio.length || seleccionado.votos || 0} vistos buenos</span
-				><span>📍 A {seleccionado.distancia} cuadras</span><span>🕒 {seleccionado.horario}</span>
+				<span><Icono name="pulgar" /> {recomendacionesServicio.length || seleccionado.votos || 0} vistos buenos</span
+				><span><Icono name="ubicacion" /> A {seleccionado.distancia} cuadras</span><span
+					><Icono name="reloj" /> {seleccionado.horario}</span
+				>
 			</div>
 			{#if recomendacionesServicio.length}
 				<section class="detail-reviews">
@@ -318,35 +321,33 @@
 					class="mobile-btn mobile-btn--primary"
 					type="button"
 					disabled={!comentario.trim()}
-					onclick={enviarVistoBueno}>👍 Dar mi Visto Bueno</button
+					onclick={enviarVistoBueno}><Icono name="pulgar" /> Dar mi Visto Bueno</button
 				>
 				<button class="detail-secondary" type="button" onclick={() => (mostrarVistoBueno = false)}
 					>Cancelar</button
 				>
 			{:else}
 				<button class="mobile-btn mobile-btn--primary" type="button" onclick={contactar}
-					>💬 Escribir por WhatsApp</button
+					><Icono name="whatsapp" brand /> Escribir por WhatsApp</button
 				>
 				<button
 					class="detail-secondary"
 					type="button"
 					disabled={yaRecomendo}
 					onclick={() => (mostrarVistoBueno = true)}
-					>{yaRecomendo
-						? '💜 Ya lo recomendaste'
-						: contactoRealizado
-							? '👍 Dar mi Visto Bueno'
-							: '👍 Recomendar después de contactar'}</button
+					>{#if yaRecomendo}<Icono name="corazon" /> Ya lo recomendaste{:else if contactoRealizado}<Icono
+							name="pulgar"
+						/> Dar mi Visto Bueno{:else}<Icono name="pulgar" /> Recomendar después de contactar{/if}</button
 				>
 				{#if !contactoRealizado}<small class="detail-hint"
 						>Primero contacta al vecino para contar tu experiencia.</small
 					>{/if}
 				<div class="detail-moderation">
-					<a
+					<a class="mobile-btn"
 						href={`/moderacion/reportar?collection=services&id=${encodeURIComponent(seleccionado.id)}`}
-						>⚑ Reportar publicación</a
+						><Icono name="reporte" /> Reportar publicación</a
 					>
-					<button
+					<button class="mobile-btn"
 						type="button"
 						onclick={() => {
 							const actual = JSON.parse(
@@ -356,7 +357,7 @@
 								actual.push(seleccionado?.usuario_id ?? seleccionado?.owner ?? '');
 							localStorage.setItem('ayni:v1:blocked', JSON.stringify(actual));
 							mensaje = 'Vecino bloqueado en este dispositivo.';
-						}}>🚫 Bloquear vecino</button
+						}}><Icono name="bloquear" /> Bloquear vecino</button
 					>
 				</div>
 			{/if}

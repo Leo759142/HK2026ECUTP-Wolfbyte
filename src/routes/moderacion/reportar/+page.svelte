@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
+	import Icono from '../../../lib/iconos/Icono.svelte';
 	const motivos = ['Parece estafa', 'Información falsa', 'Contenido ofensivo', 'Otro'];
 	let motivo = $state(motivos[0]);
 	let enviado = $state(false);
@@ -38,7 +39,7 @@
 	><Header title="Reportar" />
 	<h1>¿Por qué reportas esta publicación?</h1>
 	{#if enviado}<div class="empty">
-			✅ Ya enviaste el reporte.
+			<Icono name="check" /> Ya enviaste el reporte.
 			<p>Un Guardián lo revisará. Tu nombre no se muestra a quien publicó.</p>
 		</div>
 		<button class="mobile-btn mobile-btn--primary" onclick={() => goto('/perfil')}
@@ -50,7 +51,7 @@
 					role="radio"
 					aria-checked={motivo === item}
 					onclick={() => (motivo = item)}
-					>{item}{#if motivo === item}<span>✓</span>{/if}</button
+					>{item}{#if motivo === item}<span><Icono name="check" /></span>{/if}</button
 				>{/each}
 		</div>
 		<p class="muted">Con varios reportes, la publicación puede ocultarse mientras se revisa.</p>

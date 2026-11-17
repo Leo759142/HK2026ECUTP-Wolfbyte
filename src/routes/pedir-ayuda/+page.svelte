@@ -1,20 +1,21 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
 
 	const necesidades = [
-		['agua', '💧', 'Agua'],
-		['comida', '🍲', 'Comida'],
-		['medicina', '💊', 'Medicinas'],
-		['traslado', '🚗', 'Traslado'],
-		['resguardo', '🏠', 'Resguardo'],
-		['otra', '🆘', 'Otra ayuda']
+		['agua', 'agua', 'Agua'],
+		['comida', 'comida', 'Comida'],
+		['medicina', 'medicina', 'Medicinas'],
+		['traslado', 'traslado', 'Traslado'],
+		['resguardo', 'resguardo', 'Resguardo'],
+		['otra', 'otra_ayuda', 'Otra ayuda']
 	] as const;
 	const vulnerabilidades = [
-		['menor', '👧', 'Hay menores'],
-		['mayor', '🧓', 'Hay una persona mayor'],
-		['discapacidad', '♿', 'Hay discapacidad'],
-		['embarazo', '🤰', 'Hay embarazo']
+		['menor', 'menor', 'Hay menores'],
+		['mayor', 'mayor', 'Hay una persona mayor'],
+		['discapacidad', 'discapacidad', 'Hay discapacidad'],
+		['embarazo', 'embarazo', 'Hay embarazo']
 	] as const;
 
 	let necesidad = $state('');
@@ -66,26 +67,26 @@
 		<strong>Pedir ayuda</strong>
 	</header>
 	<div class="emergency-banner">
-		<strong>🆘 Tu pedido será visible en tu dispositivo</strong>
+		<strong><Icono name="otra_ayuda" /> Tu pedido será visible en tu dispositivo</strong>
 		<span>AYNI todavía no tiene una emergencia activa conectada para asignar vecinos.</span>
 	</div>
 	<h1>¿Qué necesitas?</h1>
 	<p class="muted">Describe lo esencial. Comparte solo la ubicación aproximada de tu sector.</p>
 
 	<div class="emergency-type-grid" aria-label="Tipo de ayuda">
-		{#each necesidades as [id, emoji, label]}
+		{#each necesidades as [id, icon, label]}
 			<button class:active={necesidad === id} type="button" onclick={() => (necesidad = id)}>
-				<span>{emoji}</span><strong>{label}</strong>
+				<span><Icono name={icon} /></span><strong>{label}</strong>
 			</button>
 		{/each}
 	</div>
 
 	<fieldset class="help-options">
 		<legend>¿Quiénes están contigo?</legend>
-		{#each vulnerabilidades as [id, emoji, label]}
+		{#each vulnerabilidades as [id, icon, label]}
 			<label class:active={quienes.includes(id)}>
 				<input type="checkbox" checked={quienes.includes(id)} onchange={() => alternarQuien(id)} />
-				<span>{emoji}</span>{label}
+				<span><Icono name={icon} /></span>{label}
 			</label>
 		{/each}
 	</fieldset>
@@ -104,9 +105,9 @@
 	</label>
 	<div class="publish-label">
 		Foto opcional
-		<PhotoPicker value={foto} onchange={(value) => (foto = value)} />
+		<PhotoPicker max={1} maxSizeMB={5} value={foto} onchange={(value) => (foto = value)} />
 	</div>
-	<p class="emergency-location">📍 Zona aproximada · tu manzana</p>
+	<p class="emergency-location"><Icono name="ubicacion" /> Zona aproximada · tu manzana</p>
 	{#if error}<p class="notice notice--error" role="alert">{error}</p>{/if}
 	<button class="mobile-btn mobile-btn--danger" type="button" onclick={pedir} disabled={guardando}>
 		{guardando ? 'Guardando pedido…' : 'Guardar pedido de ayuda'}

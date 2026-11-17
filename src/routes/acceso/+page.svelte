@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import Btn from '../../lib/ui/Btn.svelte';
-	import Header from '../../lib/ui/Header.svelte';
-	import Screen from '../../lib/ui/Screen.svelte';
-	import { translate, type Idioma } from '../../i18n';
 	import { onMount } from 'svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
 	import {
 		guardarSesionLocal,
 		marcarOnboardingVisto,
 		obtenerSesionLocal,
 		onboardingVisto
 	} from '../../lib/onboarding';
+	import { translate, type Idioma } from '../../i18n';
+	import Btn from '../../lib/ui/Btn.svelte';
+	import Header from '../../lib/ui/Header.svelte';
+	import Input from '../../lib/ui/Input.svelte';
+	import StepNav from '../../lib/ui/StepNav.svelte';
 
 	type Paso = 'portada' | 'tutorial' | 'telefono' | 'codigo' | 'nombre' | 'ubicacion' | 'zona';
 	type Modo = 'registro' | 'login';
@@ -27,23 +29,56 @@
 	let error = $state('');
 	let onboardingCompletado = $state(false);
 	let idioma = $state<Idioma>('es');
+
+	// Leer idioma desde parámetro URL ?lang=
+	function idiomaDesdeURL(): Idioma | null {
+		if (typeof window === 'undefined' || !window.location) return null;
+		const params = new URLSearchParams(window.location.search);
+		const lang = params.get('lang');
+		if (lang && ['es', 'en', 'qu'].includes(lang)) return lang as Idioma;
+		return null;
+	}
+
+	// Cambiar idioma y actualizar URL
+	function cambiarIdioma(nuevo: Idioma): void {
+		idioma = nuevo;
+		if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
+			const url = new URL(window.location.href);
+			url.searchParams.set('lang', nuevo);
+			window.history.replaceState({}, '', url.toString());
+		}
+	}
+
 	const t = (key: string) => translate(idioma, key);
+
+	// Inicializar idioma desde URL al montar
+	onMount(() => {
+		const langUrl = idiomaDesdeURL();
+		if (langUrl) idioma = langUrl;
+	});
+
+	const PASOS_REGISTRO: Paso[] = ['telefono', 'codigo', 'nombre', 'ubicacion', 'zona'];
+	const totalPasos = $derived(modo === 'registro' ? PASOS_REGISTRO.length : 2);
+	const pasoActual = $derived(
+		modo === 'registro' ? PASOS_REGISTRO.indexOf(paso) + 1 : paso === 'telefono' ? 1 : 2
+	);
+	const tituloPaso = $derived(`Paso ${pasoActual} de ${totalPasos}`);
 
 	let tutoriales = $derived([
 		{
-			emoji: '🤝',
+			icon: 'ayuda',
 			titulo: t('tutorial.1.titulo'),
 			texto: t('tutorial.1.texto'),
 			color: 'access-step--petroleo'
 		},
 		{
-			emoji: '🔄',
+			icon: 'trueque',
 			titulo: t('tutorial.2.titulo'),
 			texto: t('tutorial.2.texto'),
 			color: 'access-step--petroleo'
 		},
 		{
-			emoji: '🛡️',
+			icon: 'guardian',
 			titulo: t('tutorial.3.titulo'),
 			texto: t('tutorial.3.texto'),
 			color: 'access-step--rojo'
@@ -53,6 +88,20 @@
 	function siguienteTutorial() {
 		if (tutorial < tutoriales.length - 1) tutorial += 1;
 		else paso = 'telefono';
+	}
+
+	function retroceder() {
+		if (paso === 'telefono') {
+			if (modo === 'registro' && !onboardingCompletado) paso = 'tutorial';
+			else paso = 'portada';
+		} else if (paso === 'codigo') paso = 'telefono';
+		else if (paso === 'nombre') paso = 'codigo';
+		else if (paso === 'ubicacion') paso = 'nombre';
+		else if (paso === 'zona') paso = 'ubicacion';
+		else if (paso === 'tutorial') {
+			if (tutorial > 0) tutorial -= 1;
+			else paso = 'portada';
+		}
 	}
 
 	function continuarTelefono() {
@@ -277,169 +326,237 @@
 
 <svelte:head><title>Acceso | AYNI</title></svelte:head>
 
-{#if paso === 'portada'}
-	<Screen class="access-cover">
-		<div class="access-language">{idioma === 'es' ? 'ES' : idioma === 'en' ? 'EN' : 'QU'}</div>
-		<div class="access-cover__content">
-			<img src="/logo.jpg" alt="AYNI" />
-			<h1>Hoy por ti,<br />mañana por mí.</h1>
-			<p>
-				Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.
-			</p>
-		</div>
-		<div class="access-actions">
-			<Btn variant="acento" onclick={iniciarRegistro}>{t('access.crear')}</Btn>
-			<Btn variant="borde" onclick={iniciarSesion}>{t('access.ingresar')}</Btn>
-			<button class="access-demo" type="button" onclick={entrarDemo}
-				>Entrar como vecina de prueba (Rosa)</button
-			>
-		</div>
-	</Screen>
-{:else if paso === 'tutorial'}
-	<div class={`access-step ${tutoriales[tutorial].color}`}>
-		<button class="access-skip" type="button" onclick={() => (paso = 'telefono')}>Saltar</button>
-		<div class="access-step__image"><span>{tutoriales[tutorial].emoji}</span></div>
-		<div>
-			<h1>{tutoriales[tutorial].titulo}</h1>
-			<p>{tutoriales[tutorial].texto}</p>
-		</div>
-		<div class="access-step__dots" aria-label={`Paso ${tutorial + 1} de 3`}>
-			{#each tutoriales as _, index}<span class:active={index === tutorial}></span>{/each}
-		</div>
-		<Btn variant="blanco" onclick={siguienteTutorial}
-			>{tutorial < 2 ? t('access.siguiente') : t('access.empezar')}</Btn
-		>
+{#snippet progreso(actual: number, total: number)}
+	<div
+		class="access-progress"
+		role="progressbar"
+		aria-label="Progreso del registro"
+		aria-valuemin={1}
+		aria-valuemax={total}
+		aria-valuenow={actual}
+	>
+		{#each Array.from({ length: total }, (_, indice) => indice) as indice}
+			{#if indice < actual}<span></span>{:else}<i></i>{/if}
+		{/each}
 	</div>
-{:else if paso === 'telefono'}
-	<Screen>
-		<Header title={modo === 'registro' ? 'Paso 1 de 4' : 'Ingresar'} back={false} />
-		{#if modo === 'registro'}
-			<button
-				class="access-demo access-back-link"
-				type="button"
-				onclick={() => (paso = 'tutorial')}
+{/snippet}
+
+<div class="access-page">
+	{#if paso === 'portada'}
+		<section class="access-cover">
+			<div class="access-language" aria-label="Idioma">
+			<select
+				class="lang-combobox"
+				value={idioma}
+				onchange={(e) => cambiarIdioma((e.currentTarget as HTMLSelectElement).value as typeof idioma)}
 			>
-				Volver al tutorial
-			</button>
-		{/if}
-		<div class="access-progress"><span></span><i></i><i></i><i></i></div>
-		<h1 class="mobile-title">
-			{modo === 'registro' ? '¿Cuál es tu número de celular?' : '¡Hola de nuevo! 👋'}
-		</h1>
-		<p class="mobile-subtitle">
-			{modo === 'registro'
-				? 'Te enviaremos un código por SMS para verificar que eres tú.'
-				: 'Escribe tu número y te enviaremos un código para entrar.'}
-		</p>
-		<div class="phone-field">
-			<span>🇵🇪 +51</span>
-			<input
-				type="tel"
+				<option value="es" title="Español (ISO: spa, Glottolog: stan1288)">ES · Español</option>
+				<option value="en" title="English (ISO: eng, Glottolog: stan1291)">EN · English</option>
+				<option value="qu" title="Qhapaq Simi (ISO: qu0, Glottolog: cusc1238)">QU · Qhapaq Simi</option>
+			</select>
+		</div>
+			<div class="access-cover__content">
+				<img src="/logo.jpg" alt="AYNI" />
+				<h1>Hoy por ti,<br />mañana por mí.</h1>
+				<p>
+					Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.
+				</p>
+			</div>
+			<div class="access-actions">
+				<Btn variant="acento" onclick={iniciarRegistro}>{t('access.crear')}</Btn>
+				<Btn variant="borde" onclick={iniciarSesion}>{t('access.ingresar')}</Btn>
+				<button class="access-demo" type="button" onclick={entrarDemo}
+					>Entrar como vecina de prueba (Rosa)</button
+				>
+			</div>
+		</section>
+	{:else if paso === 'tutorial'}
+		<div class={`access-step ${tutoriales[tutorial].color}`}>
+			<div class="access-step__header">
+				<button class="access-skip" type="button" onclick={retroceder}>Volver</button>
+				<button class="access-skip" type="button" onclick={() => (paso = 'telefono')}>Saltar</button>
+			</div>
+			<div class="access-step__image"><span><Icono name={tutoriales[tutorial].icon} /></span></div>
+			<div class="access-step__copy">
+				<h1>{tutoriales[tutorial].titulo}</h1>
+				<p>{tutoriales[tutorial].texto}</p>
+			</div>
+			<div class="access-step__dots" aria-label={`Paso ${tutorial + 1} de ${tutoriales.length}`}>
+				{#each tutoriales as _, indice}<span class:active={indice === tutorial}></span>{/each}
+			</div>
+			<Btn variant="blanco" onclick={siguienteTutorial}
+				>{tutorial < tutoriales.length - 1 ? t('access.siguiente') : t('access.empezar')}</Btn
+			>
+		</div>
+	{:else if paso === 'telefono'}
+		<section class="access-screen">
+			<Header title={tituloPaso} back={true} onBack={retroceder} />
+			{@render progreso(pasoActual, totalPasos)}
+			<h1 class="mobile-title">
+				{modo === 'registro' ? '¿Cuál es tu número de celular?' : '¡Hola de nuevo!'}
+			</h1>
+			<p class="mobile-subtitle">
+				{modo === 'registro'
+					? 'Te enviaremos un código por SMS para verificar que eres tú.'
+					: 'Escribe tu número y te enviaremos un código para entrar.'}
+			</p>
+			<div class="phone-field">
+				<span>🇵🇪 +51</span>
+				<Input
+					type="tel"
+					inputmode="numeric"
+					maxlength={9}
+					placeholder="987 654 321"
+					bind:value={telefono}
+					ariaLabel="Número de celular"
+					onEnter={continuarTelefono}
+				/>
+			</div>
+			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
+			<p class="privacy-note">
+				<Icono name="bloquear" /> Tus vecinos no verán tu número. Solo se usa cuando tú lo decidas.
+			</p>
+			<div class="access-spacer"></div>
+			<StepNav
+				pasoActual={pasoActual}
+				totalPasos={totalPasos}
+				onBack={retroceder}
+				onNext={continuarTelefono}
+				nextLabel="Enviar código"
+				nextDisabled={telefono.length !== 9}
+			/>
+		</section>
+	{:else if paso === 'codigo'}
+		<section class="access-screen">
+			<Header title={tituloPaso} back={true} onBack={retroceder} />
+			{@render progreso(pasoActual, totalPasos)}
+			<h1 class="mobile-title">Escribe el código</h1>
+			<p class="mobile-subtitle">Lo enviamos por SMS al +51 {telefono}.</p>
+			<Input
+				class="code-field"
 				inputmode="numeric"
-				maxlength="9"
-				placeholder="987 654 321"
-				bind:value={telefono}
+				maxlength={4}
+				placeholder="• • • •"
+				bind:value={codigo}
+				ariaLabel="Código de verificación"
+				onEnter={verificarCodigo}
 			/>
-		</div>
-		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-		<p class="privacy-note">🔒 Tus vecinos no verán tu número. Solo se usa cuando tú lo decidas.</p>
-		<div class="access-spacer"></div>
-		<Btn disabled={telefono.length !== 9} onclick={continuarTelefono}>Enviar código</Btn>
-	</Screen>
-{:else if paso === 'codigo'}
-	<Screen>
-		<Header title={modo === 'registro' ? 'Paso 2 de 4' : 'Ingresar'} back={false} />
-		<div class="access-progress"><span></span><span></span><i></i><i></i></div>
-		<h1 class="mobile-title">Escribe el código</h1>
-		<p class="mobile-subtitle">Lo enviamos por SMS al +51 {telefono}.</p>
-		<input
-			class="code-field"
-			inputmode="numeric"
-			maxlength="4"
-			placeholder="• • • •"
-			bind:value={codigo}
-		/>
-		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-		<div class="demo-note">🧪 Modo demostración: el código es 1234.</div>
-		<button class="access-demo" type="button" onclick={() => (paso = 'telefono')}
-			>Cambiar número</button
-		>
-		<div class="access-spacer"></div>
-		<Btn disabled={codigo.length !== 4} onclick={verificarCodigo}>Verificar</Btn>
-	</Screen>
-{:else if paso === 'nombre'}
-	<Screen>
-		<Header title="Paso 3 de 5" back={false} />
-		<div class="access-progress"><span></span><span></span><span></span><i></i><i></i></div>
-		<h1 class="mobile-title">¿Cómo te llamas?</h1>
-		<p class="mobile-subtitle">Así tus vecinos sabrán quién recomienda, presta o pide ayuda.</p>
-		<input
-			class="code-field name-field"
-			autocomplete="given-name"
-			placeholder="Nombre"
-			bind:value={alias}
-		/>
-		<input
-			class="code-field name-field"
-			autocomplete="family-name"
-			placeholder="Apellido"
-			bind:value={apellido}
-		/>
-		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-		<div class="access-spacer"></div>
-		<Btn disabled={alias.trim().length < 2 || apellido.trim().length < 2} onclick={guardarRegistro}
-			>{t('access.continuar')}</Btn
-		>
-	</Screen>
-{:else if paso === 'ubicacion'}
-	<Screen>
-		<Header title="Paso 4 de 5" back={false} />
-		<div class="access-progress"><span></span><span></span><span></span><span></span><i></i></div>
-		<h1 class="mobile-title">¿Dónde vives?</h1>
-		<p class="mobile-subtitle">
-			Usamos una ubicación aproximada para mostrarte ayuda cerca. Nunca publicaremos tu dirección
-			exacta.
-		</p>
-		<label class="publish-label">
-			Referencia o dirección
-			<input
-				class="publish-input"
-				autocomplete="street-address"
-				placeholder="Ej. Av. Los Jardines 123"
-				bind:value={ubicacion}
+			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
+			<div class="demo-note">
+				<Icono name="servicio" /> Modo demostración: el código es 1234.
+			</div>
+			<button class="access-demo" type="button" onclick={() => (paso = 'telefono')}
+				>Cambiar número</button
+			>
+			<div class="access-spacer"></div>
+			<StepNav
+				pasoActual={pasoActual}
+				totalPasos={totalPasos}
+				onBack={retroceder}
+				onNext={verificarCodigo}
+				nextLabel="Verificar"
+				nextDisabled={codigo.length !== 4}
 			/>
-		</label>
-		<button
-			class="access-location"
-			type="button"
-			onclick={usarUbicacionActual}
-			disabled={obteniendoUbicacion}
-		>
-			{obteniendoUbicacion ? 'Detectando ubicación…' : '📍 Usar mi ubicación actual'}
-		</button>
-		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-		<div class="access-spacer"></div>
-		<Btn disabled={!ubicacion.trim()} onclick={guardarUbicacion}>{t('access.continuar')}</Btn>
-	</Screen>
-{:else}
-	<Screen>
-		<Header title="Paso 5 de 5" back={false} />
-		<div class="access-progress">
-			<span></span><span></span><span></span><span></span><span></span>
-		</div>
-		<h1 class="mobile-title">Elige tu manzana</h1>
-		<p class="mobile-subtitle">
-			La app detecta tu sector y solo muestra esta referencia de forma pública.
-		</p>
-		<div class="zone-grid">
-			{#each ['A', 'B', 'C', 'D'] as item}
-				<button class:active={manzana === item} type="button" onclick={() => (manzana = item)}>
-					Sector 3 · Mz. {item}
-				</button>
-			{/each}
-		</div>
-		{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-		<div class="access-spacer"></div>
-		<Btn disabled={!manzana} onclick={guardarZona}>{t('access.entrar')}</Btn>
-	</Screen>
-{/if}
+		</section>
+	{:else if paso === 'nombre'}
+		<section class="access-screen">
+			<Header title={tituloPaso} back={true} onBack={retroceder} />
+			{@render progreso(pasoActual, totalPasos)}
+			<h1 class="mobile-title">¿Cómo te llamas?</h1>
+			<p class="mobile-subtitle">Así tus vecinos sabrán quién recomienda, presta o pide ayuda.</p>
+			<Input
+				class="code-field name-field"
+				autocomplete="given-name"
+				placeholder="Nombre"
+				bind:value={alias}
+				ariaLabel="Nombre"
+				onEnter={guardarRegistro}
+			/>
+			<Input
+				class="code-field name-field"
+				autocomplete="family-name"
+				placeholder="Apellido"
+				bind:value={apellido}
+				ariaLabel="Apellido"
+				onEnter={guardarRegistro}
+			/>
+			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
+			<div class="access-spacer"></div>
+			<StepNav
+				pasoActual={pasoActual}
+				totalPasos={totalPasos}
+				onBack={retroceder}
+				onNext={guardarRegistro}
+				nextLabel={t('access.continuar')}
+				nextDisabled={alias.trim().length < 2 || apellido.trim().length < 2}
+			/>
+		</section>
+	{:else if paso === 'ubicacion'}
+		<section class="access-screen">
+			<Header title={tituloPaso} back={true} onBack={retroceder} />
+			{@render progreso(pasoActual, totalPasos)}
+			<h1 class="mobile-title">¿Dónde vives?</h1>
+			<p class="mobile-subtitle">
+				Usamos una ubicación aproximada para mostrarte ayuda cerca. Nunca publicaremos tu dirección
+				exacta.
+			</p>
+			<label class="publish-label">
+				Referencia o dirección
+				<Input
+					class="publish-input"
+					autocomplete="street-address"
+					placeholder="Ej. Av. Los Jardines 123"
+					bind:value={ubicacion}
+					ariaLabel="Referencia o dirección"
+					onEnter={guardarUbicacion}
+				/>
+			</label>
+			<button
+				class="access-location"
+				type="button"
+				onclick={usarUbicacionActual}
+				disabled={obteniendoUbicacion}
+			>
+				{#if obteniendoUbicacion}Detectando ubicación…{:else}<Icono
+						name="ubicacion"
+					/> Usar mi ubicación actual{/if}
+			</button>
+			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
+			<div class="access-spacer"></div>
+			<StepNav
+				pasoActual={pasoActual}
+				totalPasos={totalPasos}
+				onBack={retroceder}
+				onNext={guardarUbicacion}
+				nextLabel={t('access.continuar')}
+				nextDisabled={!ubicacion.trim()}
+			/>
+		</section>
+	{:else}
+		<section class="access-screen">
+			<Header title={tituloPaso} back={true} onBack={retroceder} />
+			{@render progreso(pasoActual, totalPasos)}
+			<h1 class="mobile-title">Elige tu manzana</h1>
+			<p class="mobile-subtitle">
+				La app detecta tu sector y solo muestra esta referencia de forma pública.
+			</p>
+			<div class="zone-grid">
+				{#each ['A', 'B', 'C', 'D'] as item}
+					<button class:active={manzana === item} type="button" onclick={() => (manzana = item)}>
+						Sector 3 · Mz. {item}
+					</button>
+				{/each}
+			</div>
+			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
+			<div class="access-spacer"></div>
+			<StepNav
+				pasoActual={pasoActual}
+				totalPasos={totalPasos}
+				onBack={retroceder}
+				onNext={guardarZona}
+				nextLabel={t('access.entrar')}
+				nextDisabled={!manzana}
+			/>
+		</section>
+	{/if}
+</div>

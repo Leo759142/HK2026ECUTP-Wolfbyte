@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
+	import Icono from '../../../lib/iconos/Icono.svelte';
 
 	type AlertaOficial = {
 		id: string;
@@ -64,7 +65,7 @@
 	<div class="emergency-list">
 		{#each items as item (item.id)}
 			<article class="emergency-card">
-				<div class="emergency-card__icon">📡</div>
+				<div class="emergency-card__icon"><Icono name="radar" /></div>
 				<div>
 					<strong>{item.titulo}</strong>
 					<small>{item.fuente} · Nivel {item.nivel} · {item.estado}</small>

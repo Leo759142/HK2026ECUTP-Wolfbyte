@@ -3,6 +3,7 @@
 	import { encolarAccion } from '../../sync/outbox.svelte';
 	import { construirPublicacion } from '../../lib/publicar';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
 
 	type Alerta = {
 		id: string;
@@ -15,12 +16,12 @@
 	};
 
 	const tipos = [
-		['persona_vulnerable', '🧑‍🦽', 'Persona vulnerable'],
-		['zona_inundada', '🌧️', 'Zona inundada'],
-		['via_bloqueada', '🚧', 'Vía bloqueada'],
-		['sin_servicios_basicos', '🚰', 'Sin servicios básicos'],
-		['riesgo_estructural', '🏚️', 'Riesgo estructural'],
-		['otro', '⚠️', 'Otra situación']
+		['persona_vulnerable', 'persona_vulnerable', 'Persona vulnerable'],
+		['zona_inundada', 'zona_inundada', 'Zona inundada'],
+		['via_bloqueada', 'via_bloqueada', 'Vía bloqueada'],
+		['sin_servicios_basicos', 'sin_servicios_basicos', 'Sin servicios básicos'],
+		['riesgo_estructural', 'riesgo_estructural', 'Riesgo estructural'],
+		['otro', 'alerta', 'Otra situación']
 	] as const;
 
 	let items = $state<Alerta[]>([]);
@@ -122,27 +123,28 @@
 
 <section class="emergency-page">
 	<div class="emergency-hero">
-		<div class="emergency-hero__icon">🚨</div>
+		<div class="emergency-hero__icon"><Icono name="alerta" /></div>
 		<div>
 			<h1>Emergencias y ayuda</h1>
 			<p>Reporta una situación y mantén informado a tu sector.</p>
 		</div>
 	</div>
-	<a class="profile-link" href="/moderacion/alertas-oficiales">📡 Revisar alertas oficiales</a>
+	<a class="profile-link" href="/moderacion/alertas-oficiales"><Icono name="radar" />
+		<strong>Revisar alertas oficiales</strong></a>
 	<div class="emergency-actions">
 		<a class="emergency-action emergency-action--primary" href="/pedir-ayuda">
-			<strong>🆘 Necesito ayuda</strong>
+			<strong><Icono name="otra_ayuda" /> Necesito ayuda</strong>
 			<span>Guarda un pedido local y revisa opciones de apoyo</span>
 		</a>
 		<a class="emergency-action" href="/grupos">
-			<strong>👥 Ver grupos y servicios de apoyo</strong>
+			<strong><Icono name="grupos" /> Ver grupos y servicios de apoyo</strong>
 			<span>Consulta redes comunitarias disponibles</span>
 		</a>
 	</div>
 
 	{#if reporteEnviado}
 		<div class="emergency-submitted" role="status" aria-live="polite">
-			<div class="emergency-submitted__icon">✅</div>
+			<div class="emergency-submitted__icon"><Icono name="check" /></div>
 			<h2>Reporte enviado</h2>
 			<p>Un Guardián de tu sector revisará la situación. Te avisaremos cuando haya novedades.</p>
 			<small>Guardado en tu celular · Código {reporteId.slice(0, 8)}</small>
@@ -176,9 +178,9 @@
 				</div>
 			</div>
 			<div class="emergency-type-grid" aria-label="Tipo de emergencia">
-				{#each tipos as [id, emoji, label]}
+				{#each tipos as [id, icon, label]}
 					<button class:active={tipo === id} type="button" onclick={() => (tipo = id)}>
-						<span>{emoji}</span><strong>{label}</strong>
+						<span><Icono name={icon} /></span><strong>{label}</strong>
 					</button>
 				{/each}
 			</div>
@@ -201,7 +203,7 @@
 					}}
 				/>
 			</div>
-			<p class="emergency-location">📍 Ubicación aproximada · Mz. de tu sector</p>
+			<p class="emergency-location"><Icono name="ubicacion" /> Ubicación aproximada · Mz. de tu sector</p>
 			{#if error}<p class="notice notice--error" role="alert">{error}</p>{/if}
 			<button class="mobile-btn mobile-btn--danger" type="submit" disabled={guardando}>
 				{guardando ? 'Guardando reporte…' : 'Enviar reporte'}
@@ -227,41 +229,42 @@
 			</div>
 		{/if}
 	</div>
-
-	<div class="section-heading">
-		<div>
-			<h2>Alertas de tu comunidad</h2>
-			<p>Solo mostramos ubicaciones aproximadas.</p>
+	<div class="emergency-callout">
+		<div class="section-heading">
+			<div>
+				<h2>Alertas de tu comunidad</h2>
+				<p>Solo mostramos ubicaciones aproximadas.</p>
+			</div>
+			<button class="text-button" type="button" onclick={cargar} disabled={cargando}
+				>Actualizar</button
+			>
 		</div>
-		<button class="text-button" type="button" onclick={cargar} disabled={cargando}
-			>Actualizar</button
-		>
-	</div>
 
-	{#if error && !reporteEnviado}
-		<div class="feedback feedback--error" role="alert">
-			{error} <button type="button" onclick={cargar}>Reintentar</button>
-		</div>
-	{:else if cargando}
-		<p class="empty" role="status">Cargando alertas…</p>
-	{:else if items.length === 0}
-		<div class="empty">No hay alertas activas en este momento.</div>
-	{:else}
-		<div class="emergency-list">
-			{#each items as alerta (alerta.id)}
-				<article class="emergency-card">
-					<div class="emergency-card__icon">🚨</div>
-					{#if alerta.foto}<img class="emergency-card__photo" src={alerta.foto} alt="" />{/if}
-					<div>
-						<div class="emergency-card__heading">
-							<strong>{etiquetaTipo(alerta.tipo)}</strong>
-							<span>{estadoTexto(alerta.estado)}</span>
+		{#if error && !reporteEnviado}
+			<div class="feedback feedback--error" role="alert">
+				{error} <button type="button" onclick={cargar}>Reintentar</button>
+			</div>
+		{:else if cargando}
+			<p class="empty" role="status">Cargando alertas…</p>
+		{:else if items.length === 0}
+			<div class="empty">No hay alertas activas en este momento.</div>
+		{:else}
+			<div class="emergency-list">
+				{#each items as alerta (alerta.id)}
+					<article class="emergency-card">
+						<div class="emergency-card__icon"><Icono name="alerta" /></div>
+						{#if alerta.foto}<img class="emergency-card__photo" src={alerta.foto} alt="" />{/if}
+						<div>
+							<div class="emergency-card__heading">
+								<strong>{etiquetaTipo(alerta.tipo)}</strong>
+								<span>{estadoTexto(alerta.estado)}</span>
+							</div>
+							{#if alerta.descripcion}<p>{alerta.descripcion}</p>{/if}
+							<small>Ubicación aproximada · {fechaTexto(alerta.creado_en ?? alerta.createdAt)}</small>
 						</div>
-						{#if alerta.descripcion}<p>{alerta.descripcion}</p>{/if}
-						<small>Ubicación aproximada · {fechaTexto(alerta.creado_en ?? alerta.createdAt)}</small>
-					</div>
-				</article>
-			{/each}
-		</div>
-	{/if}
+					</article>
+				{/each}
+			</div>
+		{/if}
+	</div>
 </section>

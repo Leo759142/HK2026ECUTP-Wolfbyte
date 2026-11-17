@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Icono from '../lib/iconos/Icono.svelte';
 
 	let nombre = $state('Rosa');
 	type ServicioInicio = {
@@ -30,23 +31,14 @@
 	});
 
 	const categorias = [
-		['🔧', 'Gasfitería'],
-		['⚡', 'Electricidad'],
-		['🪚', 'Carpintería'],
-		['🧵', 'Costura'],
-		['📚', 'Clases'],
-		['🐾', 'Mascotas'],
-		['🍲', 'Comida']
+		['gasfiteria', 'Gasfitería'],
+		['electricidad', 'Electricidad'],
+		['carpinteria', 'Carpintería'],
+		['costura', 'Costura'],
+		['clases', 'Clases'],
+		['mascotas', 'Mascotas'],
+		['comida', 'Comida']
 	];
-
-	const iconos: Record<string, string> = {
-		gasfiteria: '🔧',
-		electricidad: '⚡',
-		carpinteria: '🪚',
-		costura: '🧵',
-		clases: '📚',
-		comida: '🍲'
-	};
 
 	const nombreCategoria = (categoria?: string) =>
 		categoria ? categoria.charAt(0).toUpperCase() + categoria.slice(1) : 'Servicio';
@@ -71,8 +63,8 @@
 <section class="app-screen home-screen">
 	<div class="home-top">
 		<div class="home-heading">
-			<div class="location">📍 Los Jardines · Sector 3 · Mz. B</div>
-			<h1>¡Hola, {nombre}! 👋</h1>
+			<div class="location"><Icono name="ubicacion" /> Los Jardines · Sector 3 · Mz. B</div>
+			<h1>¡Hola, {nombre}!</h1>
 		</div>
 		<a class="user-avatar" href="/perfil" aria-label="Mi perfil"
 			>{nombre.slice(0, 1).toUpperCase()}</a
@@ -82,12 +74,12 @@
 	<div class="connection"><span></span> En línea</div>
 
 	<form class="app-search" action="/servicios" role="search">
-		<span aria-hidden="true">⌕</span>
+		<span aria-hidden="true"><Icono name="buscar" /></span>
 		<input name="q" aria-label="¿Qué necesitas hoy?" placeholder="¿Qué necesitas hoy?" />
 	</form>
 
 	<a class="emergency-card" href="/emergencia">
-		<span aria-hidden="true">⚠️</span>
+		<span aria-hidden="true"><Icono name="emergencia" /></span>
 		<span>¿Pasa algo grave? <strong>Reportar emergencia</strong></span>
 	</a>
 
@@ -95,13 +87,13 @@
 		<h2>Oficios del barrio</h2>
 	</div>
 	<div class="category-grid">
-		{#each categorias as [emoji, label]}
-			<a href="/servicios" class="category-card"
-				><span aria-hidden="true">{emoji}</span><small>{label}</small></a
+		{#each categorias as [id, label]}
+			<a href="/servicios?categoria={id}" class="category-card"
+				><span aria-hidden="true"><Icono name={id} /></span><small>{label}</small></a
 			>
 		{/each}
 		<a href="/servicios" class="category-card"
-			><span aria-hidden="true">＋</span><small>Ver todo</small></a
+			><span aria-hidden="true"><Icono name="agregar" /></span><small>Ver todo</small></a
 		>
 	</div>
 
@@ -113,13 +105,14 @@
 		{#each recomendados as servicio}
 			<a href="/servicios" class="service-card">
 				<div class="service-card__image" aria-hidden="true">
-					{#if servicio.foto || servicio.fotos?.length}<img src={servicio.foto ?? servicio.fotos?.[0]} alt="" />{:else}{iconos[
-							servicio.categoria ?? ''
-						] ?? '🛠️'}{/if}
+					{#if servicio.foto || servicio.fotos?.length}<img
+							src={servicio.foto ?? servicio.fotos?.[0]}
+							alt=""
+						/>{:else}<Icono name={servicio.categoria ?? 'servicio'} />{/if}
 				</div>
 				<div class="service-card__content">
 					<strong>{servicio.titulo ?? nombreCategoria(servicio.categoria)}</strong>
-					<small>📍 En tu zona · ubicación aproximada</small>
+					<small><Icono name="ubicacion" /> En tu zona · ubicación aproximada</small>
 					<span>{nombreCategoria(servicio.categoria)} · Recomendado por vecinos</span>
 				</div>
 			</a>
@@ -130,7 +123,7 @@
 	</div>
 
 	<a href="/publicar?tipo=servicio" class="publish-prompt">
-		<span aria-hidden="true">🛠️</span>
+		<span aria-hidden="true"><Icono name="servicio" /></span>
 		<span
 			><strong>¿Tienes un oficio o vendes algo?</strong><small
 				>Ofrécelo a tus vecinos en 3 clics.</small

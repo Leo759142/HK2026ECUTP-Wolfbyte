@@ -7,6 +7,7 @@
 	import Header from '../../lib/ui/Header.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
 	import PhotoGallery from '../../lib/ui/PhotoGallery.svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
 
 	const listarFavores = new ListarFavor(new FavorRepoLocal());
 	const confirmarFavor = new ConfirmarFavor(new FavorConfirmacionRepoLocal());
@@ -144,7 +145,7 @@
 			<h1>Hoy por ti, mañana por mí</h1>
 			<p>Ayuda sin dinero, entre vecinos.</p>
 		</div>
-		<a class="favores-help" href="/publicar?tipo=favor">＋ Publicar</a>
+		<a class="favores-help" href="/publicar?tipo=favor"><Icono name="agregar" /> Publicar</a>
 	</div>
 	<div class="favor-tabs" role="tablist">
 		{#each [['todos', 'Todos'], ['necesidad', 'Necesitan ayuda'], ['oferta', 'Ofrecen ayuda'], ['mios', 'Mis publicaciones']] as item}
@@ -158,7 +159,7 @@
 		{/each}
 	</div>
 	<form class="app-search" role="search" onsubmit={(event) => event.preventDefault()}>
-		<span aria-hidden="true">⌕</span>
+		<span aria-hidden="true"><Icono name="buscar" /></span>
 		<input aria-label="Buscar favor" placeholder="Buscar favor" bind:value={query} />
 	</form>
 	{#if aviso}<p class="notice notice--ok" role="status">{aviso}</p>{/if}
@@ -167,10 +168,15 @@
 	<div class="favor-list">
 		{#each visibles as favor (favor.id)}
 			<button class="favor-card" type="button" onclick={() => (seleccionado = favor)}>
-				<div class:favor-icon--offer={favor.tipo === 'oferta'} class="favor-icon">
-					{favor.tipo === 'oferta' ? '🎁' : '🤝'}
-				</div>
-				{#if favor.foto}<img class="favor-card__photo" src={favor.foto} alt="" />{/if}
+				{#if favor.foto}
+					<div class="favor-card__media">
+						<img src={favor.foto} alt="" />
+					</div>
+				{:else}
+					<div class:favor-icon--offer={favor.tipo === 'oferta'} class="favor-icon">
+						<Icono name={favor.tipo === 'oferta' ? 'oferta' : 'favores'} />
+					</div>
+				{/if}
 				<div class="favor-card__body">
 					<div class="favor-card__title">
 						<strong>{favor.titulo}</strong><span
@@ -178,7 +184,7 @@
 						>
 					</div>
 					<p>{favor.descripcion}</p>
-					<small>📍 En tu zona · {estadoTexto(favor)}</small>
+					<small><Icono name="ubicacion" /> En tu zona · {estadoTexto(favor)}</small>
 				</div>
 			</button>
 		{/each}
@@ -187,7 +193,11 @@
 </Screen>
 
 {#if seleccionado}
-	<div class="detail-overlay" role="presentation" onclick={() => (seleccionado = null)}>
+	<div
+		class="detail-overlay"
+		role="presentation"
+		onclick={() => (seleccionado = null)}
+	>
 		<div
 			class="detail-sheet favor-detail"
 			role="dialog"
@@ -197,82 +207,104 @@
 			onclick={(event) => event.stopPropagation()}
 			onkeydown={(event) => event.stopPropagation()}
 		>
-			<button
-				class="detail-close"
-				type="button"
-				aria-label="Cerrar"
-				onclick={() => (seleccionado = null)}>×</button
-			>
-			<div
-				class:favor-icon--offer={seleccionado.tipo === 'oferta'}
-				class="favor-icon favor-icon--large"
-			>
-				{seleccionado.tipo === 'oferta' ? '🎁' : '🤝'}
-			</div>
-			<span class="favor-kind"
-				>{seleccionado.tipo === 'oferta' ? 'Oferta de ayuda' : 'Necesita ayuda'}</span
-			>
+			<!-- Header -->
+			<header class="detail-sheet__header">
+				<button
+					class="detail-sheet__close detail-close"
+					type="button"
+					aria-label="Cerrar"
+					onclick={() => (seleccionado = null)}
+				>×</button>
+				<div class="detail-sheet__icon-wrap">
+					<div
+						class:favor-icon--offer={seleccionado.tipo === 'oferta'}
+						class="favor-icon favor-icon--large detail-sheet__icon"
+					>
+						<Icono name={seleccionado.tipo === 'oferta' ? 'oferta' : 'favores'} />
+					</div>
+					<span class="favor-kind detail-sheet__kind">
+						{seleccionado.tipo === 'oferta' ? 'Oferta de ayuda' : 'Necesita ayuda'}
+					</span>
+				</div>
+			</header>
+
+			<!-- Galería -->
 			{#if seleccionado.foto || seleccionado.fotos?.length}
 				<PhotoGallery
 					foto={seleccionado.foto}
 					fotos={seleccionado.fotos}
 					alt={seleccionado.titulo}
+					class="detail-sheet__gallery"
 				/>
 			{/if}
-			<h2>{seleccionado.titulo}</h2>
-			<p>{seleccionado.descripcion}</p>
-			<div class="detail-tags">
-				<span>📍 Ubicación aproximada</span><span>Estado: {estadoTexto(seleccionado)}</span>
-			</div>
-			{#if seleccionado.estado === 'abierto' && seleccionado.creador_id !== usuarioId}
-				<button
-					class="mobile-btn mobile-btn--accent"
-					disabled={enviando !== null}
-					onclick={() => reservar(seleccionado)}>🙋 Ofrecer ayuda</button
-				>
-			{:else if seleccionado.estado === 'en_curso' && seleccionado.ayudante_id}
-				<div class="favor-confirm-actions">
-					{#if seleccionado.creador_id === usuarioId && !confirmaciones[seleccionado.id]?.includes('solicitante')}
-						<button
-							class="mobile-btn mobile-btn--primary"
-							disabled={enviando !== null}
-							onclick={() => seCumplio(seleccionado, 'solicitante')}>Se cumplió</button
-						>
-					{:else if seleccionado.ayudante_id === usuarioId && !confirmaciones[seleccionado.id]?.includes('ayudante')}
-						<button
-							class="mobile-btn mobile-btn--primary"
-							disabled={enviando !== null}
-							onclick={() => seCumplio(seleccionado, 'ayudante')}>Se cumplió</button
-						>
-					{/if}
+
+			<!-- Cuerpo -->
+			<div class="detail-sheet__body">
+				<h2 class="detail-sheet__title">{seleccionado.titulo}</h2>
+				<p class="detail-sheet__desc">{seleccionado.descripcion}</p>
+				<div class="detail-sheet__meta detail-tags">
+					<span><Icono name="ubicacion" /> Ubicación aproximada</span>
+					<span>Estado: {estadoTexto(seleccionado)}</span>
 				</div>
-				{#if seleccionado.creador_id === usuarioId}
+			</div>
+
+			<hr class="detail-sheet__divider" />
+
+			<!-- Acciones según estado -->
+			<div class="detail-sheet__actions">
+				{#if seleccionado.estado === 'abierto' && seleccionado.creador_id !== usuarioId}
 					<button
-						class="mobile-btn mobile-btn--outline"
+						class="mobile-btn mobile-btn--accent detail-sheet__btn"
 						disabled={enviando !== null}
-						onclick={() => cancelar(seleccionado)}>Cancelar favor</button
-					>
+						onclick={() => reservar(seleccionado)}
+					><Icono name="ayuda" /> Ofrecer ayuda</button>
+				{:else if seleccionado.estado === 'en_curso' && seleccionado.ayudante_id}
+					<div class="favor-confirm-actions detail-sheet__confirm">
+						{#if seleccionado.creador_id === usuarioId && !confirmaciones[seleccionado.id]?.includes('solicitante')}
+							<button
+								class="mobile-btn mobile-btn--primary detail-sheet__btn"
+								disabled={enviando !== null}
+								onclick={() => seCumplio(seleccionado, 'solicitante')}
+							>Se cumplió</button>
+						{:else if seleccionado.ayudante_id === usuarioId && !confirmaciones[seleccionado.id]?.includes('ayudante')}
+							<button
+								class="mobile-btn mobile-btn--primary detail-sheet__btn"
+								disabled={enviando !== null}
+								onclick={() => seCumplio(seleccionado, 'ayudante')}
+							>Se cumplió</button>
+						{/if}
+					</div>
+					{#if seleccionado.creador_id === usuarioId}
+						<button
+							class="mobile-btn mobile-btn--outline detail-sheet__btn detail-sheet__btn--danger"
+							disabled={enviando !== null}
+							onclick={() => cancelar(seleccionado)}
+						>Cancelar favor</button>
+					{/if}
+					{#if seleccionado.creador_id !== usuarioId && seleccionado.ayudante_id !== usuarioId}
+						<p class="muted detail-sheet__muted">Este favor ya está coordinado con otro vecino.</p>
+					{/if}
+				{:else if seleccionado.estado === 'cerrado'}
+					<p class="notice notice--ok detail-sheet__notice detail-sheet__notice--ok">
+						Este favor ya fue cerrado y confirmado.
+					</p>
+				{:else if seleccionado.estado === 'cancelado'}
+					<p class="notice detail-sheet__notice">Esta publicación fue cancelada.</p>
+				{:else if seleccionado.creador_id === usuarioId}
+					<button
+						class="mobile-btn mobile-btn--outline detail-sheet__btn detail-sheet__btn--danger"
+						disabled={enviando !== null}
+						onclick={() => cancelar(seleccionado)}
+					>Cancelar publicación</button>
 				{/if}
-				{#if seleccionado.creador_id !== usuarioId && seleccionado.ayudante_id !== usuarioId}
-					<p class="muted">Este favor ya está coordinado con otro vecino.</p>
-				{/if}
-			{:else if seleccionado.estado === 'cerrado'}
-				<p class="notice notice--ok">Este favor ya fue cerrado y confirmado.</p>
-			{:else if seleccionado.estado === 'cancelado'}
-				<p class="notice">Esta publicación fue cancelada.</p>
-			{:else if seleccionado.creador_id === usuarioId}
-				<button
-					class="mobile-btn mobile-btn--outline"
-					disabled={enviando !== null}
-					onclick={() => cancelar(seleccionado)}>Cancelar publicación</button
-				>
-			{/if}
+			</div>
+
+			<!-- Moderación -->
 			{#if seleccionado.creador_id !== usuarioId}
-				<div class="detail-moderation">
+				<div class="detail-sheet__moderation detail-moderation">
 					<a
 						href={`/moderacion/reportar?collection=favors&id=${encodeURIComponent(seleccionado.id)}`}
-						>⚑ Reportar publicación</a
-					>
+						><Icono name="reporte" /> Reportar publicación</a>
 					<button
 						type="button"
 						onclick={() => {
@@ -281,8 +313,8 @@
 							) as string[];
 							if (!actual.includes(seleccionado.creador_id)) actual.push(seleccionado.creador_id);
 							localStorage.setItem('ayni:v1:blocked', JSON.stringify(actual));
-						}}>🚫 Bloquear vecino</button
-					>
+						}}
+					><Icono name="bloquear" /> Bloquear vecino</button>
 				</div>
 			{/if}
 		</div>

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
+	import Icono from '../../../lib/iconos/Icono.svelte';
 	let emergencias = $state<Array<Record<string, unknown>>>([]);
 	let reportes = $state<Array<Record<string, unknown>>>([]);
 	let esGuardian = $state(false);
@@ -54,20 +55,20 @@
 	<Header title="Panel del Guardián" />
 	{#if !esGuardian}
 		<div class="empty">
-			<strong>🛡️ Solo para Guardianes</strong>
+			<strong><Icono name="guardian" /> Solo para Guardianes</strong>
 			<p>Acepta la invitación desde tu perfil para acceder.</p>
 		</div>
 	{:else}
 		<div class="guardian-banner">
-			🛡️ <span
+			<Icono name="guardian" /> <span
 				><strong>Panel del Guardián</strong><small>Ayuda a mantener segura tu zona.</small></span
 			>
 		</div>
 		<h2>Emergencias por confirmar</h2>
-		{#if !emergencias.length}<div class="empty">🙌 No hay reportes pendientes.</div>{/if}
+		{#if !emergencias.length}<div class="empty"><Icono name="favores" /> No hay reportes pendientes.</div>{/if}
 		{#each emergencias as emergencia, i}
 			<article class="guardian-item guardian-item--danger">
-				<strong>🚨 {emergencia.tipo ?? 'Situación reportada'}</strong>
+				<strong><Icono name="alerta" /> {emergencia.tipo ?? 'Situación reportada'}</strong>
 				<p>{emergencia.descripcion ?? emergencia.texto ?? 'Un vecino pidió ayuda.'}</p>
 				<button class="mobile-btn mobile-btn--primary" onclick={() => atender(i)}
 					>Confirmar reporte</button
@@ -75,7 +76,7 @@
 			</article>
 		{/each}
 		<h2>Publicaciones reportadas ({reportes.length})</h2>
-		{#if !reportes.length}<div class="empty">Todo en orden 👌</div>{/if}
+		{#if !reportes.length}<div class="empty"><Icono name="check" /> Todo en orden</div>{/if}
 		{#each reportes as reporte, i}
 			<article class="guardian-item">
 				<strong>En revisión · {reporte.reason ?? 'Motivo no indicado'}</strong>

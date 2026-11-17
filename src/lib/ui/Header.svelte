@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	let { title = '', back = true, children = undefined } = $props();
+	let { title = '', back = true, onBack = undefined, children = undefined } = $props();
+
+	function handleBack() {
+		if (onBack) onBack();
+		else goto('/');
+	}
 </script>
 
 <div class="mobile-header">
@@ -11,7 +16,7 @@
 			type="button"
 			aria-label="Volver"
 			title="Volver"
-			onclick={() => goto('/')}
+			onclick={handleBack}
 		>
 			<svg
 				viewBox="0 0 24 24"

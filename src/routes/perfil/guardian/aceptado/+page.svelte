@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import Screen from '../../../../lib/ui/Screen.svelte';
+	import Icono from '../../../../lib/iconos/Icono.svelte';
 </script>
 
 <Screen>
 	<div class="guardian-accepted">
-		<div class="guardian-invite__icon">🛡️</div>
+		<div class="guardian-invite__icon"><Icono name="guardian" /></div>
 		<h1>¡Ya eres Guardián!</h1>
 		<p>
 			Te avisaremos cuando un vecino reporte una emergencia o una publicación necesite revisión.

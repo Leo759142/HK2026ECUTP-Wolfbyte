@@ -1,0 +1,1267 @@
+<div class="w-96 h-[812px] relative bg-orange-50 rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-56 h-32 left-0 top-0 absolute opacity-40 bg-gradient-to-r from-teal-500 to-pink-500"></div>
+  <div class="size-28 left-[260px] top-0 absolute opacity-20 bg-gradient-to-r from-teal-400 to-pink-600"></div>
+  <div class="w-96 h-32 left-0 top-[677px] absolute opacity-90 bg-gradient-to-r from-teal-400 to-pink-600"></div>
+  <div class="w-96 h-16 left-0 top-[741px] absolute opacity-75 bg-gradient-to-r from-cyan-700 to-pink-600"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-gray-900 text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-gray-900 text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-white"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-7 pt-5 pb-10 relative flex flex-col justify-between items-start overflow-hidden">
+    <div class="self-stretch text-right justify-start text-cyan-800 text-base font-bold font-['Nunito'] leading-5">Saltar</div>
+    <img class="w-96 h-80 left-[7px] top-[89px] absolute" src="https://placehold.co/360x324" />
+    <div class="self-stretch h-32"></div>
+    <div class="w-80 left-[28px] top-[437px] absolute text-center justify-start text-teal-800 text-3xl font-black font-['Nunito'] leading-8">Hoy por ti,<br/>mañana por mí</div>
+    <div class="w-80 left-[28px] top-[519px] absolute text-center justify-start text-cyan-900 text-base font-bold font-['Nunito'] leading-6">Encuentra gente de oficio, laboriosa y empeñosa en mejorar nuestros círculos</div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-4 overflow-hidden">
+      <div class="self-stretch inline-flex justify-center items-center gap-2 overflow-hidden">
+        <div class="w-7 h-2.5 bg-cyan-700 rounded-[5px]"></div>
+        <div class="size-2.5 bg-slate-300 rounded-[5px]"></div>
+        <div class="size-2.5 bg-slate-300 rounded-[5px]"></div>
+      </div>
+      <div class="self-stretch h-14 bg-white rounded-3xl shadow-[0px_4px_11px_0px_rgba(0,0,0,0.13)] inline-flex justify-center items-center gap-2">
+        <div class="justify-start text-teal-700 text-base font-black font-['Nunito'] leading-5">Siguiente →</div>
+      </div>
+    </div>
+  </div>
+  <div data-color="Color" class="w-20 h-14 left-[146px] top-[8px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Primer contacto con la app. "Saltar" lleva directo al registro. El tutorial se puede volver a ver desde Mi perfil.</div>
+<div class="w-96 h-[812px] relative bg-sky-900 rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-56 h-32 left-0 top-0 absolute opacity-20 bg-gradient-to-r from-blue-900 to-pink-500"></div>
+  <div class="size-28 left-[260px] top-0 absolute opacity-10 bg-gradient-to-r from-cyan-400 to-pink-600"></div>
+  <div class="w-96 h-32 left-0 top-[677px] absolute opacity-60 bg-gradient-to-r from-cyan-400 to-pink-600"></div>
+  <div class="w-96 h-16 left-0 top-[741px] absolute opacity-60 bg-gradient-to-r from-cyan-800 to-pink-600"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-white text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-white text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-white"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-7 pt-5 pb-10 relative flex flex-col justify-between items-start overflow-hidden">
+    <div class="self-stretch text-right justify-start text-white text-base font-bold font-['Nunito'] leading-5">Saltar</div>
+    <img class="w-96 h-80 left-[7px] top-[62px] absolute" src="https://placehold.co/360x345" />
+    <div class="w-3.5 h-80 left-[352px] top-[62px] absolute bg-gradient-to-r from-sky-900/0 to-sky-900"></div>
+    <div class="w-3.5 h-80 left-[7px] top-[62px] absolute bg-gradient-to-r from-sky-900 to-sky-900/0"></div>
+    <div class="w-96 h-7 left-[7px] top-[379px] absolute bg-gradient-to-b from-sky-900/0 to-sky-900"></div>
+    <div class="w-96 h-6 left-[7px] top-[62px] absolute bg-gradient-to-b from-sky-900 to-sky-900/0"></div>
+    <div class="w-80 left-[28px] top-[440px] absolute flex flex-col justify-start items-start gap-3 overflow-hidden">
+      <div class="self-stretch text-center justify-start text-white text-3xl font-black font-['Nunito'] leading-8">Pide o presta<br/>sin dinero</div>
+      <div class="self-stretch text-center justify-start text-slate-50 text-base font-bold font-['Nunito'] leading-6">Presta tu escalera, regala lo que te sobra o intercambia lo que sabes hacer.</div>
+    </div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-4 overflow-hidden">
+      <div class="self-stretch inline-flex justify-center items-center gap-2 overflow-hidden">
+        <div class="size-2.5 bg-emerald-200 rounded-[5px]"></div>
+        <div class="w-7 h-2.5 bg-white rounded-[5px]"></div>
+        <div class="size-2.5 bg-emerald-200 rounded-[5px]"></div>
+      </div>
+      <div class="self-stretch h-14 bg-white rounded-3xl shadow-[0px_4px_11px_0px_rgba(0,0,0,0.13)] inline-flex justify-center items-center gap-2">
+        <div class="justify-start text-cyan-800 text-base font-black font-['Nunito'] leading-5">Siguiente →</div>
+      </div>
+    </div>
+  </div>
+  <div data-color="Blanco" class="w-20 h-14 left-[146px] top-[8px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Presenta la Cadena de Favores: la economía solidaria del barrio.</div>
+<div class="w-96 h-[812px] relative bg-rose-600 rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-56 h-32 left-0 top-0 absolute opacity-10 bg-gradient-to-r from-blue-900 to-rose-500"></div>
+  <div class="size-28 left-[260px] top-0 absolute opacity-20 bg-gradient-to-r from-rose-400 to-pink-700"></div>
+  <div class="w-96 h-32 left-0 top-[677px] absolute opacity-60 bg-gradient-to-r from-rose-400 to-pink-700"></div>
+  <div class="w-96 h-16 left-0 top-[741px] absolute opacity-60 bg-gradient-to-r from-rose-600 to-pink-700"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-white text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-white text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-white"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-7 pt-5 pb-10 relative flex flex-col justify-between items-start overflow-hidden">
+    <div class="self-stretch text-right justify-start text-white text-base font-bold font-['Nunito'] leading-5">Saltar</div>
+    <img class="w-96 h-80 left-[7px] top-[76px] absolute" src="https://placehold.co/360x331" />
+    <div class="w-3.5 h-80 left-[352px] top-[62px] absolute bg-gradient-to-r from-rose-600/0 to-rose-600"></div>
+    <div class="w-3.5 h-80 left-[7px] top-[62px] absolute bg-gradient-to-r from-rose-600 to-rose-600/0"></div>
+    <div class="w-96 h-7 left-[7px] top-[379px] absolute bg-gradient-to-b from-rose-600/0 to-rose-600"></div>
+    <div class="w-96 h-6 left-[7px] top-[62px] absolute bg-gradient-to-b from-rose-600 to-rose-600/0"></div>
+    <div class="w-80 left-[28px] top-[440px] absolute flex flex-col justify-start items-start gap-3 overflow-hidden">
+      <div class="self-stretch text-center justify-start text-white text-3xl font-black font-['Nunito'] leading-8">En emergencias,<br/>nos cuidamos</div>
+      <div class="self-stretch text-center justify-start text-white text-base font-bold font-['Nunito'] leading-6">Si pasa algo grave, la app cambia a modo emergencia para coordinar ayuda entre vecinos.</div>
+    </div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-4 overflow-hidden">
+      <div class="self-stretch inline-flex justify-center items-center gap-2 overflow-hidden">
+        <div class="size-2.5 bg-emerald-200 rounded-[5px]"></div>
+        <div class="size-2.5 bg-emerald-200 rounded-[5px]"></div>
+        <div class="w-7 h-2.5 bg-white rounded-[5px]"></div>
+      </div>
+      <div class="self-stretch h-14 bg-white rounded-3xl shadow-[0px_4px_11px_0px_rgba(0,0,0,0.13)] inline-flex justify-center items-center gap-2">
+        <div class="justify-start text-rose-600 text-base font-black font-['Nunito'] leading-5">Empezar</div>
+      </div>
+    </div>
+  </div>
+  <div data-color="Blanco" class="w-20 h-14 left-[146px] top-[8px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">El rojo anticipa cómo se verá la app en modo emergencia. "Empezar" lleva al registro.</div>
+<div class="justify-start text-color-tinta text-4xl font-black font-['Nunito'] leading-10">1 · Bienvenida y registro (usuario nuevo)</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[707px] absolute opacity-80 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="size-1 left-[371px] top-[100px] absolute opacity-20 bg-cyan-700 rounded-full"></div>
+  <div class="size-1.5 left-[343px] top-[90px] absolute opacity-25 bg-pink-600 rounded-full"></div>
+  <div class="size-[5px] left-[312px] top-[106px] absolute opacity-20 bg-cyan-700 rounded-full"></div>
+  <div class="w-14 h-4 left-[308px] top-[89px] absolute opacity-20 outline outline-2 outline-offset-[-0.90px] outline-cyan-700"></div>
+  <div class="w-[3px] h-12 left-0 top-[314px] absolute bg-gradient-to-b from-teal-500/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-4 overflow-hidden">
+    <div class="self-stretch flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+      <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+        <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Paso 1 de 4</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-linea rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-linea rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-linea rounded-[3px]"></div>
+      </div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">¿Cuál es tu número de celular?</div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">Te enviaremos un código por SMS para verificar que eres tú.</div>
+    <div class="self-stretch inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      <div class="w-24 h-14 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-6">🇵🇪 +51</div>
+      </div>
+      <div class="flex-1 h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-petroleo flex justify-start items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-lg font-bold font-['Nunito'] leading-6">987 654 321</div>
+        <div class="justify-start text-color-petroleo text-lg font-bold font-['Nunito'] leading-6">|</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-[5px] overflow-hidden">
+      <div class="size-3.5 relative overflow-hidden">
+        <div class="w-2 h-3 left-[3.13px] top-[1.88px] absolute outline outline-[1.25px] outline-offset-[-0.63px] outline-gray-500"></div>
+      </div>
+      <div class="flex-1 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Tus vecinos no verán tu número. Solo se usa para WhatsApp cuando tú lo decidas.</div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Enviar código</div>
+    </div>
+  </div>
+  <div class="self-stretch px-1.5 pt-1.5 pb-5 bg-color-linea flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">1</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">2</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">3</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">4</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">5</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">6</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">7</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">8</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">9</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 rounded-lg"></div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">0</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">⌫</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">El número se pide primero porque es lo que evita cuentas falsas: cada cuenta necesita un celular real.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[707px] absolute opacity-80 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="w-14 h-12 left-[315px] top-[83px] absolute opacity-10 outline outline-2 outline-offset-[-0.90px] outline-pink-600"></div>
+  <div class="size-14 left-[313px] top-[81px] absolute opacity-10 bg-cyan-700"></div>
+  <div class="w-[3px] h-12 left-0 top-[314px] absolute bg-gradient-to-b from-teal-500/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-4 overflow-hidden">
+    <div class="self-stretch flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+      <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+        <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Paso 2 de 4</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-linea rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-linea rounded-[3px]"></div>
+      </div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">Escribe el código</div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">Lo enviamos por SMS al +51 987 654 321</div>
+    <div class="self-stretch inline-flex justify-center items-center gap-3 overflow-hidden">
+      <div class="size-16 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-3xl font-black font-['Nunito'] leading-8">4</div>
+      </div>
+      <div class="size-16 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-3xl font-black font-['Nunito'] leading-8">7</div>
+      </div>
+      <div class="size-16 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-3xl font-black font-['Nunito'] leading-8">2</div>
+      </div>
+      <div class="size-16 bg-color-blanco rounded-2xl border-2 border-color-petroleo"></div>
+    </div>
+    <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">¿No llegó? Reenviar en 0:45</div>
+      <div class="justify-start text-color-petroleo text-xs font-extrabold font-['Nunito'] leading-4">Cambiar número</div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Verificar</div>
+    </div>
+  </div>
+  <div class="self-stretch px-1.5 pt-1.5 pb-5 bg-color-linea flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">1</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">2</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">3</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">4</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">5</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">6</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">7</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">8</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">9</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-11 rounded-lg"></div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">0</div>
+      </div>
+      <div class="flex-1 h-11 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">⌫</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Código de 4 dígitos. Si no llega, se puede reenviar o corregir el número.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[707px] absolute opacity-80 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="w-4 h-14 left-0 top-[323px] absolute opacity-10 outline outline-2 outline-offset-[-0.90px] outline-pink-600"></div>
+  <div class="w-6 h-20 left-0 top-[311px] absolute opacity-20 outline outline-2 outline-offset-[-0.90px] outline-cyan-700"></div>
+  <div class="w-[3px] h-12 left-0 top-[314px] absolute bg-gradient-to-b from-teal-500/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-4 overflow-hidden">
+    <div class="self-stretch flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+      <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+        <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Paso 3 de 4</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-linea rounded-[3px]"></div>
+      </div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">¿Cómo te llamas?</div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">Así tus vecinos sabrán quién recomienda, presta o pide ayuda.</div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Nombre</div>
+      <div class="self-stretch h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea inline-flex justify-start items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-lg font-bold font-['Nunito'] leading-6">Rosa</div>
+      </div>
+    </div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Apellido</div>
+      <div class="self-stretch h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-petroleo inline-flex justify-start items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-lg font-bold font-['Nunito'] leading-6">Mendoza</div>
+        <div class="justify-start text-color-petroleo text-lg font-bold font-['Nunito'] leading-6">|</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-3.5 overflow-hidden">
+      <div class="size-16 relative">
+        <div class="size-16 left-0 top-0 absolute bg-color-blanco rounded-[32px] outline outline-2 outline-offset-[-2px] outline-color-morado inline-flex justify-center items-center overflow-hidden">
+          <div class="size-6 relative overflow-hidden">
+            <div class="w-5 h-4 left-[2px] top-[4px] absolute outline outline-2 outline-offset-[-1px] outline-cyan-950"></div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-1 inline-flex flex-col justify-start items-start gap-0.5 overflow-hidden">
+        <div class="justify-start text-color-morado-osc text-base font-black font-['Nunito'] leading-5">Agregar foto (opcional)</div>
+        <div class="self-stretch justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Así tus vecinos te reconocen más fácil.</div>
+      </div>
+    </div>
+    <div class="self-stretch p-3.5 bg-color-petroleo-claro rounded-[20px] flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+      <div class="justify-start text-color-petroleo-osc text-xs font-extrabold font-['Nunito'] leading-4">Así te verán tus vecinos:</div>
+      <div class="self-stretch inline-flex justify-start items-center gap-3 overflow-hidden">
+        <div class="size-10 bg-color-ambar rounded-[20px] flex justify-center items-center overflow-hidden">
+          <div class="justify-start text-color-tinta text-lg font-black font-['Nunito'] leading-6">R</div>
+        </div>
+        <div class="size- inline-flex flex-col justify-start items-start overflow-hidden">
+          <div class="justify-start text-color-tinta text-base font-black font-['Nunito'] leading-5">Rosa M.</div>
+          <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Sector 3 · Vecina nueva</div>
+        </div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-[5px] overflow-hidden">
+      <div class="size-3.5 relative overflow-hidden">
+        <div class="w-2 h-3 left-[3.13px] top-[1.88px] absolute outline outline-[1.25px] outline-offset-[-0.63px] outline-gray-500"></div>
+      </div>
+      <div class="flex-1 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Tu apellido completo no se muestra. Si ofreces un oficio, podrás elegir mostrarlo.</div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Continuar</div>
+    </div>
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Se pide nombre y apellido, pero se muestra solo "Rosa M.". Así hay confianza sin exponer datos. No se pide DNI.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[735px] absolute opacity-30 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="w-[3px] h-12 left-0 top-[314px] absolute bg-gradient-to-b from-teal-500/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-4 overflow-hidden">
+    <div class="self-stretch flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+      <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+        <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Paso 4 de 4</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+      </div>
+    </div>
+    <div class="self-stretch h-48 relative bg-color-petroleo-claro rounded-[32px] overflow-hidden">
+      <div class="w-80 h-48 left-0 top-0 absolute overflow-hidden">
+        <div class="w-40 h-7 left-[83px] top-[143px] absolute opacity-60 bg-slate-300"></div>
+        <div class="w-44 h-24 left-[83px] top-[51.81px] absolute opacity-75 outline outline-[2.50px] outline-offset-[-1.25px] outline-slate-400"></div>
+        <div class="w-10 h-11 left-[34px] top-[32px] absolute bg-slate-50 outline outline-[3.40px] outline-offset-[-1.70px] outline-cyan-800"></div>
+        <div class="w-10 h-11 left-[264px] top-[32px] absolute bg-slate-50 outline outline-[3.40px] outline-offset-[-1.70px] outline-cyan-800"></div>
+        <div class="w-10 h-11 left-[38px] top-[123px] absolute bg-slate-50 outline outline-[3.40px] outline-offset-[-1.70px] outline-cyan-800"></div>
+        <div class="w-10 h-11 left-[259px] top-[123px] absolute bg-slate-50 outline outline-[3.40px] outline-offset-[-1.70px] outline-cyan-800"></div>
+        <div class="w-60 h-28 left-[47px] top-[59px] absolute outline outline-[2.50px] outline-offset-[-1.25px] outline-cyan-800"></div>
+        <div class="w-20 h-6 left-[127px] top-[120px] absolute opacity-20 bg-teal-400"></div>
+        <div class="w-28 h-32 left-[114px] top-[28px] absolute bg-cyan-800"></div>
+        <div class="w-20 h-24 left-[126px] top-[39px] absolute opacity-40 bg-cyan-700"></div>
+        <div class="size-9 left-[149px] top-[62px] absolute bg-stone-50"></div>
+        <div class="size-4 left-[159px] top-[72px] absolute bg-slate-300"></div>
+        <div class="w-10 h-3.5 left-[153px] top-[2px] absolute bg-black outline outline-4 outline-offset-[-2.25px] outline-pink-500"></div>
+      </div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">Activa tu ubicación</div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">La usamos para mostrarte lo que hay cerca y confirmar que vives en el barrio.</div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-2 overflow-hidden">
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="size-4 relative overflow-hidden">
+          <div class="size-3.5 left-[1.33px] top-[1.33px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+        </div>
+        <div class="flex-1 justify-start text-color-tinta text-sm font-semibold font-['Nunito'] leading-5">Solo usamos tu zona, nunca tu dirección exacta</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="size-4 relative overflow-hidden">
+          <div class="size-3.5 left-[1.33px] top-[1.33px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+        </div>
+        <div class="flex-1 justify-start text-color-tinta text-sm font-semibold font-['Nunito'] leading-5">Puedes cambiarla cuando quieras</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="size-4 relative overflow-hidden">
+          <div class="size-3.5 left-[1.33px] top-[1.33px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+        </div>
+        <div class="flex-1 justify-start text-color-tinta text-sm font-semibold font-['Nunito'] leading-5">En una emergencia ayuda a que te encuentren</div>
+      </div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Permitir ubicación</div>
+    </div>
+    <div class="self-stretch text-center justify-start text-color-petroleo text-sm font-extrabold font-['Nunito'] leading-5">Prefiero escribir mi dirección</div>
+  </div>
+  <div data-color="Color" class="size- left-[161px] top-[3px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Se explica por qué se pide antes de que el celular muestre su aviso de permiso. Quien no tenga GPS puede escribir su dirección.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="size-1 left-[371px] top-[100px] absolute opacity-20 bg-cyan-700 rounded-full"></div>
+  <div class="size-1.5 left-[343px] top-[90px] absolute opacity-25 bg-pink-600 rounded-full"></div>
+  <div class="size-[5px] left-[312px] top-[106px] absolute opacity-20 bg-cyan-700 rounded-full"></div>
+  <div class="w-14 h-4 left-[308px] top-[89px] absolute opacity-20 outline outline-2 outline-offset-[-0.90px] outline-cyan-700"></div>
+  <div class="w-[3px] h-12 left-0 top-[314px] absolute bg-gradient-to-b from-teal-500/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch px-5 pt-2 pb-3 flex flex-col justify-start items-start overflow-hidden">
+    <div class="self-stretch flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+      <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+        <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Paso 4 de 4</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+        <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 relative bg-color-mapa overflow-hidden">
+    <div class="w-96 h-72 left-[10px] top-[34px] absolute bg-emerald-600/5 rounded-[20px] border-2 border-color-petroleo"></div>
+    <div class="w-24 h-32 left-[24px] top-[50px] absolute bg-color-manzana rounded-lg"></div>
+    <div class="left-[56.50px] top-[104px] absolute justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Mz. A</div>
+    <div class="w-24 h-32 left-[138px] top-[50px] absolute bg-emerald-600/25 rounded-lg border-[3px] border-color-petroleo"></div>
+    <div class="left-[171px] top-[68px] absolute justify-start text-color-petroleo-osc text-xs font-extrabold font-['Nunito'] leading-4">Mz. B</div>
+    <div class="w-24 h-32 left-[252px] top-[50px] absolute bg-color-manzana rounded-lg"></div>
+    <div class="left-[285px] top-[104px] absolute justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Mz. C</div>
+    <div class="w-24 h-32 left-[24px] top-[190px] absolute bg-color-manzana rounded-lg"></div>
+    <div class="left-[56.50px] top-[244px] absolute justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Mz. D</div>
+    <div class="w-24 h-32 left-[138px] top-[190px] absolute bg-color-manzana rounded-lg"></div>
+    <div class="left-[171.50px] top-[244px] absolute justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Mz. E</div>
+    <div class="w-24 h-32 left-[252px] top-[190px] absolute bg-color-manzana rounded-lg"></div>
+    <div class="left-[285.50px] top-[244px] absolute justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Mz. F</div>
+    <div class="size-11 left-[166px] top-[102px] absolute bg-color-petroleo rounded-3xl outline outline-[3px] outline-offset-[-3px] outline-color-blanco inline-flex justify-center items-center overflow-hidden">
+      <div class="size-5 relative overflow-hidden">
+        <div class="size-3.5 left-[2.50px] top-[2.50px] absolute outline outline-[1.67px] outline-offset-[-0.83px] outline-cyan-950"></div>
+      </div>
+    </div>
+    <div class="size- px-2.5 py-1 left-[16px] top-[8px] absolute bg-color-petroleo rounded-[999px] inline-flex justify-start items-start overflow-hidden">
+      <div class="justify-start text-color-blanco text-xs font-extrabold font-['Nunito'] leading-4">Sector 3 · Los Jardines</div>
+    </div>
+  </div>
+  <div class="self-stretch px-5 pt-3 pb-5 bg-color-blanco rounded-tl-3xl rounded-tr-3xl shadow-[0px_-6px_20px_0px_rgba(0,0,0,0.10)] flex flex-col justify-start items-start gap-3 overflow-hidden">
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="size-5 relative overflow-hidden">
+        <div class="w-3.5 h-4 left-[3.50px] top-[1.75px] absolute outline outline-2 outline-offset-[-0.88px] outline-cyan-950"></div>
+      </div>
+      <div class="flex-1 justify-start text-color-tinta text-lg font-black font-['Nunito'] leading-6">Encontramos tu zona</div>
+    </div>
+    <div class="self-stretch justify-start text-color-gris text-sm font-semibold font-['Nunito'] leading-5">Sector 3 · Urb. Los Jardines. Elige tu manzana:</div>
+    <div class="self-stretch inline-flex justify-start items-center gap-2 overflow-hidden">
+      <div class="flex-1 py-2 bg-color-blanco rounded-[999px] outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-start overflow-hidden">
+        <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">A</div>
+      </div>
+      <div class="flex-1 py-2 bg-color-petroleo rounded-[999px] outline outline-2 outline-offset-[-2px] outline-color-petroleo flex justify-center items-start overflow-hidden">
+        <div class="justify-start text-color-blanco text-sm font-extrabold font-['Nunito'] leading-5">B</div>
+      </div>
+      <div class="flex-1 py-2 bg-color-blanco rounded-[999px] outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-start overflow-hidden">
+        <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">C</div>
+      </div>
+      <div class="flex-1 py-2 bg-color-blanco rounded-[999px] outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-start overflow-hidden">
+        <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">D</div>
+      </div>
+      <div class="flex-1 py-2 bg-color-blanco rounded-[999px] outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-start overflow-hidden">
+        <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">E</div>
+      </div>
+      <div class="flex-1 py-2 bg-color-blanco rounded-[999px] outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-start overflow-hidden">
+        <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">F</div>
+      </div>
+    </div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Confirmar mi zona</div>
+    </div>
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">La app detecta el sector con el GPS y el vecino solo elige su manzana. En público solo se muestra "Sector 3 · Mz. B".</div>
+<div class="w-96 h-[812px] relative bg-color-petroleo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-4 h-14 left-0 top-[323px] absolute opacity-10 outline outline-2 outline-offset-[-0.95px] outline-white"></div>
+  <div class="w-6 h-20 left-0 top-[311px] absolute opacity-20 outline outline-2 outline-offset-[-0.95px] outline-white"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-blanco text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-blanco text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-white"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-7 pt-2 pb-10 flex flex-col justify-start items-center gap-4 overflow-hidden">
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch relative inline-flex justify-center items-start overflow-hidden">
+      <div class="w-48 h-36 left-[66.50px] top-0 absolute overflow-hidden">
+        <div class="w-44 h-32 left-[8.14px] top-[13.54px] absolute bg-white"></div>
+      </div>
+    </div>
+    <div class="self-stretch text-center justify-start text-color-blanco text-3xl font-black font-['Nunito'] leading-8">¡Bienvenida a AYNI, Rosa!</div>
+    <div class="size- px-2.5 py-1 bg-color-blanco rounded-[999px] inline-flex justify-start items-start overflow-hidden">
+      <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="size-4 relative overflow-hidden">
+          <div class="size-3.5 left-[1.33px] top-[1.33px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+        </div>
+        <div class="justify-start text-color-petroleo-osc text-sm font-extrabold font-['Nunito'] leading-5">Vecina verificada</div>
+      </div>
+    </div>
+    <div class="self-stretch text-center justify-start text-white/90 text-base font-bold font-['Nunito'] leading-6">Ya eres parte del Sector 3. 128 vecinos ya están aquí.</div>
+    <div class="self-stretch inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      <div class="flex-1 p-3 bg-white/20 rounded-2xl inline-flex flex-col justify-start items-center gap-1 overflow-hidden">
+        <div class="size-6 relative overflow-hidden">
+          <div class="size-5 left-[3.34px] top-[2.16px] absolute outline outline-2 outline-offset-[-1.08px] outline-cyan-950"></div>
+        </div>
+        <div class="justify-start text-color-blanco text-xs font-extrabold font-['Nunito'] leading-4">Oficios</div>
+      </div>
+      <div class="flex-1 p-3 bg-white/20 rounded-2xl inline-flex flex-col justify-start items-center gap-1 overflow-hidden">
+        <div class="size-6 relative overflow-hidden">
+          <div class="size-5 left-[2.17px] top-[3.23px] absolute outline outline-2 outline-offset-[-1.08px] outline-cyan-950"></div>
+        </div>
+        <div class="justify-start text-color-blanco text-xs font-extrabold font-['Nunito'] leading-4">Favores</div>
+      </div>
+      <div class="flex-1 p-3 bg-white/20 rounded-2xl inline-flex flex-col justify-start items-center gap-1 overflow-hidden">
+        <div class="size-6 relative overflow-hidden">
+          <div class="w-4 h-5 left-[4.33px] top-[2.17px] absolute outline outline-2 outline-offset-[-1.08px] outline-cyan-950"></div>
+        </div>
+        <div class="justify-start text-color-blanco text-xs font-extrabold font-['Nunito'] leading-4">Cuidarnos</div>
+      </div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-blanco rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-petroleo text-base font-black font-['Nunito'] leading-5">Entrar a AYNI →</div>
+    </div>
+  </div>
+</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Cierre del registro: el vecino ya aparece como verificado (teléfono + ubicación) y entra al inicio.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-40 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-48 left-0 top-[622px] absolute overflow-hidden">
+    <div class="w-96 h-16 left-0 top-[128.07px] absolute bg-emerald-100"></div>
+    <div class="w-96 h-8 left-0 top-[156.64px] absolute bg-red-100"></div>
+    <div class="w-96 h-4 left-0 top-[173.64px] absolute opacity-50 bg-slate-300"></div>
+    <div class="size-24 left-[38px] top-[75px] absolute bg-red-200"></div>
+    <div class="size-24 left-[227px] top-[91px] absolute bg-red-200"></div>
+    <div class="w-28 h-12 left-[31px] top-[69px] absolute bg-red-200"></div>
+    <div class="w-28 h-12 left-[216px] top-[84px] absolute bg-red-200"></div>
+    <div class="w-5 h-6 left-[57px] top-[120px] absolute bg-orange-50"></div>
+    <div class="w-5 h-6 left-[96px] top-[120px] absolute bg-orange-50"></div>
+    <div class="w-4 h-6 left-[258px] top-[133px] absolute bg-orange-50"></div>
+    <div class="w-4 h-6 left-[286px] top-[133px] absolute bg-orange-50"></div>
+    <div class="size-7 left-[6px] top-[106px] absolute bg-emerald-200"></div>
+    <div class="size-8 left-[3px] top-[88px] absolute bg-emerald-200"></div>
+    <div class="size-7 left-[335px] top-[117px] absolute bg-emerald-200"></div>
+    <div class="size-9 left-[332px] top-[98px] absolute bg-emerald-200"></div>
+    <div class="w-0 h-12 left-[19px] top-[120px] absolute bg-black outline outline-4 outline-offset-[-2px] outline-slate-400"></div>
+    <div class="w-0 h-11 left-[350px] top-[134px] absolute bg-black outline outline-4 outline-offset-[-2px] outline-slate-400"></div>
+    <div class="w-96 h-5 left-0 top-[154.42px] absolute opacity-40 outline outline-2 outline-offset-[-1px] outline-slate-400"></div>
+  </div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-7 pt-2 pb-9 flex flex-col justify-start items-center gap-4 overflow-hidden">
+    <div class="self-stretch inline-flex justify-end items-center gap-2.5 overflow-hidden">
+      <div class="w-16 h-12 px-3 bg-color-blanco rounded-[999px] outline outline-[1.50px] outline-offset-[-1.50px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="size- flex justify-center items-center gap-1.5 overflow-hidden">
+          <div class="size-4 relative overflow-hidden">
+            <div class="size-3.5 left-[1.33px] top-[1.33px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+          </div>
+          <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">ES</div>
+        </div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-center items-start overflow-hidden">
+      <img class="w-56 h-40" src="https://placehold.co/230x160" />
+    </div>
+    <div class="self-stretch text-center justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">Hoy por ti, mañana por mí</div>
+    <div class="self-stretch text-center justify-start text-color-gris text-base font-bold font-['Nunito'] leading-6">Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.</div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Crear cuenta</div>
+    </div>
+    <div class="self-stretch h-14 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-tinta text-base font-black font-['Nunito'] leading-5">Ya tengo cuenta</div>
+    </div>
+  </div>
+</div>
+<div class="justify-start text-color-gris text-base font-extrabold font-['Nunito'] leading-5">0.1 · Portada</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Primera pantalla al abrir AYNI. El cuadro punteado es el espacio para el logo. El idioma se puede elegir desde el inicio.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[707px] absolute opacity-80 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="w-11 h-10 left-[329px] top-[94px] absolute opacity-10 outline outline-2 outline-offset-[-0.90px] outline-pink-600"></div>
+  <div class="w-20 h-14 left-[297px] top-[77px] absolute opacity-20 outline outline-2 outline-offset-[-0.90px] outline-cyan-700"></div>
+  <div class="w-32 h-36 left-[121px] top-[302px] absolute opacity-50 overflow-hidden">
+    <div class="size-28 left-[7px] top-[10px] absolute bg-teal-600/5"></div>
+    <div class="size-24 left-[16px] top-[19px] absolute outline outline-2 outline-offset-[-1px] outline-teal-600/30"></div>
+    <div class="w-16 h-24 left-[33px] top-[29px] absolute bg-white/40 outline outline-4 outline-offset-[-2px] outline-cyan-700"></div>
+    <div class="w-8 h-6 left-[50px] top-[58px] absolute outline outline-[5px] outline-offset-[-2.50px] outline-pink-600"></div>
+    <div class="size-2 left-[10px] top-[18px] absolute bg-pink-500"></div>
+    <div class="size-2.5 left-[112px] top-[118px] absolute bg-teal-500"></div>
+  </div>
+  <div class="w-[3px] h-12 left-0 top-[260px] absolute bg-gradient-to-b from-cyan-700/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-4 overflow-hidden">
+    <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+      <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">¡Hola de nuevo!</div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">Escribe tu número y te enviaremos un código para entrar. No necesitas contraseña.</div>
+    <div class="self-stretch inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      <div class="w-24 h-14 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-6">🇵🇪 +51</div>
+      </div>
+      <div class="flex-1 h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-morado flex justify-start items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-lg font-bold font-['Nunito'] leading-6">987 654 321</div>
+      </div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Enviar código</div>
+    </div>
+  </div>
+  <div class="self-stretch px-1.5 pt-1.5 pb-5 bg-color-linea flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">1</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">2</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">3</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">4</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">5</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">6</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">7</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">8</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">9</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 rounded-lg"></div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">0</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">⌫</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="justify-start text-color-gris text-base font-extrabold font-['Nunito'] leading-5">0.2 · Ya tengo cuenta (número)</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Ingreso sin contraseña: más fácil para vecinos mayores que suelen olvidarlas.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[707px] absolute opacity-80 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="size-1 left-[371px] top-[100px] absolute opacity-20 bg-cyan-700 rounded-full"></div>
+  <div class="size-1.5 left-[343px] top-[90px] absolute opacity-25 bg-pink-600 rounded-full"></div>
+  <div class="size-[5px] left-[312px] top-[106px] absolute opacity-20 bg-cyan-700 rounded-full"></div>
+  <div class="w-14 h-4 left-[308px] top-[89px] absolute opacity-20 outline outline-2 outline-offset-[-0.90px] outline-cyan-700"></div>
+  <div class="w-32 h-36 left-[121px] top-[295px] absolute opacity-50 overflow-hidden">
+    <div class="size-28 left-[8px] top-[11px] absolute bg-teal-500/5"></div>
+    <div class="w-20 h-16 left-[27px] top-[36px] absolute bg-white/30 outline outline-4 outline-offset-[-2px] outline-cyan-700"></div>
+    <div class="w-16 h-7 left-[33px] top-[47px] absolute outline outline-4 outline-offset-[-2px] outline-fuchsia-700"></div>
+    <div class="size-4 left-[28px] top-[99px] absolute outline outline-4 outline-offset-[-2px] outline-cyan-700"></div>
+    <div class="size-2.5 left-[62px] top-[14px] absolute bg-pink-600"></div>
+    <div class="size-2 left-[113px] top-[97px] absolute bg-teal-500"></div>
+    <div class="size-2 left-[9px] top-[81px] absolute bg-teal-500"></div>
+  </div>
+  <div class="w-[3px] h-12 left-0 top-[260px] absolute bg-gradient-to-b from-cyan-700/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-4 overflow-hidden">
+    <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+      <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">Escribe el código</div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">Lo enviamos por SMS al +51 987 654 321</div>
+    <div class="self-stretch inline-flex justify-center items-center gap-3 overflow-hidden">
+      <div class="size-16 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-3xl font-black font-['Nunito'] leading-8">4</div>
+      </div>
+      <div class="size-16 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-3xl font-black font-['Nunito'] leading-8">7</div>
+      </div>
+      <div class="size-16 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-3xl font-black font-['Nunito'] leading-8">2</div>
+      </div>
+      <div class="size-16 bg-color-blanco rounded-2xl border-2 border-color-morado"></div>
+    </div>
+    <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">¿No llegó? Reenviar en 0:45</div>
+      <div class="justify-start text-color-morado text-xs font-extrabold font-['Nunito'] leading-4">Cambiar número</div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Entrar</div>
+    </div>
+  </div>
+  <div class="self-stretch px-1.5 pt-1.5 pb-5 bg-color-linea flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">1</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">2</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">3</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">4</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">5</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">6</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">7</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">8</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">9</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-12 rounded-lg"></div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">0</div>
+      </div>
+      <div class="flex-1 h-12 bg-color-blanco rounded-lg flex justify-center items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">⌫</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="justify-start text-color-gris text-base font-extrabold font-['Nunito'] leading-5">0.3 · Código para entrar</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Al verificar, el vecino entra directo a su Inicio (2.1).</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-14 h-12 left-[315px] top-[83px] absolute opacity-10 outline outline-2 outline-offset-[-0.90px] outline-pink-600"></div>
+  <div class="size-14 left-[313px] top-[81px] absolute opacity-10 bg-cyan-700"></div>
+  <div class="w-[3px] h-12 left-0 top-[260px] absolute bg-gradient-to-b from-cyan-700/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch px-5 pt-2 pb-3 flex flex-col justify-start items-start overflow-hidden">
+    <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+      <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+      <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Paso 4 de 4</div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 relative bg-stone-100 overflow-hidden">
+    <div class="w-96 h-[500px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-96 h-72 left-0 top-0 absolute outline outline-[3px] outline-offset-[-1.50px] outline-zinc-200"></div>
+      <div class="w-40 h-60 left-[2px] top-[150px] absolute opacity-60 outline outline-2 outline-offset-[-1px] outline-slate-400"></div>
+      <div class="size-24 left-[219px] top-[155px] absolute opacity-40 outline outline-2 outline-offset-[-1px] outline-pink-300"></div>
+      <div class="w-96 h-24 left-0 top-[397px] absolute opacity-50 bg-gray-200"></div>
+    </div>
+    <div class="w-24 h-16 left-[14px] top-[16px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-gray-300"></div>
+    <div class="w-24 h-16 left-[126px] top-[16px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-neutral-200"></div>
+    <div class="w-24 h-16 left-[238px] top-[16px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-neutral-200"></div>
+    <div class="w-24 h-16 left-[14px] top-[108px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-gray-300"></div>
+    <div class="w-24 h-16 left-[126px] top-[108px] absolute opacity-95 bg-white rounded-2xl border-[1.20px] border-neutral-200"></div>
+    <div class="w-24 h-16 left-[238px] top-[108px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-neutral-200"></div>
+    <div class="w-24 h-16 left-[14px] top-[200px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-gray-300"></div>
+    <div class="w-24 h-16 left-[126px] top-[200px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-neutral-200"></div>
+    <div class="w-24 h-16 left-[238px] top-[200px] absolute opacity-95 bg-stone-50 rounded-2xl border-[1.20px] border-neutral-200"></div>
+    <div class="size-11 left-[146px] top-[100px] absolute bg-cyan-800 rounded-3xl outline outline-[3px] outline-offset-[-3px] outline-color-blanco inline-flex justify-center items-center overflow-hidden">
+      <div class="size-5 relative overflow-hidden">
+        <div class="size-3.5 left-[2.50px] top-[2.50px] absolute outline outline-[1.67px] outline-offset-[-0.83px] outline-white"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch px-5 pt-4 pb-5 bg-color-blanco rounded-tl-3xl rounded-tr-3xl flex flex-col justify-start items-start gap-3 overflow-hidden">
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="size-5 relative overflow-hidden">
+        <div class="size-4 left-[1.75px] top-[1.75px] absolute outline outline-2 outline-offset-[-0.88px] outline-cyan-950"></div>
+      </div>
+      <div class="flex-1 justify-start text-color-tinta text-lg font-black font-['Nunito'] leading-6">Tu zona aún no está en AYNI</div>
+    </div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">¡Sé el primero en abrirla! Tus vecinos podrán unirse después y tú serás su primer Guardián.</div>
+    <div class="self-stretch h-14 bg-color-morado rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Crear mi sector</div>
+    </div>
+    <div class="self-stretch text-center justify-start text-color-petroleo text-sm font-extrabold font-['Nunito'] leading-5">Buscar otra vez</div>
+  </div>
+  <div data-color="Color" class="size- left-[161px] top-[3px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="justify-start text-color-gris text-base font-extrabold font-['Nunito'] leading-5">0.4 · Tu zona aún no existe</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Aparece en vez de 1.8 cuando no hay un sector creado cerca de la ubicación del vecino.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[707px] absolute opacity-80 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="w-[3px] h-12 left-0 top-[260px] absolute bg-gradient-to-b from-cyan-700/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-4 overflow-hidden">
+    <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+      <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+      <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Nuevo sector</div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">Crea tu sector</div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Nombre del sector</div>
+      <div class="self-stretch h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-morado inline-flex justify-start items-center overflow-hidden">
+        <div class="justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-6">Los Jardines · Sector 3</div>
+        <div class="justify-start text-color-morado text-lg font-bold font-['Nunito'] leading-6">|</div>
+      </div>
+    </div>
+    <div class="self-stretch flex flex-col justify-start items-start overflow-hidden">
+      <div class="self-stretch h-64 relative bg-color-mapa rounded-[20px] overflow-hidden">
+        <div class="w-24 h-16 left-[14px] top-[16px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[126px] top-[16px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[238px] top-[16px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[14px] top-[108px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[126px] top-[108px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[238px] top-[108px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[14px] top-[200px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[126px] top-[200px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-24 h-16 left-[238px] top-[200px] absolute bg-color-manzana rounded-lg"></div>
+        <div class="w-56 h-44 left-[58px] top-[36px] absolute bg-purple-700/10 rounded-2xl border-[3px] border-color-morado"></div>
+        <div class="size-4 left-[50px] top-[28px] absolute bg-color-blanco rounded-full border-[3px] border-color-morado"></div>
+        <div class="size-4 left-[270px] top-[28px] absolute bg-color-blanco rounded-full border-[3px] border-color-morado"></div>
+        <div class="size-4 left-[50px] top-[198px] absolute bg-color-blanco rounded-full border-[3px] border-color-morado"></div>
+        <div class="size-4 left-[270px] top-[198px] absolute bg-color-blanco rounded-full border-[3px] border-color-morado"></div>
+        <div class="size-11 left-[146px] top-[100px] absolute bg-color-petroleo rounded-3xl outline outline-[3px] outline-offset-[-3px] outline-color-blanco inline-flex justify-center items-center overflow-hidden">
+          <div class="size-5 relative overflow-hidden">
+            <div class="size-3.5 left-[2.50px] top-[2.50px] absolute outline outline-[1.67px] outline-offset-[-0.83px] outline-cyan-950"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="self-stretch justify-start text-color-gris text-sm font-semibold font-['Nunito'] leading-5">Arrastra los puntos para marcar las cuadras de tu sector. Incluye solo las calles cercanas a tu casa.</div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-morado rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Crear sector</div>
+    </div>
+  </div>
+  <div data-color="Color" class="size- left-[161px] top-[3px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="justify-start text-color-gris text-base font-extrabold font-['Nunito'] leading-5">0.5 · Crear sector</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">El fundador pone nombre al sector y marca su área en el mapa. Las manzanas se generan solas.</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[707px] absolute opacity-80 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="w-11 h-10 left-[329px] top-[94px] absolute opacity-10 outline outline-2 outline-offset-[-0.90px] outline-pink-600"></div>
+  <div class="w-20 h-14 left-[297px] top-[77px] absolute opacity-20 outline outline-2 outline-offset-[-0.90px] outline-cyan-700"></div>
+  <div class="w-[3px] h-12 left-0 top-[260px] absolute bg-gradient-to-b from-cyan-700/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-9 relative flex flex-col justify-start items-center gap-4 overflow-hidden">
+    <div class="self-stretch flex-1"></div>
+    <div class="size-32 opacity-0 bg-color-morado rounded-[70px] inline-flex justify-center items-center overflow-hidden">
+      <div class="size-12 relative overflow-hidden">
+        <div class="w-8 h-11 left-[8.50px] top-[4.25px] absolute outline outline-4 outline-offset-[-2.13px] outline-cyan-950"></div>
+      </div>
+    </div>
+    <div class="size- px-3 py-[5px] bg-color-morado-claro rounded-[999px] inline-flex justify-start items-start overflow-hidden">
+      <div class="justify-start text-color-morado-osc text-sm font-extrabold font-['Nunito'] leading-5">Guardián fundador</div>
+    </div>
+    <div class="self-stretch text-center justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">¡Eres el primer Guardián de Los Jardines!</div>
+    <div class="self-stretch text-center justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">Cuidarás que tu sector sea un lugar de confianza.</div>
+    <div class="self-stretch p-4 bg-color-blanco rounded-[20px] outline outline-1 outline-offset-[-1px] outline-color-linea flex flex-col justify-start items-start gap-2.5 overflow-hidden">
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="size-4 relative overflow-hidden">
+          <div class="size-3.5 left-[1.42px] top-[1.42px] absolute outline outline-[1.42px] outline-offset-[-0.71px] outline-cyan-950"></div>
+        </div>
+        <div class="flex-1 justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-5">Confirmar o descartar emergencias</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="size-4 relative overflow-hidden">
+          <div class="size-3.5 left-[1.42px] top-[1.42px] absolute outline outline-[1.42px] outline-offset-[-0.71px] outline-cyan-950"></div>
+        </div>
+        <div class="flex-1 justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-5">Avisar cuando la emergencia fue atendida</div>
+      </div>
+      <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+        <div class="size-4 relative overflow-hidden">
+          <div class="size-3.5 left-[1.42px] top-[1.42px] absolute outline outline-[1.42px] outline-offset-[-0.71px] outline-cyan-950"></div>
+        </div>
+        <div class="flex-1 justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-5">Revisar publicaciones reportadas</div>
+      </div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Entendido, continuar</div>
+    </div>
+    <div class="w-44 h-36 left-[102.50px] top-[99px] absolute overflow-hidden">
+      <div class="w-28 h-5 left-[25px] top-[108px] absolute opacity-20 bg-emerald-300"></div>
+      <div class="w-36 h-28 left-[13px] top-[7px] absolute bg-emerald-50"></div>
+      <div class="size-28 left-[30px] top-[11px] absolute bg-white"></div>
+      <div class="size-24 left-[35px] top-[16px] absolute bg-slate-50 outline outline-2 outline-offset-[-1px] outline-emerald-200"></div>
+      <div class="w-24 h-28 left-[40px] top-[19px] absolute bg-sky-800"></div>
+      <div class="w-20 h-24 left-[47px] top-[27px] absolute opacity-70 bg-teal-600"></div>
+      <div class="w-12 h-9 left-[62px] top-[51px] absolute outline outline-8 outline-offset-[-4.50px] outline-white"></div>
+      <div class="size-2 left-[17px] top-[48px] absolute bg-pink-500"></div>
+      <div class="size-2 left-[144px] top-[43px] absolute bg-pink-500"></div>
+    </div>
+  </div>
+  <div data-color="Color" class="size- left-[161px] top-[3px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="justify-start text-color-gris text-base font-extrabold font-['Nunito'] leading-5">0.6 · Eres el primer Guardián</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Única excepción a la regla de los 2 meses: quien crea el sector es Guardián desde el inicio. Luego continúa a 1.9.</div>
+<div class="justify-start text-color-tinta text-4xl font-black font-['Nunito'] leading-10">0 · Portada, ingreso y sector nuevo</div>
+<div class="w-96 h-[812px] relative bg-color-fondo rounded-[36px] inline-flex flex-col justify-start items-start overflow-hidden">
+  <div class="w-96 h-[868px] left-0 top-0 absolute opacity-20 overflow-hidden">
+    <div class="w-96 h-[868px] left-0 top-0 absolute overflow-hidden">
+      <div class="w-56 h-32 left-[150px] top-0 absolute bg-linear-50 from-teal-600/30 via-purple-700/30 to-red-500/30"></div>
+      <div class="w-36 h-16 left-[232px] top-0 absolute bg-linear-55 from-teal-600/40 via-purple-700/40 to-red-500/40"></div>
+      <div class="size-20 left-[300px] top-[300px] absolute bg-linear-30 from-teal-600/20 via-purple-700/20 to-red-500/20"></div>
+      <div class="w-96 h-24 left-0 top-[766px] absolute bg-linear-313 from-teal-600/30 via-purple-700/30 via 55% to-red-500/30"></div>
+      <div class="w-64 h-8 left-[120px] top-[836px] absolute bg-linear-294 from-teal-600/40 via-purple-700/40 via 55% to-red-500/40"></div>
+    </div>
+  </div>
+  <div class="w-96 h-28 left-0 top-[735px] absolute opacity-30 overflow-hidden">
+    <div class="w-96 h-20 left-0 top-[24.20px] absolute opacity-25 bg-teal-400"></div>
+    <div class="w-96 h-14 left-0 top-[52.07px] absolute opacity-10 bg-violet-500"></div>
+    <div class="w-96 h-6 left-0 top-[79.82px] absolute opacity-10 bg-pink-500"></div>
+  </div>
+  <div class="w-11 h-10 left-[329px] top-[94px] absolute opacity-10 outline outline-2 outline-offset-[-0.90px] outline-pink-600"></div>
+  <div class="w-20 h-14 left-[297px] top-[77px] absolute opacity-20 outline outline-2 outline-offset-[-0.90px] outline-cyan-700"></div>
+  <div class="w-[3px] h-12 left-0 top-[314px] absolute bg-gradient-to-b from-teal-500/70 to-pink-600/70 rounded-xs"></div>
+  <div class="self-stretch h-11 px-6 inline-flex justify-between items-center overflow-hidden">
+    <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">9:41</div>
+    <div class="size- flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-tinta text-sm font-extrabold font-['Nunito'] leading-5">●●●</div>
+      <div class="size-4 relative overflow-hidden">
+        <div class="w-3.5 h-1.5 left-[1.33px] top-[4.67px] absolute outline outline-[1.33px] outline-offset-[-0.67px] outline-cyan-950"></div>
+      </div>
+    </div>
+  </div>
+  <div class="self-stretch flex-1 px-5 pt-2 pb-5 flex flex-col justify-start items-start gap-3.5 overflow-hidden">
+    <div class="self-stretch inline-flex justify-between items-center overflow-hidden">
+      <div class="justify-start text-color-tinta text-xl font-black font-['Nunito'] leading-7">←</div>
+      <div class="justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Paso 4 de 4</div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-1.5 overflow-hidden">
+      <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+      <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+      <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+      <div class="flex-1 h-1.5 bg-color-petroleo rounded-[3px]"></div>
+    </div>
+    <div class="self-stretch justify-start text-color-tinta text-2xl font-black font-['Nunito'] leading-7">Escribe tu dirección</div>
+    <div class="self-stretch justify-start text-color-gris text-base font-bold font-['Nunito'] leading-5">Si no tienes GPS o prefieres no activarlo, con esto buscamos tu zona.</div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Distrito</div>
+      <div class="self-stretch h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea inline-flex justify-start items-center gap-1 overflow-hidden">
+        <div class="flex-1 justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-6">San Juan de Lurigancho</div>
+        <div class="justify-start text-color-gris text-lg font-black font-['Nunito'] leading-6">▾</div>
+      </div>
+    </div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Calle y número</div>
+      <div class="self-stretch h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-morado inline-flex justify-start items-center gap-1 overflow-hidden">
+        <div class="flex-1 justify-start text-color-tinta text-base font-bold font-['Nunito'] leading-6">Jr. Las Flores 456</div>
+        <div class="justify-start text-color-morado text-lg font-bold font-['Nunito'] leading-6">|</div>
+      </div>
+    </div>
+    <div class="self-stretch flex flex-col justify-start items-start gap-1.5 overflow-hidden">
+      <div class="justify-start text-color-gris text-xs font-extrabold font-['Nunito'] leading-4">Referencia (opcional)</div>
+      <div class="self-stretch h-14 px-4 bg-color-blanco rounded-2xl outline outline-2 outline-offset-[-2px] outline-color-linea inline-flex justify-start items-center gap-1 overflow-hidden">
+        <div class="flex-1 justify-start text-color-gris text-base font-bold font-['Nunito'] leading-6">Ej: frente al parque, puerta verde</div>
+      </div>
+    </div>
+    <div class="self-stretch p-3.5 bg-color-petroleo-claro rounded-2xl inline-flex justify-start items-center gap-2.5 overflow-hidden">
+      <div class="size-5 relative overflow-hidden">
+        <div class="w-3.5 h-4 left-[3.33px] top-[1.67px] absolute outline outline-[1.67px] outline-offset-[-0.83px] outline-cyan-950"></div>
+      </div>
+      <div class="flex-1 inline-flex flex-col justify-start items-start overflow-hidden">
+        <div class="justify-start text-color-petroleo-osc text-xs font-extrabold font-['Nunito'] leading-4">Encontramos tu zona</div>
+        <div class="self-stretch justify-start text-color-tinta text-base font-black font-['Nunito'] leading-5">Los Jardines · Sector 3</div>
+      </div>
+    </div>
+    <div class="self-stretch inline-flex justify-start items-center gap-[5px] overflow-hidden">
+      <div class="size-3.5 relative overflow-hidden">
+        <div class="w-2 h-3 left-[3.13px] top-[1.88px] absolute outline outline-[1.25px] outline-offset-[-0.63px] outline-gray-500"></div>
+      </div>
+      <div class="flex-1 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Tus vecinos solo verán tu sector y manzana. La dirección exacta solo la ven los Guardianes durante una emergencia.</div>
+    </div>
+    <div class="self-stretch flex-1"></div>
+    <div class="self-stretch h-14 bg-color-petroleo rounded-2xl inline-flex justify-center items-center gap-2">
+      <div class="justify-start text-color-blanco text-base font-black font-['Nunito'] leading-5">Continuar</div>
+    </div>
+  </div>
+  <div data-color="Color" class="size- left-[161px] top-[3px] absolute inline-flex justify-start items-center gap-[3px]">
+    <img class="w-14 h-9" src="https://placehold.co/54x38" />
+  </div>
+</div>
+<div class="justify-start text-color-gris text-base font-extrabold font-['Nunito'] leading-5">1.7b · Escribir mi dirección</div>
+<div class="w-96 justify-start text-color-gris text-xs font-semibold font-['Nunito'] leading-4">Se abre con "Prefiero escribir mi dirección" en 1.7. Al continuar, lleva a 1.8 para elegir la manzana.</div>

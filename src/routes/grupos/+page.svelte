@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
 
 	type Grupo = {
 		id?: string;
@@ -56,7 +57,7 @@
 	</header>
 
 	<div class="emergency-hero">
-		<div class="emergency-hero__icon">👥</div>
+		<div class="emergency-hero__icon"><Icono name="grupos" /></div>
 		<div>
 			<h1>Grupos y servicios de apoyo</h1>
 			<p>Encuentra redes comunitarias para coordinar ayuda.</p>
@@ -75,7 +76,7 @@
 		<div class="emergency-list">
 			{#each grupos as grupo (grupo.id ?? grupo.nombre)}
 				<article class="emergency-card emergency-card--group">
-					<div class="emergency-card__icon">🤝</div>
+					<div class="emergency-card__icon"><Icono name="favores" /></div>
 					<div>
 						<div class="emergency-card__heading">
 							<strong>{grupo.nombre ?? 'Grupo comunitario'}</strong>
@@ -84,7 +85,7 @@
 						<small>{grupo.tipo ?? 'Red vecinal'}</small>
 						{#if grupo.reglas}<p>{grupo.reglas}</p>{/if}
 						{#if grupo.contacto}
-							<a class="profile-link" href={`tel:${grupo.contacto}`}>📞 Contactar</a>
+							<a class="profile-link" href={`tel:${grupo.contacto}`}><Icono name="telefono" /> Contactar</a>
 						{:else}
 							<p class="muted">Contacto disponible cuando el grupo lo configure.</p>
 						{/if}
@@ -94,5 +95,5 @@
 		</div>
 	{/if}
 
-	<a class="mobile-btn mobile-btn--danger" href="/pedir-ayuda">🆘 Necesito ayuda</a>
+	<a class="mobile-btn mobile-btn--danger" href="/pedir-ayuda"><Icono name="otra_ayuda" /> Necesito ayuda</a>
 </section>

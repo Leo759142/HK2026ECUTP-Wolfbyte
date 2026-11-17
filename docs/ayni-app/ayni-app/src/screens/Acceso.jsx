@@ -18,7 +18,7 @@ export function Portada() {
         <LangChip />
       </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-4">
-        <img src="/logo.jpg" alt="AYNI" className="w-64 rounded-3xl" />
+        <img src="public/logo.jpg" alt="AYNI" className="w-64 rounded-3xl" />
         <H1>{t('lema')}</H1>
         <Sub>Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.</Sub>
       </div>

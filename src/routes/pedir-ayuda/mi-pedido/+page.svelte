@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
+	import Icono from '../../../lib/iconos/Icono.svelte';
 
 	type Pedido = {
 		id: string;
@@ -19,13 +20,13 @@
 		resguardo: 'Resguardo',
 		otra: 'Otra ayuda'
 	};
-	const icons: Record<string, string> = {
-		agua: '💧',
-		comida: '🍲',
-		medicina: '💊',
-		traslado: '🚗',
-		resguardo: '🏠',
-		otra: '🆘'
+	const iconos: Record<string, string> = {
+		agua: 'agua',
+		comida: 'comida',
+		medicina: 'medicina',
+		traslado: 'traslado',
+		resguardo: 'resguardo',
+		otra: 'otra_ayuda'
 	};
 	let pedido = $state<Pedido | null>(null);
 
@@ -50,14 +51,14 @@
 
 	{#if pedido}
 		<div class="help-request-card">
-			<div class="help-request-card__icon">{icons[pedido.necesidad] ?? '🆘'}</div>
+			<div class="help-request-card__icon"><Icono name={iconos[pedido.necesidad] ?? 'otra_ayuda'} /></div>
 			<div>
 				<strong>{labels[pedido.necesidad] ?? 'Ayuda comunitaria'}</strong>
 				<span>{pedido.cuantas} persona(s) · zona aproximada</span>
 			</div>
 		</div>
 		<div class="emergency-submitted">
-			<div class="emergency-submitted__icon">⏳</div>
+			<div class="emergency-submitted__icon"><Icono name="espera" /></div>
 			<h1>Pedido guardado en este dispositivo</h1>
 			<p>
 				Todavía no hay un vecino asignado. Esta versión local no envía el pedido a una red de

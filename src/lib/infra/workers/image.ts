@@ -10,7 +10,8 @@ function dataUrl(blob: Blob): Promise<string> {
 export async function comprimirImagenEnWorker(
 	file: File,
 	maxSize = 480,
-	quality = 0.72
+	quality = 0.72,
+	mime = 'image/webp'
 ): Promise<string> {
 	if (typeof Worker === 'undefined' || typeof OffscreenCanvas === 'undefined')
 		throw new Error('Este navegador no admite procesamiento de imágenes en segundo plano.');
@@ -35,9 +36,9 @@ export async function comprimirImagenEnWorker(
 					resolve({ buffer: event.data.buffer, mime: event.data.mime });
 			};
 			worker.onerror = () => reject(new Error('No se pudo iniciar el procesador de imágenes.'));
-			worker.postMessage({ id, buffer, type: file.type, maxSize, quality }, [buffer]);
+			worker.postMessage({ id, buffer, type: file.type, maxSize, quality, mime }, [buffer]);
 		});
-		return dataUrl(new Blob([result.buffer], { type: result.mime }));
+		return dataUrl(new Blob([result.buffer], { type: result.mime || mime }));
 	} finally {
 		worker.terminate();
 	}

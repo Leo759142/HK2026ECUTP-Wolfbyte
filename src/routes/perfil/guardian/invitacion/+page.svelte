@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import Screen from '../../../../lib/ui/Screen.svelte';
 	import Header from '../../../../lib/ui/Header.svelte';
+	import Icono from '../../../../lib/iconos/Icono.svelte';
 	let nombre = $state('tu zona');
 	function leer<T>(key: string, fallback: T): T {
 		try {
@@ -44,13 +45,13 @@
 <Screen>
 	<Header title="Invitación" />
 	<div class="guardian-invite">
-		<div class="guardian-invite__icon">🛡️</div>
+		<div class="guardian-invite__icon"><Icono name="guardian" /></div>
 		<h1>¡Llevas 2 meses ayudando en AYNI!</h1>
 		<p>Tus vecinos confían en ti. ¿Quieres ser Guardián de {nombre}?</p>
 		<ul>
-			<li>✅ Confirmar o descartar emergencias</li>
-			<li>✅ Avisar cuando fueron atendidas</li>
-			<li>✅ Revisar publicaciones reportadas</li>
+			<li><Icono name="check" /> Confirmar o descartar emergencias</li>
+			<li><Icono name="check" /> Avisar cuando fueron atendidas</li>
+			<li><Icono name="check" /> Revisar publicaciones reportadas</li>
 		</ul>
 		<button class="mobile-btn mobile-btn--primary" onclick={() => responder(true)}
 			>Acepto ser Guardián</button

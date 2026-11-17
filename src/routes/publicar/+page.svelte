@@ -10,31 +10,32 @@
 	import Header from '../../lib/ui/Header.svelte';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
+	import Icono from '../../lib/iconos/Icono.svelte';
 
 	const publicarServicio = new PublicarServicio(new ServicioRepoLocal());
 	const categorias = [
-		['gasfiteria', '🔧', 'Gasfitería'],
-		['electricidad', '⚡', 'Electricidad'],
-		['carpinteria', '🪚', 'Carpintería'],
-		['cerrajeria', '🔑', 'Cerrajería'],
-		['comida', '🍲', 'Comida'],
-		['cuidado', '🤲', 'Cuidado'],
-		['otro', '✨', 'Otro']
+		['gasfiteria', 'gasfiteria', 'Gasfitería'],
+		['electricidad', 'electricidad', 'Electricidad'],
+		['carpinteria', 'carpinteria', 'Carpintería'],
+		['cerrajeria', 'cerrajeria', 'Cerrajería'],
+		['comida', 'comida', 'Comida'],
+		['cuidado', 'cuidado', 'Cuidado'],
+		['otro', 'otro', 'Otro']
 	];
 	const categoriasFavor = [
-		['prestamo_herramienta', '🧰', 'Herramienta'],
-		['ayuda_temporal', '⏱️', 'Ayuda temporal'],
-		['donacion', '🎁', 'Donación'],
-		['trueque_habilidad', '🔁', 'Trueque'],
-		['movilidad', '🚗', 'Movilidad'],
-		['otro', '✨', 'Otro']
+		['prestamo_herramienta', 'herramienta', 'Herramienta'],
+		['ayuda_temporal', 'ayuda_temporal', 'Ayuda temporal'],
+		['donacion', 'donacion', 'Donación'],
+		['trueque_habilidad', 'trueque', 'Trueque'],
+		['movilidad', 'movilidad', 'Movilidad'],
+		['otro', 'otro', 'Otro']
 	];
 	const tiposAlerta = [
-		['persona_vulnerable', '🧑‍🦽', 'Persona vulnerable'],
-		['zona_inundada', '🌧️', 'Zona inundada'],
-		['sin_servicios_basicos', '🚰', 'Sin servicios'],
-		['riesgo_estructural', '🏚️', 'Riesgo estructural'],
-		['otro', '⚠️', 'Otro']
+		['persona_vulnerable', 'persona_vulnerable', 'Persona vulnerable'],
+		['zona_inundada', 'zona_inundada', 'Zona inundada'],
+		['sin_servicios_basicos', 'sin_servicios_basicos', 'Sin servicios'],
+		['riesgo_estructural', 'riesgo_estructural', 'Riesgo estructural'],
+		['otro', 'alerta', 'Otro']
 	];
 	let paso = $state(1);
 	let tipo = $state<TipoPublicacion>(tipoDesdeUrl(page.url.searchParams.get('tipo')));
@@ -140,13 +141,18 @@
 		<p class="mobile-subtitle">Elige una opción para ayudar a tu comunidad.</p>
 		<div class="publish-type-grid">
 			<button class:active={tipo === 'servicio'} type="button" onclick={() => (tipo = 'servicio')}
-				><span>🛠️</span><strong>Servicio</strong><small>Ofrece lo que sabes hacer</small></button
+				><span><Icono name="servicio" /></span><strong>Servicio</strong><small
+					>Ofrece lo que sabes hacer</small
+				></button
 			>
 			<button class:active={tipo === 'favor'} type="button" onclick={() => (tipo = 'favor')}
-				><span>🤝</span><strong>Favor</strong><small>Pide o brinda ayuda</small></button
+				><span><Icono name="favores" /></span><strong>Favor</strong><small>Pide o brinda ayuda</small
+				></button
 			>
 			<button class:active={tipo === 'alerta'} type="button" onclick={() => (tipo = 'alerta')}
-				><span>⚠️</span><strong>Alerta</strong><small>Informa una necesidad</small></button
+				><span><Icono name="alerta" /></span><strong>Alerta</strong><small
+					>Informa una necesidad</small
+				></button
 			>
 		</div>
 		<div class="access-spacer"></div>
@@ -179,10 +185,10 @@
 			<div class="publish-label">
 				Categoría
 				<div class="publish-options">
-					{#each categorias as [id, emoji, label]}<button
+					{#each categorias as [id, icon, label]}<button
 							class:active={form.categoria === id}
 							type="button"
-							onclick={() => (form.categoria = id)}><span>{emoji}</span>{label}</button
+							onclick={() => (form.categoria = id)}><span><Icono name={icon} /></span>{label}</button
 						>{/each}
 				</div>
 			</div>
@@ -204,10 +210,10 @@
 			<div class="publish-label">
 				Categoría
 				<div class="publish-options">
-					{#each categoriasFavor as [id, emoji, label]}<button
+					{#each categoriasFavor as [id, icon, label]}<button
 							class:active={form.categoria_favor === id}
 							type="button"
-							onclick={() => (form.categoria_favor = id)}><span>{emoji}</span>{label}</button
+							onclick={() => (form.categoria_favor = id)}><span><Icono name={icon} /></span>{label}</button
 						>{/each}
 				</div>
 			</div>
@@ -215,22 +221,23 @@
 			<div class="publish-label">
 				Tipo de alerta
 				<div class="publish-options">
-					{#each tiposAlerta as [id, emoji, label]}<button
+					{#each tiposAlerta as [id, icon, label]}<button
 							class:active={form.tipo_alerta === id}
 							type="button"
-							onclick={() => (form.tipo_alerta = id)}><span>{emoji}</span>{label}</button
+							onclick={() => (form.tipo_alerta = id)}><span><Icono name={icon} /></span>{label}</button
 						>{/each}
 				</div>
 			</div>
 		{/if}
 		<div class="publish-label">
-			Fotos opcionales
+			Foto opcional
 			<PhotoPicker
-				multiple
-				values={form.fotos}
-				onvalueschange={(values) => {
-					form.fotos = values;
-					form.foto = values[0] ?? null;
+				max={1}
+				maxSizeMB={5}
+				value={form.foto}
+				onchange={(value) => {
+					form.foto = value;
+					form.fotos = value ? [value] : [];
 				}}
 			/>
 		</div>
@@ -243,7 +250,7 @@
 		</div>
 	{:else}
 		<div class="publish-success">
-			<span>✅</span>
+			<span><Icono name="check" /></span>
 			<h1>¡Publicado!</h1>
 			<p>{mensaje}</p>
 		</div>

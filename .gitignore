@@ -23,3 +23,9 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Tooling aislado (runtime/deps de pruebas y lint locales, no versionar)
+.tooling/*
+!.tooling/README.md
+.dev-tools/
+.pnpm-store-local/
