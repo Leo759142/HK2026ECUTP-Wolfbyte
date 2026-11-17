@@ -83,6 +83,7 @@ export const TIPOS_ALERTA = [
 	'via_bloqueada',
 	'sin_servicios_basicos',
 	'riesgo_estructural',
+	'posto_salud',
 	'otro'
 ] as const;
 export type TipoAlerta = (typeof TIPOS_ALERTA)[number];

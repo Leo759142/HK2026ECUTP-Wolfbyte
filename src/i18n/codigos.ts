@@ -25,10 +25,10 @@ export const CODIGOS_ISO_639_3: Record<string, string> = {
 export const NOMBRES_IDIOMA: Record<string, string> = {
 	es: 'Español',
 	en: 'English',
-	qu: 'Qhapaq Simi (Quechua)',
+	qu: 'Runasimi (Quechua)',
 	spa0000: 'Español',
 	eng0000: 'English',
-	qu0000: 'Qhapaq Simi (Quechua)'
+	qu0000: 'Runasimi (Quechua)'
 };
 
 /** Códigos Glottolog para referencia académica y escalabilidad futura */

@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="es">
 	<head>
 		<meta charset="utf-8" />
@@ -7,6 +7,10 @@
 		<meta
 			name="description"
 			content="AYNI · Servicios, favores y apoyo comunitario offline-first."
+		/>
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src 'self' https://nominatim.openstreetmap.org https://ipwho.is https://ipapi.co https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com ws: wss:; font-src 'self' https://fonts.gstatic.com data:; frame-src 'self' https://www.openstreetmap.org;"
 		/>
 		<link rel="icon" href="/icon-192.png" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,3 +31,4 @@
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>
+

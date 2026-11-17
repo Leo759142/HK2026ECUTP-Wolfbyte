@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
@@ -8,7 +8,7 @@
 		obtenerSesionLocal,
 		onboardingVisto
 	} from '../../lib/onboarding';
-	import { translate, type Idioma } from '../../i18n';
+	import { gestorIdiomas } from '../../i18n';
 	import Btn from '../../lib/ui/Btn.svelte';
 	import Header from '../../lib/ui/Header.svelte';
 	import Input from '../../lib/ui/Input.svelte';
@@ -16,6 +16,7 @@
 
 	type Paso = 'portada' | 'tutorial' | 'telefono' | 'codigo' | 'nombre' | 'ubicacion' | 'zona';
 	type Modo = 'registro' | 'login';
+
 	let paso = $state<Paso>('portada');
 	let modo = $state<Modo>('registro');
 	let tutorial = $state(0);
@@ -28,33 +29,20 @@
 	let obteniendoUbicacion = $state(false);
 	let error = $state('');
 	let onboardingCompletado = $state(false);
-	let idioma = $state<Idioma>('es');
 
-	// Leer idioma desde parámetro URL ?lang=
-	function idiomaDesdeURL(): Idioma | null {
-		if (typeof window === 'undefined' || !window.location) return null;
-		const params = new URLSearchParams(window.location.search);
-		const lang = params.get('lang');
-		if (lang && ['es', 'en', 'qu'].includes(lang)) return lang as Idioma;
-		return null;
+	const t = (key: string) => gestorIdiomas.t(key);
+
+	function emergencia() {
+		goto('/emergencia');
 	}
 
-	// Cambiar idioma y actualizar URL
-	function cambiarIdioma(nuevo: Idioma): void {
-		idioma = nuevo;
-		if (typeof window !== 'undefined' && window.history && window.history.replaceState) {
-			const url = new URL(window.location.href);
-			url.searchParams.set('lang', nuevo);
-			window.history.replaceState({}, '', url.toString());
+	onMount(async () => {
+		const yaVioOnboarding = await onboardingVisto();
+		onboardingCompletado = yaVioOnboarding;
+		console.log('[Acceso] onMount:', { yaVioOnboarding, tieneSesion: !!obtenerSesionLocal() });
+		if (yaVioOnboarding && obtenerSesionLocal()) {
+			await goto('/');
 		}
-	}
-
-	const t = (key: string) => translate(idioma, key);
-
-	// Inicializar idioma desde URL al montar
-	onMount(() => {
-		const langUrl = idiomaDesdeURL();
-		if (langUrl) idioma = langUrl;
 	});
 
 	const PASOS_REGISTRO: Paso[] = ['telefono', 'codigo', 'nombre', 'ubicacion', 'zona'];
@@ -91,6 +79,7 @@
 	}
 
 	function retroceder() {
+		error = '';
 		if (paso === 'telefono') {
 			if (modo === 'registro' && !onboardingCompletado) paso = 'tutorial';
 			else paso = 'portada';
@@ -106,30 +95,32 @@
 
 	function continuarTelefono() {
 		error = '';
-		if (!/^9\d{8}$/.test(telefono)) {
-			error = 'Escribe un número celular válido de 9 dígitos.';
+		const limpio = telefono.replace(/\D/g, '');
+		telefono = limpio;
+		if (!/^9\d{8}$/.test(limpio)) {
+			error = t('error.acceso.telefono_invalido');
 			return;
 		}
 		const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<{
 			phone?: string;
 			firstName?: string;
 		}>;
-		const existente = usuarios.find((usuario) => usuario.phone === telefono);
+		const existente = usuarios.find((usuario) => usuario.phone === limpio);
 		if (modo === 'registro' && existente) {
-			error = 'Ese número ya tiene cuenta. Usa “Ya tengo cuenta” para ingresar.';
+			error = t('error.acceso.telefono_existe');
 			return;
 		}
 		if (modo === 'login' && !existente) {
-			error = 'No encontramos ese número. Toca “Crear cuenta” para registrarte.';
+			error = t('error.acceso.telefono_no_existe');
 			return;
 		}
-		localStorage.setItem('ayni:v1:registro', JSON.stringify({ phone: telefono }));
+		localStorage.setItem('ayni:v1:registro', JSON.stringify({ phone: limpio }));
 		paso = 'codigo';
 	}
 
 	async function completarAcceso(
 		telefonoAcceso: string,
-		alias = 'Rosa',
+		aliasUsuario = 'Rosa',
 		datosPerfil: { ubicacion?: string; manzana?: string } = {}
 	) {
 		let datos: { usuarioId?: string; rol?: string } = {};
@@ -141,7 +132,7 @@
 					accion: 'registro',
 					celular: telefonoAcceso,
 					pin: codigo || '1234',
-					alias
+					alias: aliasUsuario
 				})
 			});
 			if (respuesta.ok) {
@@ -153,19 +144,21 @@
 		} catch {
 			// El registro demo también funciona sin conexión.
 		}
+
 		const usuarioId = datos.usuarioId ?? `local-${telefonoAcceso}`;
 		guardarSesionLocal({
 			usuarioId,
 			rol: datos.rol ?? 'Vecino',
 			telefono: telefonoAcceso,
-			alias,
+			alias: aliasUsuario,
 			expiraEn: Date.now() + 24 * 60 * 60 * 1000
 		});
+
 		localStorage.setItem('ayni:v1:registro', JSON.stringify({ phone: telefonoAcceso }));
 		const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<
 			Record<string, unknown>
 		>;
-		const partesNombre = alias.trim().split(/\s+/);
+		const partesNombre = aliasUsuario.trim().split(/\s+/);
 		const nuevoUsuario = {
 			id: usuarioId,
 			firstName: partesNombre[0],
@@ -179,14 +172,15 @@
 		if (indice >= 0) usuarios[indice] = { ...usuarios[indice], ...nuevoUsuario };
 		else usuarios.unshift(nuevoUsuario);
 		localStorage.setItem('ayni:v1:users', JSON.stringify(usuarios));
+
 		await marcarOnboardingVisto();
 		await goto('/');
 	}
 
 	async function verificarCodigo() {
 		error = '';
-		if (codigo !== '1234') {
-			error = 'Código incorrecto. En demo utiliza 1234.';
+		if (codigo.trim() !== '1234') {
+			error = t('error.acceso.codigo_incorrecto');
 			return;
 		}
 		try {
@@ -203,25 +197,32 @@
 				usuarios.find((usuario) => usuario.phone === telefono)?.firstName ?? 'Vecino'
 			);
 		} catch {
-			error = 'No se pudo iniciar sesión. Intenta nuevamente.';
+			error = t('error.acceso.login_fallo');
 		}
 	}
 
 	async function entrarDemo() {
+		error = '';
 		modo = 'login';
 		try {
 			await completarAcceso('999123456');
 		} catch {
-			error = 'No se pudo iniciar sesión. Intenta nuevamente.';
+			error = t('error.acceso.login_fallo');
 		}
 	}
 
 	function iniciarRegistro() {
+		error = '';
 		modo = 'registro';
-		paso = onboardingCompletado ? 'telefono' : 'tutorial';
+		tutorial = 0;
+		// Tutorial solo si NUNCA vio onboarding (primera vez absoluta)
+		const yaVioOnboarding = onboardingCompletado;
+		paso = yaVioOnboarding ? 'telefono' : 'tutorial';
+		console.log('[Acceso] iniciarRegistro:', { yaVioOnboarding, paso });
 	}
 
 	function iniciarSesion() {
+		error = '';
 		modo = 'login';
 		paso = 'telefono';
 	}
@@ -229,16 +230,16 @@
 	function guardarRegistro() {
 		error = '';
 		if (alias.trim().length < 2 || apellido.trim().length < 2) {
-			error = 'Escribe tu nombre y apellido para continuar.';
+			error = t('error.acceso.nombre_requerido');
 			return;
 		}
 		paso = 'ubicacion';
 	}
 
-	async function guardarUbicacion() {
+	function guardarUbicacion() {
 		error = '';
 		if (!ubicacion.trim()) {
-			error = 'Escribe tu dirección o referencia para continuar.';
+			error = t('error.acceso.ubicacion_requerida');
 			return;
 		}
 		paso = 'zona';
@@ -255,10 +256,10 @@
 			async ({ coords }) => {
 				try {
 					const respuesta = await fetch(
-						`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(coords.latitude)}&lon=${encodeURIComponent(coords.longitude)}&zoom=18&addressdetails=1`,
+						`https://openstreetmap.org{encodeURIComponent(coords.latitude)}&lon=${encodeURIComponent(coords.longitude)}&zoom=18&addressdetails=1`,
 						{ headers: { Accept: 'application/json' } }
 					);
-					if (!respuesta.ok) throw new Error('No se pudo consultar la dirección.');
+					if (!respuesta.ok) throw new Error(t('error.acceso.direccion_no_consultada'));
 					const datos = (await respuesta.json()) as {
 						address?: {
 							road?: string;
@@ -287,7 +288,7 @@
 				}
 			},
 			() => {
-				error = 'No pudimos detectar tu ubicación. Puedes escribir una referencia.';
+				error = t('error.acceso.ubicacion_no_detectada');
 				obteniendoUbicacion = false;
 			},
 			{ enableHighAccuracy: false, timeout: 8000 }
@@ -297,7 +298,7 @@
 	async function guardarZona() {
 		error = '';
 		if (!manzana) {
-			error = 'Elige tu manzana para terminar el registro.';
+			error = t('error.acceso.zona_requerida');
 			return;
 		}
 		try {
@@ -306,22 +307,9 @@
 				manzana
 			});
 		} catch {
-			error = 'No se pudo terminar el registro. Intenta nuevamente.';
+			error = t('error.acceso.registro_fallo');
 		}
 	}
-
-	onMount(async () => {
-		try {
-			const settings = JSON.parse(localStorage.getItem('ayni:v1:settings') ?? '{}') as {
-				lang?: Idioma;
-			};
-			if (settings.lang && ['es', 'en', 'qu'].includes(settings.lang)) idioma = settings.lang;
-		} catch {
-			idioma = 'es';
-		}
-		onboardingCompletado = await onboardingVisto();
-		if (obtenerSesionLocal()) await goto('/');
-	});
 </script>
 
 <svelte:head><title>Acceso | AYNI</title></svelte:head>
@@ -335,71 +323,110 @@
 		aria-valuemax={total}
 		aria-valuenow={actual}
 	>
-		{#each Array.from({ length: total }, (_, indice) => indice) as indice}
-			{#if indice < actual}<span></span>{:else}<i></i>{/if}
+		{#each Array(total) as _, indice}
+			{#if indice < actual}
+				<span></span>
+			{:else}
+				<i></i>
+			{/if}
 		{/each}
 	</div>
+{/snippet}
+
+{#snippet pantallaPaso(
+	titulo: string,
+	subtitulo: string,
+	nextLabel: string,
+	nextDisabled: boolean,
+	onNext: () => void,
+	contenido: import('svelte').Snippet
+)}
+	<section class="access-screen">
+		<Header title={tituloPaso} back={true} onBack={retroceder} />
+		{@render progreso(pasoActual, totalPasos)}
+
+		<h1 class="mobile-title">{titulo}</h1>
+		<p class="mobile-subtitle">{subtitulo}</p>
+
+		{@render contenido()}
+
+		{#if error}
+			<p class="form-error" role="alert">{error}</p>
+		{/if}
+
+		<div class="access-spacer"></div>
+		<StepNav
+			{pasoActual}
+			{totalPasos}
+			onBack={retroceder}
+			{onNext}
+			{nextLabel}
+			{nextDisabled}
+		/>
+	</section>
 {/snippet}
 
 <div class="access-page">
 	{#if paso === 'portada'}
 		<section class="access-cover">
 			<div class="access-language" aria-label="Idioma">
-			<select
-				class="lang-combobox"
-				value={idioma}
-				onchange={(e) => cambiarIdioma((e.currentTarget as HTMLSelectElement).value as typeof idioma)}
-			>
-				<option value="es" title="Español (ISO: spa, Glottolog: stan1288)">ES · Español</option>
-				<option value="en" title="English (ISO: eng, Glottolog: stan1291)">EN · English</option>
-				<option value="qu" title="Qhapaq Simi (ISO: qu0, Glottolog: cusc1238)">QU · Qhapaq Simi</option>
-			</select>
-		</div>
+				<select
+					class="lang-combobox"
+					value={gestorIdiomas.idiomaActual}
+					onchange={(e) => gestorIdiomas.cambiarIdioma(e.currentTarget.value)}
+				>
+					<option value="es" title="Español (ISO: spa, Glottolog: stan1288)">ES · Español</option>
+					<option value="en" title="English (ISO: eng, Glottolog: stan1291)">EN · English</option>
+					<option value="qu" title="Qhichwa (ISO: qu0, Glottolog: cusc1238)">QU · Qhichwa</option>
+				</select>
+			</div>
+
 			<div class="access-cover__content">
 				<img src="/logo.jpg" alt="AYNI" />
-				<h1>Hoy por ti,<br />mañana por mí.</h1>
-				<p>
-					Servicios recomendados por tus vecinos, favores sin dinero y apoyo cuando más se necesita.
-				</p>
+				<h1>{t('lema')}</h1>
+				<p>{t('serviciosDescritos')}</p>
 			</div>
+
 			<div class="access-actions">
 				<Btn variant="acento" onclick={iniciarRegistro}>{t('access.crear')}</Btn>
 				<Btn variant="borde" onclick={iniciarSesion}>{t('access.ingresar')}</Btn>
-				<button class="access-demo" type="button" onclick={entrarDemo}
-					>Entrar como vecina de prueba (Rosa)</button
-				>
+				<Btn variant="rojo" onclick={emergencia}>{t('access.emergencia')}</Btn>
+				<button class="access-demo" type="button" onclick={entrarDemo}>
+					Entrar como vecina de prueba (Rosa)
+				</button>
 			</div>
 		</section>
+
 	{:else if paso === 'tutorial'}
-		<div class={`access-step ${tutoriales[tutorial].color}`}>
+		{@const slide = tutoriales[tutorial]}
+		<div class={`access-step ${slide.color}`}>
 			<div class="access-step__header">
 				<button class="access-skip" type="button" onclick={retroceder}>Volver</button>
 				<button class="access-skip" type="button" onclick={() => (paso = 'telefono')}>Saltar</button>
 			</div>
-			<div class="access-step__image"><span><Icono name={tutoriales[tutorial].icon} /></span></div>
+
+			<div class="access-step__image">
+				<span><Icono name={slide.icon} /></span>
+			</div>
+
 			<div class="access-step__copy">
-				<h1>{tutoriales[tutorial].titulo}</h1>
-				<p>{tutoriales[tutorial].texto}</p>
+				<h1>{slide.titulo}</h1>
+				<p>{slide.texto}</p>
 			</div>
+
 			<div class="access-step__dots" aria-label={`Paso ${tutorial + 1} de ${tutoriales.length}`}>
-				{#each tutoriales as _, indice}<span class:active={indice === tutorial}></span>{/each}
+				{#each tutoriales as _, indice}
+					<span class:active={indice === tutorial}></span>
+				{/each}
 			</div>
-			<Btn variant="blanco" onclick={siguienteTutorial}
-				>{tutorial < tutoriales.length - 1 ? t('access.siguiente') : t('access.empezar')}</Btn
-			>
+
+			<Btn variant="blanco" onclick={siguienteTutorial}>
+				{tutorial < tutoriales.length - 1 ? t('access.siguiente') : t('access.empezar')}
+			</Btn>
 		</div>
+
 	{:else if paso === 'telefono'}
-		<section class="access-screen">
-			<Header title={tituloPaso} back={true} onBack={retroceder} />
-			{@render progreso(pasoActual, totalPasos)}
-			<h1 class="mobile-title">
-				{modo === 'registro' ? '¿Cuál es tu número de celular?' : '¡Hola de nuevo!'}
-			</h1>
-			<p class="mobile-subtitle">
-				{modo === 'registro'
-					? 'Te enviaremos un código por SMS para verificar que eres tú.'
-					: 'Escribe tu número y te enviaremos un código para entrar.'}
-			</p>
+		{#snippet camposTelefono()}
 			<div class="phone-field">
 				<span>🇵🇪 +51</span>
 				<Input
@@ -412,26 +439,24 @@
 					onEnter={continuarTelefono}
 				/>
 			</div>
-			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
 			<p class="privacy-note">
 				<Icono name="bloquear" /> Tus vecinos no verán tu número. Solo se usa cuando tú lo decidas.
 			</p>
-			<div class="access-spacer"></div>
-			<StepNav
-				pasoActual={pasoActual}
-				totalPasos={totalPasos}
-				onBack={retroceder}
-				onNext={continuarTelefono}
-				nextLabel="Enviar código"
-				nextDisabled={telefono.length !== 9}
-			/>
-		</section>
+		{/snippet}
+
+		{@render pantallaPaso(
+			modo === 'registro' ? '¿Cuál es tu número de celular?' : '¡Hola de nuevo!',
+			modo === 'registro'
+				? 'Te enviaremos un código por SMS para verificar que eres tú.'
+				: 'Escribe tu número y te enviaremos un código para entrar.',
+			'Enviar código',
+			telefono.replace(/\D/g, '').length !== 9,
+			continuarTelefono,
+			camposTelefono
+		)}
+
 	{:else if paso === 'codigo'}
-		<section class="access-screen">
-			<Header title={tituloPaso} back={true} onBack={retroceder} />
-			{@render progreso(pasoActual, totalPasos)}
-			<h1 class="mobile-title">Escribe el código</h1>
-			<p class="mobile-subtitle">Lo enviamos por SMS al +51 {telefono}.</p>
+		{#snippet camposCodigo()}
 			<Input
 				class="code-field"
 				inputmode="numeric"
@@ -441,29 +466,25 @@
 				ariaLabel="Código de verificación"
 				onEnter={verificarCodigo}
 			/>
-			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
 			<div class="demo-note">
 				<Icono name="servicio" /> Modo demostración: el código es 1234.
 			</div>
-			<button class="access-demo" type="button" onclick={() => (paso = 'telefono')}
-				>Cambiar número</button
-			>
-			<div class="access-spacer"></div>
-			<StepNav
-				pasoActual={pasoActual}
-				totalPasos={totalPasos}
-				onBack={retroceder}
-				onNext={verificarCodigo}
-				nextLabel="Verificar"
-				nextDisabled={codigo.length !== 4}
-			/>
-		</section>
+			<button class="access-demo" type="button" onclick={() => (paso = 'telefono')}>
+				Cambiar número
+			</button>
+		{/snippet}
+
+		{@render pantallaPaso(
+			'Escribe el código',
+			`Lo enviamos por SMS al +51 ${telefono}.`,
+			'Verificar',
+			codigo.trim().length !== 4,
+			verificarCodigo,
+			camposCodigo
+		)}
+
 	{:else if paso === 'nombre'}
-		<section class="access-screen">
-			<Header title={tituloPaso} back={true} onBack={retroceder} />
-			{@render progreso(pasoActual, totalPasos)}
-			<h1 class="mobile-title">¿Cómo te llamas?</h1>
-			<p class="mobile-subtitle">Así tus vecinos sabrán quién recomienda, presta o pide ayuda.</p>
+		{#snippet camposNombre()}
 			<Input
 				class="code-field name-field"
 				autocomplete="given-name"
@@ -480,26 +501,19 @@
 				ariaLabel="Apellido"
 				onEnter={guardarRegistro}
 			/>
-			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-			<div class="access-spacer"></div>
-			<StepNav
-				pasoActual={pasoActual}
-				totalPasos={totalPasos}
-				onBack={retroceder}
-				onNext={guardarRegistro}
-				nextLabel={t('access.continuar')}
-				nextDisabled={alias.trim().length < 2 || apellido.trim().length < 2}
-			/>
-		</section>
+		{/snippet}
+
+		{@render pantallaPaso(
+			'¿Cómo te llamas?',
+			'Así tus vecinos sabrán quién recomienda, presta o pide ayuda.',
+			t('access.continuar'),
+			alias.trim().length < 2 || apellido.trim().length < 2,
+			guardarRegistro,
+			camposNombre
+		)}
+
 	{:else if paso === 'ubicacion'}
-		<section class="access-screen">
-			<Header title={tituloPaso} back={true} onBack={retroceder} />
-			{@render progreso(pasoActual, totalPasos)}
-			<h1 class="mobile-title">¿Dónde vives?</h1>
-			<p class="mobile-subtitle">
-				Usamos una ubicación aproximada para mostrarte ayuda cerca. Nunca publicaremos tu dirección
-				exacta.
-			</p>
+		{#snippet camposUbicacion()}
 			<label class="publish-label">
 				Referencia o dirección
 				<Input
@@ -517,29 +531,25 @@
 				onclick={usarUbicacionActual}
 				disabled={obteniendoUbicacion}
 			>
-				{#if obteniendoUbicacion}Detectando ubicación…{:else}<Icono
-						name="ubicacion"
-					/> Usar mi ubicación actual{/if}
+				{#if obteniendoUbicacion}
+					Detectando ubicación…
+				{:else}
+					<Icono name="ubicacion" /> Usar mi ubicación actual
+				{/if}
 			</button>
-			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-			<div class="access-spacer"></div>
-			<StepNav
-				pasoActual={pasoActual}
-				totalPasos={totalPasos}
-				onBack={retroceder}
-				onNext={guardarUbicacion}
-				nextLabel={t('access.continuar')}
-				nextDisabled={!ubicacion.trim()}
-			/>
-		</section>
+		{/snippet}
+
+		{@render pantallaPaso(
+			'¿Dónde vives?',
+			'Usamos una ubicación aproximada para mostrarte ayuda cerca. Nunca publicaremos tu dirección exacta.',
+			t('access.continuar'),
+			!ubicacion.trim(),
+			guardarUbicacion,
+			camposUbicacion
+		)}
+
 	{:else}
-		<section class="access-screen">
-			<Header title={tituloPaso} back={true} onBack={retroceder} />
-			{@render progreso(pasoActual, totalPasos)}
-			<h1 class="mobile-title">Elige tu manzana</h1>
-			<p class="mobile-subtitle">
-				La app detecta tu sector y solo muestra esta referencia de forma pública.
-			</p>
+		{#snippet camposZona()}
 			<div class="zone-grid">
 				{#each ['A', 'B', 'C', 'D'] as item}
 					<button class:active={manzana === item} type="button" onclick={() => (manzana = item)}>
@@ -547,16 +557,15 @@
 					</button>
 				{/each}
 			</div>
-			{#if error}<p class="form-error" role="alert">{error}</p>{/if}
-			<div class="access-spacer"></div>
-			<StepNav
-				pasoActual={pasoActual}
-				totalPasos={totalPasos}
-				onBack={retroceder}
-				onNext={guardarZona}
-				nextLabel={t('access.entrar')}
-				nextDisabled={!manzana}
-			/>
-		</section>
+		{/snippet}
+
+		{@render pantallaPaso(
+			'Elige tu manzana',
+			'La app detecta tu sector y solo muestra esta referencia de forma pública.',
+			t('access.entrar'),
+			!manzana,
+			guardarZona,
+			camposZona
+		)}
 	{/if}
 </div>

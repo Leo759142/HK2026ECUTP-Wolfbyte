@@ -1,29 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
+	import { mensajeHttp, gestorIdiomas } from '../i18n';
 
 	const status = $derived(page.status);
+	const estadosConocidos = [400, 401, 403, 404, 408, 429, 500, 503];
 	const mensaje = $derived.by(() => {
-		switch (page.status) {
-			case 400:
-				return 'La solicitud no es válida. Revisa los datos e inténtalo de nuevo.';
-			case 401:
-				return 'Necesitas iniciar sesión para continuar.';
-			case 403:
-				return 'No tienes permiso para ver esta página.';
-			case 404:
-				return 'La página que buscas no existe o fue movida.';
-			case 408:
-				return 'La solicitud tardó demasiado. Intenta nuevamente.';
-			case 429:
-				return 'Hay muchas solicitudes. Espera un momento e inténtalo otra vez.';
-			case 500:
-				return 'Ocurrió un problema en el servidor.';
-			case 503:
-				return 'El servicio no está disponible por ahora.';
-			default:
-				return page.error?.message ?? 'Ocurrió un error inesperado.';
-		}
+		if (estadosConocidos.includes(page.status)) return mensajeHttp(page.status);
+		return page.error?.message ?? mensajeHttp(page.status);
 	});
 
 	function volver() {
@@ -33,19 +17,26 @@
 </script>
 
 <svelte:head>
-	<title>Error {status} | AYNI</title>
+	<title>{gestorIdiomas.tConVars('error.pagina.titulo_documento', { status })}</title>
 </svelte:head>
 
 <section class="app-screen error-screen" aria-labelledby="error-title">
 	<div class="error-card">
-		<p class="error-code" aria-label={`Código de error ${status}`}>{String(status).padStart(3, '0')}</p>
-		<h1 id="error-title">No pudimos mostrar esta página</h1>
+		<p
+			class="error-code"
+			aria-label={gestorIdiomas.tConVars('error.pagina.codigo', { codigo: status })}
+		>{String(status).padStart(3, '0')}</p>
+		<h1 id="error-title">{gestorIdiomas.t('error.pagina.titulo')}</h1>
 		<p class="error-message">{mensaje}</p>
 		<div class="error-actions">
-			<button class="mobile-btn mobile-btn--primary" type="button" onclick={volver}>Volver</button>
-			<a class="mobile-btn mobile-btn--outline" href="/">Ir al inicio</a>
-			<button class="mobile-btn mobile-btn--outline" type="button" onclick={() => location.reload()}
-				>Reintentar</button
+			<button class="mobile-btn mobile-btn--primary" type="button" onclick={volver}
+				>{gestorIdiomas.t('error.pagina.volver')}</button
+			>
+			<a class="mobile-btn mobile-btn--outline" href="/">{gestorIdiomas.t('error.pagina.inicio')}</a>
+			<button
+				class="mobile-btn mobile-btn--outline"
+				type="button"
+				onclick={() => location.reload()}>{gestorIdiomas.t('error.pagina.reintentar')}</button
 			>
 		</div>
 	</div>

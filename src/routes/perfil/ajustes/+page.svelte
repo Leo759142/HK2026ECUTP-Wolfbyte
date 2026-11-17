@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
-	import { reiniciarOnboarding } from '../../../lib/onboarding';
+	import { reiniciarOnboarding, obtenerSesionLocal } from '../../../lib/onboarding';
+	import { gestorIdiomas } from '../../../i18n';
 
-	let idioma = $state('es');
 	let letraGrande = $state(false);
 	let manzana = $state('');
 	let mensaje = $state('');
@@ -25,7 +25,7 @@
 	function settings() {
 		return {
 			...leer<Record<string, unknown>>('settings', {}),
-			lang: idioma,
+			lang: gestorIdiomas.idiomaActual,
 			largeText: letraGrande
 		};
 	}
@@ -34,13 +34,15 @@
 		mensaje = 'Tutorial reiniciado. Se mostrará la próxima vez que abras el acceso.';
 	}
 	onMount(() => {
-		const actual = leer<{ lang?: string; largeText?: boolean }>('settings', {});
-		idioma = actual.lang ?? 'es';
+		const actual = leer<{ largeText?: boolean }>('settings', {});
 		letraGrande = Boolean(actual.largeText);
-		document.documentElement.lang = idioma;
 		document.documentElement.classList.toggle('letra-grande', letraGrande);
 		const users = leer<Array<{ manzana?: string }>>('users', []);
-		manzana = users[0]?.manzana ?? '';
+		const sesion = obtenerSesionLocal();
+		const user = sesion?.usuarioId
+			? users.find((item) => item.id === sesion.usuarioId)
+			: undefined;
+		manzana = user?.manzana ?? '';
 		manzanas = [
 			...new Set(
 				leer<Array<{ manzanas?: string[] }>>('sectors', []).flatMap((s) => s.manzanas ?? [])
@@ -57,9 +59,9 @@
 		<label class="setting-row"
 			><span>Idioma</span>
 			<select
-				bind:value={idioma}
-				onchange={() => {
-					document.documentElement.lang = idioma;
+				value={gestorIdiomas.idiomaActual}
+				onchange={(e) => {
+					gestorIdiomas.cambiarIdioma(e.currentTarget.value);
 					guardar('settings', settings());
 				}}
 			>

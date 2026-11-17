@@ -2,9 +2,11 @@
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
 	import Icono from '../../../lib/iconos/Icono.svelte';
+	import { modoEmergencia } from '../../../lib/emergencia/estado.svelte';
 	let emergencias = $state<Array<Record<string, unknown>>>([]);
 	let reportes = $state<Array<Record<string, unknown>>>([]);
 	let esGuardian = $state(false);
+	let estoyBienCount = $state(0);
 	function leer<T>(key: string, fallback: T): T {
 		try {
 			const raw = localStorage.getItem(`ayni:v1:${key}`);
@@ -18,7 +20,10 @@
 	}
 	function cargar() {
 		const users = leer<Array<{ id?: string }>>('users', []);
-		const id = users[0]?.id;
+		const sesion = JSON.parse(localStorage.getItem('ayni:v1:session') ?? '{}') as { usuarioId?: string };
+		const id = sesion.usuarioId
+			? users.find((u) => u.id === sesion.usuarioId)?.id
+			: undefined;
 		esGuardian = leer<Array<{ guardianIds?: string[] }>>('sectors', []).some((s) =>
 			s.guardianIds?.includes(id ?? '')
 		);
@@ -26,9 +31,43 @@
 			(e) => (e.status ?? e.estado) === 'pendiente'
 		);
 		reportes = leer<Array<Record<string, unknown>>>('reports', []);
+		const listaBien = JSON.parse(localStorage.getItem('ayni:v1:estoy-bien') ?? '[]') as string[];
+		estoyBienCount = listaBien.length;
 	}
+	function obtenerUsuarioManzana(): string {
+		try {
+			const users = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<{
+				id?: string;
+				manzana?: string;
+			}>;
+			const sesion = JSON.parse(localStorage.getItem('ayni:v1:session') ?? '{}') as { usuarioId?: string };
+			const user = sesion.usuarioId
+				? users.find((u) => u.id === sesion.usuarioId)
+				: undefined;
+			return user?.manzana ? `Mz. ${user.manzana}` : 'tu sector';
+		} catch {
+			return 'tu sector';
+		}
+	}
+
+	const TIPO_ETIQUETA: Record<string, string> = {
+		persona_vulnerable: 'Persona vulnerable',
+		zona_inundada: 'Zona inundada',
+		via_bloqueada: 'Vía bloqueada',
+		sin_servicios_basicos: 'Sin servicios básicos',
+		riesgo_estructural: 'Riesgo estructural',
+		otro: 'Otra situación',
+		posto_salud: 'Emergencia médica'
+	};
+
+	function etiquetaTipo(valor?: string): string {
+		if (!valor) return 'Situación reportada';
+		return TIPO_ETIQUETA[valor] ?? valor;
+	}
+
 	function atender(index: number) {
-		const id = emergencias[index]?.id;
+		const emergencia = emergencias[index];
+		const id = emergencia?.id;
 		emergencias = emergencias.filter((_, i) => i !== index);
 		guardar(
 			'emergencies',
@@ -36,6 +75,12 @@
 				e.id === id ? { ...e, status: 'confirmada' } : e
 			)
 		);
+		// Al confirmar, se enciende el modo emergencia para todo el sector
+		modoEmergencia.activar({
+			tipo: etiquetaTipo(String(emergencia?.tipo ?? 'Emergencia')),
+			lugar: obtenerUsuarioManzana(),
+			confirmadaPor: 'un Guardián'
+		});
 	}
 	function resolverReporte(index: number, ocultar: boolean) {
 		const reporte = reportes[index];
@@ -64,6 +109,11 @@
 				><strong>Panel del Guardián</strong><small>Ayuda a mantener segura tu zona.</small></span
 			>
 		</div>
+		{#if estoyBienCount > 0}
+			<div class="guardian-cerrar guardian-cerrar--bien">
+				<p><strong>{estoyBienCount} vecino{estoyBienCount === 1 ? 'a' : 'as'} marcó: estoy bien</strong></p>
+			</div>
+		{/if}
 		<h2>Emergencias por confirmar</h2>
 		{#if !emergencias.length}<div class="empty"><Icono name="favores" /> No hay reportes pendientes.</div>{/if}
 		{#each emergencias as emergencia, i}
@@ -75,6 +125,14 @@
 				>
 			</article>
 		{/each}
+		{#if modoEmergencia.activa}
+			<div class="guardian-cerrar">
+				<p>La emergencia está activa. Cuando esté controlada, avisa a tus vecinos.</p>
+				<button class="mobile-btn mobile-btn--primary" type="button" onclick={() => modoEmergencia.desactivar()}>
+					✓ Marcar emergencia como atendida
+				</button>
+			</div>
+		{/if}
 		<h2>Publicaciones reportadas ({reportes.length})</h2>
 		{#if !reportes.length}<div class="empty"><Icono name="check" /> Todo en orden</div>{/if}
 		{#each reportes as reporte, i}

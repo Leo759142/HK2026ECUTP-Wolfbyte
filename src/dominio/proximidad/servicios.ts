@@ -40,11 +40,17 @@ export class Servicio implements ServicioFila {
 	constructor(props: ServicioProps) {
 		asegurar(
 			props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80,
-			ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.')
+			ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.', {
+				clave: 'error.dominio.servicio.titulo_longitud',
+				params: { min: 3, max: 80 }
+			})
 		);
 		asegurar(
 			props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 500,
-			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 500 caracteres.')
+			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 500 caracteres.', {
+				clave: 'error.dominio.servicio.descripcion_longitud',
+				params: { max: 500 }
+			})
 		);
 		validarCoordenadas(props.lat_aprox, props.lng_aprox);
 		this.id = props.id;

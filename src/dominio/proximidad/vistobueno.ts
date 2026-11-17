@@ -30,7 +30,10 @@ export class VistoBueno implements VistoBuenoVigente {
 		const comentario = props.comentario?.trim() ?? null;
 		asegurar(
 			!comentario || comentario.length <= 140,
-			ERRORES_COMUNES.VALIDACION('El comentario no puede exceder 140 caracteres.')
+			ERRORES_COMUNES.VALIDACION('El comentario no puede exceder 140 caracteres.', {
+				clave: 'error.dominio.visto_bueno.comentario_largo',
+				params: { max: 140 }
+			})
 		);
 		this.servicio_id = props.servicio_id;
 		this.usuario_id = props.usuario_id;

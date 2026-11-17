@@ -8,6 +8,9 @@
 	import Screen from '../../lib/ui/Screen.svelte';
 	import PhotoGallery from '../../lib/ui/PhotoGallery.svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
+	import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
+
+	const t = (key: string) => gestorIdiomas.t(key);
 
 	const listarFavores = new ListarFavor(new FavorRepoLocal());
 	const confirmarFavor = new ConfirmarFavor(new FavorConfirmacionRepoLocal());
@@ -62,7 +65,7 @@
 	async function seCumplio(favor: Favor, rol: RolEnFavor) {
 		const usuario_id = rol === 'solicitante' ? favor.creador_id : favor.ayudante_id;
 		if (!usuario_id) {
-			error = 'Este favor todavía no tiene una persona asignada.';
+			error = t('error.favor.sin_asignar');
 			return;
 		}
 		if (confirmaciones[favor.id]?.includes(rol)) {
@@ -78,7 +81,7 @@
 			seleccionado = null;
 			await cargar();
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudo confirmar el favor.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.favor.confirmar_fallo');
 		} finally {
 			enviando = null;
 		}
@@ -94,7 +97,7 @@
 			seleccionado = null;
 			await cargar();
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudo reservar el favor.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.favor.reservar_fallo');
 		} finally {
 			enviando = null;
 		}
@@ -113,7 +116,7 @@
 			seleccionado = null;
 			await cargar();
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudo cancelar la publicación.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.favor.cancelar_fallo');
 		} finally {
 			enviando = null;
 		}

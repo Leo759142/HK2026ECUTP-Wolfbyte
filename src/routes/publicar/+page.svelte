@@ -11,6 +11,9 @@
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
+	import { gestorIdiomas } from '../../i18n';
+
+	const t = (key: string) => gestorIdiomas.t(key);
 
 	const publicarServicio = new PublicarServicio(new ServicioRepoLocal());
 	const categorias = [
@@ -61,7 +64,7 @@
 		mensaje = '';
 		const pub = construirPublicacion(tipo, form);
 		if (!pub.ok) {
-			error = pub.error;
+			error = t(pub.error);
 			return;
 		}
 		guardando = true;
@@ -111,7 +114,7 @@
 			}
 			paso = 3;
 		} catch {
-			error = 'No se pudo guardar. Intenta de nuevo.';
+			error = t('error.publicar.guardar_fallo');
 		} finally {
 			guardando = false;
 		}

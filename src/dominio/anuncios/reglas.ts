@@ -30,16 +30,24 @@ export class Anuncio implements AnuncioFila {
 	constructor(props: AnuncioProps) {
 		asegurar(
 			props.titulo.trim().length >= 3 && props.titulo.trim().length <= 80,
-			ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.')
+			ERRORES_COMUNES.VALIDACION('El título debe tener entre 3 y 80 caracteres.', {
+				clave: 'error.dominio.anuncio.titulo_longitud',
+				params: { min: 3, max: 80 }
+			})
 		);
 		asegurar(
 			props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 300,
-			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.')
+			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.', {
+				clave: 'error.dominio.anuncio.descripcion_longitud',
+				params: { max: 300 }
+			})
 		);
 		const estado = props.estado ?? 'pendiente';
 		asegurar(
 			estado !== 'aprobado' || !!props.aprobado_por,
-			ERRORES_COMUNES.VALIDACION('Un anuncio aprobado requiere aprobador.')
+			ERRORES_COMUNES.VALIDACION('Un anuncio aprobado requiere aprobador.', {
+				clave: 'error.dominio.anuncio.aprobador_requerido'
+			})
 		);
 		this.id = props.id;
 		this.anunciante_id = props.anunciante_id;

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
+import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 	import Icono from '../iconos/Icono.svelte';
 	import {
 		archivosDesdeClipboard,
@@ -36,6 +37,10 @@
 	let arrastrando = $state(false);
 	let dragDepth = 0;
 	let interno: ImagenNormalizada[] = $state([]);
+
+	// La API (validarFoto) sólo acepta fotos de hasta 400 KB en base64. Comprimimos la
+	// salida a ~280 KB binarios (~373 KB en base64) para que entre con margen al publicar.
+	const MAX_BYTES_SALIDA = 280 * 1024;
 
 	const esMultiple = $derived(multiple && max > 1);
 	const limite = $derived(esMultiple ? max : 1);
@@ -102,7 +107,7 @@
 	async function ingestar(files: File[] | FileList | null | undefined, origen: 'seleccion' | 'drop' | 'paste') {
 		if (!files || (Array.isArray(files) ? files.length === 0 : files.length === 0)) return;
 		if (lleno) {
-			error = limite === 1 ? 'Solo puedes agregar 1 imagen.' : `Puedes agregar como máximo ${limite} imágenes.`;
+			error = limite === 1 ? gestorIdiomas.t('error.foto.limite_uno') : gestorIdiomas.tConVars('error.foto.limite', { max: limite });
 			return;
 		}
 		limpiarAvisos();
@@ -112,7 +117,7 @@
 				reglas: {
 					maxArchivos: limite,
 					maxBytesEntrada: maxSizeMB * 1024 * 1024,
-					maxBytesSalida: maxSizeMB * 1024 * 1024
+					maxBytesSalida: Math.min(maxSizeMB * 1024 * 1024, MAX_BYTES_SALIDA)
 				},
 				actuales: actuales.length,
 				origen
@@ -123,11 +128,10 @@
 				if (!esMultiple) for (const img of interno) liberarImagen(img);
 				interno = siguiente.slice(0, limite);
 				emitir(interno);
-				if (procesando === false) aviso = '';
 				aviso = aceptadas.length === 1 ? 'Imagen lista.' : `${aceptadas.length} imágenes listas.`;
 			}
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudo cargar la imagen.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : gestorIdiomas.t('error.foto.carga_fallo');
 		} finally {
 			procesando = false;
 		}

@@ -2,9 +2,14 @@
 	import { onMount } from 'svelte';
 	import Screen from '../../../lib/ui/Screen.svelte';
 	import Header from '../../../lib/ui/Header.svelte';
-	import Icono from '../../../lib/iconos/Icono.svelte';
+import Icono from '../../../lib/iconos/Icono.svelte';
+import { gestorIdiomas, mensajeErrorDominio } from '../../../i18n';
+const t = (key: string) => gestorIdiomas.t(key);
+import { gestorIdiomas, mensajeErrorDominio } from '../../../i18n';
 
-	type AlertaOficial = {
+const t = (key: string) => gestorIdiomas.t(key);
+
+type AlertaOficial = {
 		id: string;
 		fuente: string;
 		nivel: string;
@@ -25,7 +30,7 @@
 			if (!response.ok) throw new Error('No se pudieron cargar las alertas oficiales.');
 			items = ((await response.json()) as { items?: AlertaOficial[] }).items ?? [];
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudieron cargar las alertas.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.moderacion.alertas_carga_fallo');
 		} finally {
 			cargando = false;
 		}

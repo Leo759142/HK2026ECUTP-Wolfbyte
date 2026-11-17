@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
-import Screen from '../../lib/ui/Screen.svelte';
+	import Screen from '../../lib/ui/Screen.svelte';
+	import OsmMap from '../../lib/components/OsmMap.svelte';
+	import { obtenerSesionLocal } from '../../lib/onboarding';
+import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
+const t = (key: string) => gestorIdiomas.t(key);
 
 	type Punto = {
 		id: string;
@@ -12,6 +16,8 @@ import Screen from '../../lib/ui/Screen.svelte';
 		lng_aprox?: number;
 	};
 
+	type PuntoConTipo = Punto & { tipo: 'servicio' | 'favor' | 'alerta' };
+
 	let servicios = $state<Punto[]>([]);
 	let favores = $state<Punto[]>([]);
 	let alertas = $state<Punto[]>([]);
@@ -20,18 +26,20 @@ import Screen from '../../lib/ui/Screen.svelte';
 	let cargando = $state(true);
 	let error = $state('');
 
-	const visibles = $derived(
-		[
-			...(capa === 'todos' || capa === 'servicios'
-				? servicios.map((item) => ({ ...item, tipo: 'Servicio' }))
-				: []),
-			...(capa === 'todos' || capa === 'favores'
-				? favores.map((item) => ({ ...item, tipo: 'Favor' }))
-				: []),
-			...(capa === 'todos' || capa === 'alertas'
-				? alertas.map((item) => ({ ...item, tipo: 'Alerta' }))
-				: [])
-		].slice(0, 12)
+	const puntos = $derived<PuntoConTipo[]>([
+		...(capa === 'todos' || capa === 'servicios'
+			? servicios.map((item): PuntoConTipo => ({ ...item, tipo: 'servicio' }))
+			: []),
+		...(capa === 'todos' || capa === 'favores'
+			? favores.map((item): PuntoConTipo => ({ ...item, tipo: 'favor' }))
+			: []),
+		...(capa === 'todos' || capa === 'alertas'
+			? alertas.map((item): PuntoConTipo => ({ ...item, tipo: 'alerta' }))
+			: [])
+	]);
+
+	const esGuardian = $derived(
+		obtenerSesionLocal()?.rol?.toLowerCase().includes('guardian') || obtenerSesionLocal()?.rol?.toLowerCase().includes('coordinador')
 	);
 
 	const cargar = async () => {
@@ -50,7 +58,7 @@ import Screen from '../../lib/ui/Screen.svelte';
 			favores = datos[1].items ?? [];
 			alertas = datos[2].items ?? [];
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudo cargar el mapa.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.mapa.carga_fallo');
 		} finally {
 			cargando = false;
 		}
@@ -74,23 +82,10 @@ import Screen from '../../lib/ui/Screen.svelte';
 		>
 	</div>
 
-	<div class="map-visual" aria-label="Mapa aproximado de la comunidad">
-		<div class="map-grid" aria-hidden="true"></div>
-		<button
-			class="map-pin map-pin--one"
-			aria-label="Servicios"
-			onclick={() => (capa = 'servicios')}
-		>
-			<Icono name="servicio" />
-		</button>
-		<button class="map-pin map-pin--two" aria-label="Favores" onclick={() => (capa = 'favores')}>
-			<Icono name="favores" />
-		</button>
-		<button class="map-pin map-pin--three" aria-label="Alertas" onclick={() => (capa = 'alertas')}>
-			<Icono name="alerta" />
-		</button>
-		<div class="map-label">Tu zona · ubicación aproximada</div>
-	</div>
+	<OsmMap
+		{puntos}
+		{esGuardian}
+	></OsmMap>
 
 	<div class="map-filters" role="tablist" aria-label="Capas del mapa">
 		{#each [['todos', 'Todo'], ['servicios', 'Servicios'], ['favores', 'Favores'], ['alertas', 'Alertas']] as item}
@@ -106,21 +101,26 @@ import Screen from '../../lib/ui/Screen.svelte';
 		{/each}
 	</div>
 
+	<p class="mt-3 text-xs text-tinta">
+		<Icono name="ubicacion" class="inline mr-1" />
+		Puntos difusos · ubicación aproximada por manzana · sin revelar dirección exacta
+	</p>
+
 	{#if error}
 		<div class="feedback feedback--error" role="alert">
 			{error} <button type="button" onclick={cargar}>Reintentar</button>
 		</div>
 	{:else if cargando}
 		<p class="muted" role="status">Cargando puntos cercanos…</p>
-	{:else if visibles.length === 0}
+	{:else if puntos.length === 0}
 		<p class="empty">Todavía no hay publicaciones en esta capa.</p>
 	{:else}
 		<ul class="map-list">
-			{#each visibles as punto (punto.id)}
+			{#each puntos as punto (punto.id)}
 				<li class:selected={seleccionado?.id === punto.id}>
 					<button type="button" class="map-list__button" onclick={() => seleccionar(punto)}>
 						<span class="map-list__icon"
-							><Icono name={punto.tipo === 'Alerta' ? 'alerta' : punto.tipo === 'Favor' ? 'favores' : 'servicio'} /></span
+							><Icono name={punto.tipo === 'alerta' ? 'alerta' : punto.tipo === 'favor' ? 'favores' : 'servicio'} /></span
 						>
 						<span>
 							<strong>{punto.titulo ?? punto.tipo}</strong>

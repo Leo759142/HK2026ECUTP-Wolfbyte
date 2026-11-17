@@ -34,7 +34,7 @@
 		const id = page.url.searchParams.get('id');
 		try {
 			const pedidos = JSON.parse(localStorage.getItem('ayni:v1:pedidos-ayuda') ?? '[]') as Pedido[];
-			pedido = pedidos.find((item) => item.id === id) ?? pedidos[0] ?? null;
+			pedido = id ? (pedidos.find((item) => item.id === id) ?? null) : null;
 		} catch {
 			pedido = null;
 		}

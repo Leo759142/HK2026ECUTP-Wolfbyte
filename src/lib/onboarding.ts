@@ -55,6 +55,12 @@ export function cerrarSesionLocal(): void {
 }
 
 /** Encabezados mínimos para que las mutaciones respeten el RBAC del servidor. */
+export function esGuardian(): boolean {
+	const sesion = obtenerSesionLocal();
+	const rol = (sesion?.rol ?? '').toLowerCase();
+	return rol === 'guardian' || rol === 'guardián' || rol === 'moderador';
+}
+
 export function encabezadosSesion(): Record<string, string> {
 	const sesion = obtenerSesionLocal();
 	if (!sesion) return {};

@@ -29,11 +29,17 @@ export class Grupo implements GrupoFila {
 	constructor(props: GrupoProps) {
 		asegurar(
 			props.nombre.trim().length >= 3 && props.nombre.trim().length <= 60,
-			ERRORES_COMUNES.VALIDACION('El nombre del grupo debe tener entre 3 y 60 caracteres.')
+			ERRORES_COMUNES.VALIDACION('El nombre del grupo debe tener entre 3 y 60 caracteres.', {
+				clave: 'error.dominio.grupo.nombre_longitud',
+				params: { min: 3, max: 60 }
+			})
 		);
 		asegurar(
 			(props.reglas ?? '').length <= 1000,
-			ERRORES_COMUNES.VALIDACION('Las reglas no pueden exceder 1000 caracteres.')
+			ERRORES_COMUNES.VALIDACION('Las reglas no pueden exceder 1000 caracteres.', {
+				clave: 'error.dominio.grupo.reglas_largas',
+				params: { max: 1000 }
+			})
 		);
 		this.id = props.id;
 		this.zona_id = props.zona_id;

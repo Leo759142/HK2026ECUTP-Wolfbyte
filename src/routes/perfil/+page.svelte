@@ -4,9 +4,12 @@
 	import { obtenerSesionLocal, cerrarSesionLocal } from '../../lib/onboarding';
 	import PhotoPicker from '../../lib/ui/PhotoPicker.svelte';
 	import Screen from '../../lib/ui/Screen.svelte';
+	import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
 import Icono from '../../lib/iconos/Icono.svelte';
+const t = (key: string) => gestorIdiomas.t(key);
+const t = (key: string) => gestorIdiomas.t(key);
 
-	type Usuario = {
+type Usuario = {
 		id?: string;
 		firstName?: string;
 		lastName?: string;
@@ -19,7 +22,6 @@ import Icono from '../../lib/iconos/Icono.svelte';
 	const PREFIJO = 'ayni:v1:';
 	let usuario = $state<Usuario>({});
 	let foto = $state<string | null>(null);
-	let idioma = $state('es');
 	let letraGrande = $state(false);
 	let mensaje = $state('');
 	let error = $state('');
@@ -47,7 +49,8 @@ import Icono from '../../lib/iconos/Icono.svelte';
 		const usuarios = leer<Usuario[]>('users', []);
 		const sesion = leer<{ usuarioId?: string }>('session', {});
 		const indice = usuarios.findIndex((item) => item.id === sesion.usuarioId);
-		const indiceSeguro = indice >= 0 ? indice : 0;
+		if (indice < 0) return;
+		const indiceSeguro = indice;
 		guardar(
 			'users',
 			usuarios.map((item, index) =>
@@ -122,7 +125,7 @@ import Icono from '../../lib/iconos/Icono.svelte';
 			actualizarFotoEnUsuarios(foto);
 			mensaje = 'Foto de perfil actualizada.';
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudo actualizar la foto.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.perfil.foto_fallo');
 		} finally {
 			input.value = '';
 		}
@@ -143,9 +146,7 @@ import Icono from '../../lib/iconos/Icono.svelte';
 	}
 
 	function cambiarIdioma(valor: string) {
-		idioma = valor;
-		guardar('settings', { ...leer('settings', {}), lang: valor });
-		document.documentElement.lang = valor;
+		gestorIdiomas.cambiarIdioma(valor);
 	}
 
 	function cambiarLetraGrande(valor: boolean) {
@@ -161,7 +162,13 @@ import Icono from '../../lib/iconos/Icono.svelte';
 	onMount(() => {
 		const usuarios = leerLista<Usuario>('users');
 		const sesion = leer<{ usuarioId?: string }>('session', {});
-		usuario = usuarios.find((item) => item.id === sesion.usuarioId) ?? usuarios[0] ?? {};
+		const encontrado = usuarios.find((item) => item.id === sesion.usuarioId);
+		if (!encontrado) {
+			cerrarSesionLocal();
+			void goto('/acceso');
+			return;
+		}
+		usuario = encontrado;
 		foto = usuario.foto ?? null;
 		const userId = usuario.id;
 		diasEnAyni = usuario.createdAt
@@ -190,10 +197,8 @@ import Icono from '../../lib/iconos/Icono.svelte';
 		favoresRecibidos = favores.filter(
 			(item) => item.takerId === userId || item.ayudante_id === userId
 		).length;
-		const ajustes = leer<{ lang?: string; largeText?: boolean }>('settings', {});
-		idioma = ajustes.lang ?? 'es';
+		const ajustes = leer<{ largeText?: boolean }>('settings', {});
 		letraGrande = Boolean(ajustes.largeText);
-		document.documentElement.lang = idioma;
 		document.documentElement.classList.toggle('letra-grande', letraGrande);
 	});
 
@@ -286,7 +291,7 @@ import Icono from '../../lib/iconos/Icono.svelte';
 			<label class="setting-row">
 				<span>Idioma</span>
 				<select
-					value={idioma}
+					value={gestorIdiomas.idiomaActual}
 					onchange={(event) => cambiarIdioma((event.currentTarget as HTMLSelectElement).value)}
 				>
 					<option value="es">Español</option>

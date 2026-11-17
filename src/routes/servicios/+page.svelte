@@ -9,6 +9,9 @@
 	import Screen from '../../lib/ui/Screen.svelte';
 	import PhotoGallery from '../../lib/ui/PhotoGallery.svelte';
 	import Icono from '../../lib/iconos/Icono.svelte';
+	import { gestorIdiomas, mensajeErrorDominio } from '../../i18n';
+
+	const t = (key: string) => gestorIdiomas.t(key);
 
 	type Recomendacion = {
 		id: string;
@@ -170,13 +173,13 @@
 					})
 				}
 			);
-			if (!respuesta.ok) throw new Error('No se pudo guardar tu Visto Bueno.');
+			if (!respuesta.ok) throw new Error(t('error.servicios.visto_bueno_fallo'));
 			mensaje = '¡Gracias! Tu Visto Bueno ayuda a tus vecinos.';
 			comentario = '';
 			mostrarVistoBueno = false;
 			await cargarRecomendaciones(seleccionado.id);
 		} catch (cause) {
-			error = cause instanceof Error ? cause.message : 'No se pudo guardar tu recomendación.';
+			error = cause instanceof Error ? mensajeErrorDominio(cause) : t('error.servicios.recomendacion_fallo');
 		}
 	}
 

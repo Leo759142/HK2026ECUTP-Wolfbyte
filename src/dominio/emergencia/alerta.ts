@@ -34,7 +34,10 @@ export class Alerta implements AlertaFila {
 	constructor(props: AlertaProps) {
 		asegurar(
 			props.descripcion.trim().length > 0 && props.descripcion.trim().length <= 300,
-			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.')
+			ERRORES_COMUNES.VALIDACION('La descripción debe tener hasta 300 caracteres.', {
+				clave: 'error.dominio.alerta.descripcion_longitud',
+				params: { max: 300 }
+			})
 		);
 		validarCoordenadas(props.lat_aprox, props.lng_aprox);
 		this.id = props.id;

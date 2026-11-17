@@ -21,28 +21,10 @@
 		blanco: 'mobile-btn--white'
 	};
 
-	// Valor reactivo del texto traducido
-	let textoTraducido = $state('');
-
-	function actualizarTexto(): void {
-		if (i18nKey) {
-			textoTraducido = gestorIdiomas.t(i18nKey);
-		} else if (i18nFallback) {
-			textoTraducido = gestorIdiomas.t(i18nFallback);
-		} else {
-			textoTraducido = '';
-		}
-	}
-
-	// Inicializar valor
-	actualizarTexto();
-
-	// Reaccionar a cambios de idioma
-	$effect(() => {
-		const _idioma = gestorIdiomas.idiomaActual;
-		void _idioma;
-		actualizarTexto();
-	});
+	// Texto traducido reactivo: se recalcula cuando cambia gestorIdiomas.idiomaActual
+	let textoTraducido = $derived(
+		i18nKey ? gestorIdiomas.t(i18nKey) : i18nFallback ? gestorIdiomas.t(i18nFallback) : ''
+	);
 </script>
 
 <button

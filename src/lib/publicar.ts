@@ -26,6 +26,13 @@ export type Publicacion =
 	| { ok: true; entidad: EntidadPublicacion; body: Record<string, unknown> }
 	| { ok: false; error: string };
 
+/**
+ * Nota: cuando `ok` es `false`, `error` contiene una **clave i18n**
+ * (`error.publicar.*`). La UI la traduce con `gestorIdiomas.t(pub.error)`
+ * (o `traducirError`). Centralizar la clave aquí evita strings sueltos y
+ * permite escalar los mensajes de validación a es/en/qu sin tocar la UI.
+ */
+
 export function tipoDesdeUrl(valor: string | null): TipoPublicacion {
 	return valor === 'favor' || valor === 'alerta' ? valor : 'servicio';
 }
@@ -41,15 +48,15 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 	const descripcion = form.descripcion.trim();
 	const ubicacion = { lat_aprox: form.lat_aprox, lng_aprox: form.lng_aprox };
 	if (!Number.isFinite(form.lat_aprox) || !Number.isFinite(form.lng_aprox))
-		return { ok: false, error: 'La ubicación aproximada no es válida.' };
+		return { ok: false, error: 'error.publicar.ubicacion_invalida' };
 
 	if (tipo === 'alerta') {
 		const texto = descripcion || titulo;
-		if (!texto) return { ok: false, error: 'Describe brevemente la necesidad.' };
+		if (!texto) return { ok: false, error: 'error.publicar.alerta.descripcion_vacia' };
 		if (texto.length > 300)
-			return { ok: false, error: 'La descripción puede tener hasta 300 caracteres.' };
+			return { ok: false, error: 'error.publicar.alerta.descripcion_larga' };
 		if (!incluye(TIPOS_ALERTA, form.tipo_alerta))
-			return { ok: false, error: 'Elige un tipo de alerta.' };
+			return { ok: false, error: 'error.publicar.alerta.tipo_invalido' };
 		return {
 			ok: true,
 			entidad: 'alertas',
@@ -65,14 +72,14 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 	}
 
 	if (titulo.length < 3 || titulo.length > 80)
-		return { ok: false, error: 'El título debe tener entre 3 y 80 caracteres.' };
-	if (!descripcion) return { ok: false, error: 'Agrega una descripción corta.' };
+		return { ok: false, error: 'error.publicar.titulo_longitud' };
+	if (!descripcion) return { ok: false, error: 'error.publicar.descripcion_vacia' };
 	if (descripcion.length > 500)
-		return { ok: false, error: 'La descripción puede tener hasta 500 caracteres.' };
+		return { ok: false, error: 'error.publicar.descripcion_larga' };
 
 	if (tipo === 'favor') {
 		if (!incluye(TIPOS_FAVOR, form.tipo_favor) || !incluye(CATEGORIAS_FAVOR, form.categoria_favor))
-			return { ok: false, error: 'Elige el tipo de favor.' };
+			return { ok: false, error: 'error.publicar.favor.tipo_invalido' };
 		return {
 			ok: true,
 			entidad: 'favores',
@@ -90,7 +97,7 @@ export function construirPublicacion(tipo: TipoPublicacion, form: FormPublicar):
 	}
 
 	if (!incluye(CATEGORIAS_SERVICIO, form.categoria))
-		return { ok: false, error: 'Elige una categoría.' };
+		return { ok: false, error: 'error.publicar.servicio.categoria_invalida' };
 	return {
 		ok: true,
 		entidad: 'servicios',

@@ -27,7 +27,11 @@
 			return;
 		}
 		const sectors = leer<Array<Record<string, unknown>>>('sectors', []);
-		const id = (users[0]?.id as string) ?? '';
+		const usuarios = leer<Array<{ id?: string }>>('users', []);
+		const sesion = JSON.parse(localStorage.getItem('ayni:v1:session') ?? '{}') as { usuarioId?: string };
+		const id = sesion.usuarioId
+			? (usuarios.find((u) => u.id === sesion.usuarioId)?.id as string) ?? ''
+			: '';
 		localStorage.setItem(
 			'ayni:v1:sectors',
 			JSON.stringify(

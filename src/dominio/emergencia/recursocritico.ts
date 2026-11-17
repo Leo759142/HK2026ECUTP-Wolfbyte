@@ -39,7 +39,10 @@ export class RecursoCritico implements RecursoFila {
 	constructor(props: RecursoCriticoProps) {
 		asegurar(
 			props.detalle.trim().length > 0 && props.detalle.trim().length <= 200,
-			ERRORES_COMUNES.VALIDACION('El detalle debe tener hasta 200 caracteres.')
+			ERRORES_COMUNES.VALIDACION('El detalle debe tener hasta 200 caracteres.', {
+				clave: 'error.dominio.recurso.detalle_longitud',
+				params: { max: 200 }
+			})
 		);
 		validarCoordenadas(props.lat_aprox, props.lng_aprox);
 		this.id = props.id;

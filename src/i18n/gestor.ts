@@ -33,7 +33,7 @@ function resolverIdiomaActual(): Idioma {
 	const desdeURL = obtenerIdiomaDesdeURL();
 	if (desdeURL) {
 		const normalizado = normalizarIdioma(desdeURL);
-		guardarIdiomaPersistido(normalizado);
+		guardarIdiomaPersistido(normalizado as Idioma);
 		return normalizado as Idioma;
 	}
 
@@ -208,13 +208,8 @@ export class GestorIdiomasMejorado {
 	}
 }
 
-export const gestorIdiomas = new GestorIdiomasMejorado(resolverIdiomaActual());
-
-export function traducir(clave: string): string {
-	return gestorIdiomas.t(clave);
-}
-
-export type { Idioma, CodigoIdioma } from './codigos';
+export type { Idioma } from '../dominio/tipos/tipos';
+export type { CodigoIdioma } from './codigos';
 export {
 	normalizarIdioma,
 	obtenerCodigoISO,

@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	import Icono from '../lib/iconos/Icono.svelte';
+	import { modoEmergencia } from '../lib/emergencia/estado.svelte';
+	import { obtenerSesionLocal } from '../lib/onboarding';
 
 	let nombre = $state('Rosa');
 	type ServicioInicio = {
@@ -13,6 +16,10 @@
 	};
 	let recomendados = $state<ServicioInicio[]>([]);
 
+	let esGuardian = $state(false);
+	let marqueEstoyBien = $state(false);
+	let lugarSector = $state('tu sector');
+
 	onMount(() => {
 		try {
 			const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<{
@@ -22,12 +29,29 @@
 				usuarioId?: string;
 			};
 			const usuario =
-				usuarios.find((item, index) => item.firstName && (!sesion.usuarioId || index === 0)) ??
-				usuarios[0];
+				sesion.usuarioId
+					? usuarios.find((item) => (item as { id?: string }).id === sesion.usuarioId)
+					: undefined;
 			if (usuario?.firstName) nombre = usuario.firstName;
 		} catch {
 			nombre = 'Rosa';
 		}
+
+		const rol = obtenerSesionLocal()?.rol?.toLowerCase() ?? '';
+		esGuardian =
+			rol.includes('guardian') ||
+			rol.includes('coordinador') ||
+			leerGuardianes()?.includes(obtenerSesionLocal()?.usuarioId ?? '') === true;
+
+		const usuarios = JSON.parse(localStorage.getItem('ayni:v1:users') ?? '[]') as Array<{
+			manzana?: string;
+			firstName?: string;
+		}>;
+		const sesionActiva = obtenerSesionLocal();
+		const usuario = sesionActiva?.usuarioId
+			? usuarios.find((item) => (item as { id?: string }).id === sesionActiva.usuarioId)
+			: undefined;
+		if (usuario?.manzana) lugarSector = `Mz. ${usuario.manzana}`;
 	});
 
 	const categorias = [
@@ -43,6 +67,18 @@
 	const nombreCategoria = (categoria?: string) =>
 		categoria ? categoria.charAt(0).toUpperCase() + categoria.slice(1) : 'Servicio';
 
+	function leerGuardianes(): string[] | undefined {
+		try {
+			const sectores = JSON.parse(localStorage.getItem('ayni:v1:sectors') ?? '[]') as Array<{
+				guardianIds?: string[];
+			}>;
+			const ids = sectores.flatMap((s) => s.guardianIds ?? []);
+			return ids.length ? ids : undefined;
+		} catch {
+			return undefined;
+		}
+	}
+
 	onMount(async () => {
 		try {
 			const respuesta = await fetch('/api/v1/servicios');
@@ -54,13 +90,89 @@
 			recomendados = [];
 		}
 	});
+
+	function pedirAyuda() {
+		goto('/pedir-ayuda');
+	}
+	function verQuePasa() {
+		goto('/mapa');
+	}
+	function marcarEstoyBien() {
+		marqueEstoyBien = true;
+		const id = obtenerSesionLocal()?.usuarioId ?? 'anon';
+		const key = 'ayni:v1:estoy-bien';
+		const lista = JSON.parse(localStorage.getItem(key) ?? '[]') as string[];
+		if (!lista.includes(id)) {
+			lista.push(id);
+			localStorage.setItem(key, JSON.stringify(lista));
+		}
+	}
 </script>
 
-<svelte:head>
-	<title>AYNI | Inicio</title>
-</svelte:head>
+<svelte:head><title>AYNI | Inicio</title></svelte:head>
 
-<section class="app-screen home-screen">
+{#if modoEmergencia.activa}
+	<section class="emergency-takeover">
+		<div class="emergency-takeover__bar" role="alert">
+			<Icono name="alerta" />
+			<span>Modo emergencia · {modoEmergencia.tipo}</span>
+		</div>
+
+		<div class="emergency-takeover__body">
+			<div class="emergency-takeover__icon"><Icono name="emergencia" /></div>
+			<h1 tabindex="-1" autofocus>EMERGENCIA EN TU SECTOR</h1>
+			<p class="emergency-takeover__title">{modoEmergencia.titulo}</p>
+			<p class="emergency-takeover__meta">
+				Confirmada por {modoEmergencia.confirmadaPor} {modoEmergencia.inicioFormateado ? `· ${modoEmergencia.inicioFormateado}` : ''}
+			</p>
+
+			<div class="emergency-takeover__numbers">
+				<a href="tel:105">105 <span>Policía</span></a>
+				<a href="tel:116">116 <span>Bomberos</span></a>
+				<a href="tel:106">106 <span>SAMU</span></a>
+			</div>
+
+			<div class="emergency-takeover__actions">
+				<button
+					class="emergency-takeover__btn emergency-takeover__btn--white"
+					type="button"
+					disabled={marqueEstoyBien}
+					onclick={marcarEstoyBien}
+				>
+					<Icono name={marqueEstoyBien ? 'check' : 'corazon'} />
+					{marqueEstoyBien ? 'Marcado: estoy bien' : 'Estoy bien'}
+				</button>
+
+				<button
+					class="emergency-takeover__btn emergency-takeover__btn--white emergency-takeover__btn--danger-text"
+					type="button"
+					onclick={pedirAyuda}
+				>
+					<Icono name="otra_ayuda" /> Necesito ayuda
+				</button>
+
+				<button
+					class="emergency-takeover__btn emergency-takeover__btn--outline"
+					type="button"
+					onclick={verQuePasa}
+				>
+					<Icono name="mapa" /> Ver qué pasa
+				</button>
+			</div>
+
+			{#if esGuardian}
+				<button
+					class="emergency-takeover__guardian"
+					type="button"
+					onclick={() => modoEmergencia.desactivar()}
+				>
+					<Icono name="guardian" /> Cerrar emergencia (Guardián)
+				</button>
+			{/if}
+		</div>
+	</section>
+{:else}
+	<section class="app-screen home-screen">
 	<div class="home-top">
 		<div class="home-heading">
 			<div class="location"><Icono name="ubicacion" /> Los Jardines · Sector 3 · Mz. B</div>
@@ -131,3 +243,4 @@
 		>
 	</a>
 </section>
+{/if}
